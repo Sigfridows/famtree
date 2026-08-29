@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: famtree-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: famtree_password
+      POSTGRES_DB: famtree_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  db-admin:
+    image: adminer
+    container_name: famtree-db-admin
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
