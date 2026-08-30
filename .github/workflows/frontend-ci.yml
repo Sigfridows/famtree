@@ -43,4 +43,4 @@ jobs:
       # 5. Ejecuta las pruebas del frontend (si están configuradas)
       - name: Correr Pruebas del Frontend
         working-directory: ./front-end
-        run: npm test -- --passWithNoTests
+        run: npm run test --if-present
