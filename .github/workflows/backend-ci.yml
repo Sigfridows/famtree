@@ -1,0 +1,56 @@
+name: FamTree Backend CI
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'back-end/**'
+      - 'docker-compose*'
+      - 'schema.sql'
+  push:
+    branches: [ main ]
+    paths:
+      - 'back-end/**'
+      - 'docker-compose*'
+      - 'schema.sql'
+
+jobs:
+  backend-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Copia el código del repositorio
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      # 2. Configura Node.js con caché para acelerar 'npm ci'
+      - name: Configurar Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ./back-end/package-lock.json
+
+      # 3. Levanta PostgreSQL y servicios auxiliares en Docker
+      - name: Levantar base de datos en Docker
+        run: docker compose up -d
+
+      # 4. Instala dependencias del backend
+      - name: Instalar dependencias
+        working-directory: ./back-end
+        run: npm ci
+
+      # 5. Valida la sintaxis y tipos de TypeScript con la compilación de NestJS
+      - name: Compilar proyecto NestJS
+        working-directory: ./back-end
+        run: npm run build
+
+      # 6. Ejecuta la suite de pruebas unitarias (Jest)
+      - name: Correr Pruebas Unitarias
+        working-directory: ./back-end
+        run: npm run test
+
+      # 7. Apaga los contenedores Docker sin importar si las pruebas pasaron o fallaron
+      - name: Apagar entorno Docker
+        if: always()
+        run: docker compose down
