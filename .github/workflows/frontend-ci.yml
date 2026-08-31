@@ -3,23 +3,24 @@ name: FamTree Frontend CI
 on:
   pull_request:
     branches: [ main ]
-    paths:
-      - 'front-end/**'
   push:
     branches: [ main ]
-    paths:
-      - 'front-end/**'
+
+# Cancela ejecuciones en progreso si subes un nuevo commit a la misma rama
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   frontend-checks:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Copia el código del repositorio
+      # 1. Obtiene el código fuente del repositorio
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      # 2. Configura Node.js con caché de npm
+      # 2. Configura Node.js v20 utilizando caché de npm
       - name: Configurar Node.js (v20)
         uses: actions/setup-node@v4
         with:
@@ -27,20 +28,19 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./front-end/package-lock.json
 
-      # 3. Instala dependencias del frontend
+      # 3. Instala las dependencias exactas del proyecto frontend
       - name: Instalar dependencias
         working-directory: ./front-end
         run: npm ci
 
-      # 4. Compila la aplicación Next.js
-      # (Next.js valida automátiamente TypeScript, ESLint y Tailwind durante el build)
+      # 4. Compila Next.js (valida tipos de TypeScript, ESLint y reglas de Tailwind)
       - name: Compilar aplicación Next.js
         working-directory: ./front-end
         env:
           NEXT_TELEMETRY_DISABLED: 1
         run: npm run build
 
-      # 5. Ejecuta las pruebas del frontend (si están configuradas)
+      # 5. Ejecuta las pruebas del frontend (ignora la fase si no existe el script de tests)
       - name: Correr Pruebas del Frontend
         working-directory: ./front-end
         run: npm run test --if-present
