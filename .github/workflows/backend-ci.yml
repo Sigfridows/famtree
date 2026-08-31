@@ -3,27 +3,24 @@ name: FamTree Backend CI
 on:
   pull_request:
     branches: [ main ]
-    paths:
-      - 'back-end/**'
-      - 'docker-compose*'
-      - 'schema.sql'
   push:
     branches: [ main ]
-    paths:
-      - 'back-end/**'
-      - 'docker-compose*'
-      - 'schema.sql'
+
+# Cancela ejecuciones en progreso si subes un nuevo commit a la misma rama
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend-checks:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Copia el código del repositorio
+      # 1. Obtiene el código fuente del repositorio
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      # 2. Configura Node.js con caché para acelerar 'npm ci'
+      # 2. Configura Node.js v20 utilizando caché de npm para acelerar 'npm ci'
       - name: Configurar Node.js (v20)
         uses: actions/setup-node@v4
         with:
@@ -31,26 +28,26 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./back-end/package-lock.json
 
-      # 3. Levanta PostgreSQL y servicios auxiliares en Docker
+      # 3. Levanta la instancia de PostgreSQL definida en el docker-compose
       - name: Levantar base de datos en Docker
         run: docker compose up -d
 
-      # 4. Instala dependencias del backend
+      # 4. Instala las dependencias exactas del proyecto backend
       - name: Instalar dependencias
         working-directory: ./back-end
         run: npm ci
 
-      # 5. Valida la sintaxis y tipos de TypeScript con la compilación de NestJS
+      # 5. Compila el proyecto NestJS (valida errores de sintaxis y tipos de TypeScript)
       - name: Compilar proyecto NestJS
         working-directory: ./back-end
         run: npm run build
 
-      # 6. Ejecuta la suite de pruebas unitarias (Jest)
+      # 6. Ejecuta la suite de pruebas unitarias (ignora la fase si no existe el script de tests)
       - name: Correr Pruebas Unitarias
         working-directory: ./back-end
-        run: npm run test
+        run: npm run test --if-present
 
-      # 7. Apaga los contenedores Docker sin importar si las pruebas pasaron o fallaron
+      # 7. Limpia y apaga los contenedores Docker independientemente del resultado previo
       - name: Apagar entorno Docker
         if: always()
         run: docker compose down
