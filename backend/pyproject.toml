@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "famtree-backend"
+version = "0.1.0"
+description = "FamTree modular-monolith REST API"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "alembic>=1.19,<2",
+  "argon2-cffi>=25.1,<26",
+  "asyncpg>=0.31,<1",
+  "fastapi>=0.141,<1",
+  "pydantic-settings>=2.15,<3",
+  "sqlalchemy[asyncio]>=2.0.52,<3",
+  "uvicorn[standard]>=0.41,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "bandit[toml]>=1.9,<2",
+  "httpx>=0.28,<1",
+  "mypy>=1.19,<2",
+  "pip-audit>=2.10,<3",
+  "pytest>=9.0,<10",
+  "pytest-asyncio>=1.3,<2",
+  "pytest-cov>=7.0,<8",
+  "ruff>=0.15,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+  "integration: requires a PostgreSQL service",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "DTZ", "T20", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/env.py" = ["E402"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+exclude = ["alembic/versions"]
+
+[tool.bandit]
+exclude_dirs = ["tests", "alembic"]

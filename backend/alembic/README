@@ -1,0 +1,3 @@
+Alembic migration infrastructure is configured, but the initial business schema is intentionally
+absent until FamTree's F0 data baseline is reconciled and approved in Notion.
+
