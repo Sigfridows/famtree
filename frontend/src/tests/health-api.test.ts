@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getHealth } from "@/lib/api/health";
+import { getHealth } from "@/features/health";
 
 describe("getHealth", () => {
   afterEach(() => vi.unstubAllGlobals());

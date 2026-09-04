@@ -12,7 +12,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reportsDirectory: ".next/coverage",
-      include: ["src/components/**/*.tsx", "src/lib/**/*.ts"],
+      include: ["src/features/health/**/*.{ts,tsx}", "src/lib/**/*.ts"],
       thresholds: {
         lines: 80,
         functions: 80,

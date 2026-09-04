@@ -28,12 +28,16 @@ Frontend consume FastAPI únicamente mediante REST/JSON bajo `/api/v1`. El backe
 └── Makefile
 ```
 
-Consulta la [arquitectura](docs/architecture.md), las [decisiones técnicas](docs/adr/), la [guía del frontend](frontend/README.md), la [estructura de QA](qa/) y las [reglas para scripts](scripts/README.md) para el detalle de cada área.
+Consulta la [arquitectura](docs/architecture.md), la [guía feature-first](docs/feature-development.md),
+la [revisión de diagramas](docs/diagram-review-2026-09-03.md), las [decisiones técnicas](docs/adr/),
+la [guía del frontend](frontend/README.md), la [estructura de QA](qa/) y las
+[reglas para scripts](scripts/README.md) para el detalle de cada área.
 
 ## Prerrequisitos
 
 - Git.
-- Docker Engine con Docker Compose v2.
+- Linux: Docker Engine con Docker Compose v2.
+- Windows 10/11: Docker Desktop con backend WSL 2 y contenedores Linux.
 - Opcional para flujo híbrido: Python 3.12 y Node.js 22.
 
 ## Preparación del entorno
@@ -46,6 +50,19 @@ docker compose up --build
 ```
 
 Los valores de `.env.example` son solo defaults locales. Cambia `SESSION_SECRET` y cualquier credencial antes de usar un entorno compartido. Los archivos `.env` no se versionan.
+
+En PowerShell de Windows, los comandos equivalentes son:
+
+```powershell
+git clone https://github.com/Sigfridows/famtree.git
+Set-Location famtree
+Copy-Item .env.example .env
+docker compose up --build
+```
+
+Si usa WSL 2, el desarrollador también puede clonar dentro del filesystem de su distribución y usar
+los mismos comandos Bash de Linux. Esto suele rendir mejor con bind mounts que guardar el proyecto
+en una unidad montada desde Windows.
 
 Variables disponibles: `COMPOSE_PROJECT_NAME` identifica el stack; `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `POSTGRES_PORT` configuran PostgreSQL; `BACKEND_PORT` y `FRONTEND_PORT` publican las aplicaciones; `MAILPIT_SMTP_PORT` y `MAILPIT_WEB_PORT` publican Mailpit; `APP_ENV`, `DATABASE_URL`, `CORS_ORIGINS`, `SESSION_SECRET`, `SMTP_HOST`, `SMTP_PORT` y `UPLOAD_DIR` configuran el backend; `NEXT_PUBLIC_API_BASE_URL` indica al navegador dónde encontrar `/api/v1`. Mantén sincronizados `DATABASE_URL` y las credenciales de PostgreSQL cuando cambies sus defaults.
 
@@ -87,6 +104,22 @@ cp .env.example .env.local
 npm run dev
 ```
 
+En Windows PowerShell:
+
+```powershell
+Set-Location frontend
+npm ci
+Copy-Item .env.example .env.local
+npm run dev
+```
+
+Para el trabajo cotidiano, cada integrante puede ejecutar el stack completo en su propia máquina y
+compartir código mediante Git. Si excepcionalmente el frontend de Windows consume un backend que se
+ejecuta en otra máquina Ubuntu, usa `NEXT_PUBLIC_API_BASE_URL=http://<IP-UBUNTU>:8000/api/v1`, añade
+`http://localhost:3000` a `CORS_ORIGINS` y arranca Uvicorn con
+`uvicorn app.main:app --reload --host 0.0.0.0`. Limita el puerto 8000 a la red local; PostgreSQL no
+debe exponerse a una red no confiable.
+
 ## Migraciones
 
 Alembic está configurado, pero no existe una migración de negocio inicial. El modelo de datos permanece bloqueado hasta que la fase F0 de Notion reconcilie y apruebe el ER.
@@ -118,6 +151,12 @@ make lint-frontend
 
 Los gates incluyen Ruff, Ruff format, mypy, Bandit, pip-audit, ESLint, TypeScript estricto, Vitest y el build de producción de Next.js.
 
+El gate requerido `frontend-checks` se ejecuta en Ubuntu porque las imágenes Docker de FamTree son
+Linux y ese runner también detecta imports con capitalización incorrecta. Un job adicional
+`Frontend compatibility (Windows)` ejecuta instalación bloqueada, TypeScript y Vitest sobre
+`windows-latest` para cubrir el entorno nativo del desarrollador frontend. Ambos jobs corren en
+paralelo; el segundo no reemplaza el gate Linux.
+
 ## Git workflow
 
 1. Actualiza `main`.
@@ -144,3 +183,7 @@ Los gates incluyen Ruff, Ruff format, mypy, Bandit, pip-audit, ESLint, TypeScrip
 - **PostgreSQL no inicia:** revisa `docker compose logs postgres`; un volumen anterior puede contener credenciales distintas.
 - **Dependencias desactualizadas:** no edites lockfiles a mano; usa el gestor correspondiente y vuelve a ejecutar todos los gates.
 - **Cambios de base de datos:** no generes modelos o migrations de negocio antes de que F0 esté aprobado.
+- **Docker en Windows no inicia:** ejecuta `wsl --version`, actualiza con `wsl --update` y confirma
+  que Docker Desktop usa el motor WSL 2 y contenedores Linux.
+- **Archivos modificados solo por saltos de línea:** ejecuta `git add --renormalize .` una sola vez
+  si el clon es anterior a `.gitattributes`; los archivos del proyecto se normalizan a LF.

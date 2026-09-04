@@ -1,4 +1,4 @@
-import { HealthStatus } from "@/components/health-status";
+import { HealthStatus } from "@/features/health";
 
 export default function Home() {
   return (
