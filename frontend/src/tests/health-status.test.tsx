@@ -1,10 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { HealthStatus } from "@/components/health-status";
-import { getHealth } from "@/lib/api/health";
+import { HealthStatus } from "@/features/health";
+import { getHealth } from "@/features/health/api/get-health";
 
-vi.mock("@/lib/api/health", () => ({ getHealth: vi.fn() }));
+vi.mock("@/features/health/api/get-health", () => ({ getHealth: vi.fn() }));
 
 describe("HealthStatus", () => {
   afterEach(() => vi.resetAllMocks());
