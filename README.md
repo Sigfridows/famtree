@@ -2,7 +2,7 @@
 
 FamTree es una plataforma para buscar, explorar y comparar centros de atención para adultos mayores. Este repositorio contiene el frontend y el backend del MVP como un **monolito modular**. La documentación de [Engineering & QA en Notion](https://app.notion.com/p/3d011fd4635081be9e3de97ba42fdf5e?pvs=204) es la fuente de verdad de requisitos; este README se concentra en ejecutar y contribuir al código.
 
-> Estado: bootstrap técnico. No se ha implementado ninguna historia de usuario de negocio.
+> Estado: bootstrap técnico con baseline relacional aprobado. No se ha implementado ninguna historia de usuario de negocio.
 
 ## Arquitectura
 
@@ -122,14 +122,20 @@ debe exponerse a una red no confiable.
 
 ## Migraciones
 
-Alembic está configurado, pero no existe una migración de negocio inicial. El modelo de datos permanece bloqueado hasta que la fase F0 de Notion reconcilie y apruebe el ER.
+Alembic instala el baseline relacional aprobado, incluidos catálogos,
+constraints, índices, triggers y vistas. El backend ejecuta `alembic upgrade
+head` automáticamente al iniciar en Docker, por lo que funciona tanto con un
+volumen nuevo como con uno existente.
 
 ```bash
 make migrate
-make migration MESSAGE="describe change"  # solo después del baseline F0
+make db-check
+make migration MESSAGE="describe change"
 ```
 
-Todas las modificaciones de esquema deben entrar por Alembic; nunca por cambios manuales en PostgreSQL.
+Todas las modificaciones de esquema deben entrar por Alembic; nunca por cambios
+manuales en PostgreSQL. El SQL inmutable de la revisión inicial está en
+`backend/alembic/sql` y no debe ejecutarse directamente.
 
 ## Pruebas
 
@@ -182,7 +188,8 @@ paralelo; el segundo no reemplaza el gate Linux.
 - **Frontend muestra “API no disponible”:** verifica `docker compose ps`, la URL pública del API y CORS.
 - **PostgreSQL no inicia:** revisa `docker compose logs postgres`; un volumen anterior puede contener credenciales distintas.
 - **Dependencias desactualizadas:** no edites lockfiles a mano; usa el gestor correspondiente y vuelve a ejecutar todos los gates.
-- **Cambios de base de datos:** no generes modelos o migrations de negocio antes de que F0 esté aprobado.
+- **Cambios de base de datos:** ejecuta `make db-check`; si detecta drift entre
+  modelos y PostgreSQL, corrige el modelo o crea una revisión Alembic coherente.
 - **Docker en Windows no inicia:** ejecuta `wsl --version`, actualiza con `wsl --update` y confirma
   que Docker Desktop usa el motor WSL 2 y contenedores Linux.
 - **Archivos modificados solo por saltos de línea:** ejecuta `git add --renormalize .` una sola vez
