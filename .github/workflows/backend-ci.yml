@@ -1,53 +1,63 @@
-name: FamTree Backend CI
+name: Backend CI
 
 on:
   pull_request:
-    branches: [ main ]
   push:
-    branches: [ main ]
+    branches: [main]
 
-# Cancela ejecuciones en progreso si subes un nuevo commit a la misma rama
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: backend-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  backend-checks:
+  quality-and-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16.10-alpine
+        env:
+          POSTGRES_DB: famtree_test
+          POSTGRES_USER: famtree
+          POSTGRES_PASSWORD: famtree_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U famtree -d famtree_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://famtree:famtree_test@localhost:5432/famtree_test
+      SESSION_SECRET: ci-only-secret
+      RUN_DATABASE_TESTS: "1"
 
     steps:
-      # 1. Obtiene el código fuente del repositorio
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      # 2. Configura Node.js v20 utilizando caché de npm para acelerar 'npm ci'
-      - name: Configurar Node.js (v20)
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: ./back-end/package-lock.json
-
-      # 3. Levanta la instancia de PostgreSQL definida en el docker-compose
-      - name: Levantar base de datos en Docker
-        run: docker compose up -d
-
-      # 4. Instala las dependencias exactas del proyecto backend
-      - name: Instalar dependencias
-        working-directory: ./back-end
-        run: npm ci
-
-      # 5. Compila el proyecto NestJS (valida errores de sintaxis y tipos de TypeScript)
-      - name: Compilar proyecto NestJS
-        working-directory: ./back-end
-        run: npm run build
-
-      # 6. Ejecuta la suite de pruebas unitarias (ignora la fase si no existe el script de tests)
-      - name: Correr Pruebas Unitarias
-        working-directory: ./back-end
-        run: npm run test --if-present
-
-      # 7. Limpia y apaga los contenedores Docker independientemente del resultado previo
-      - name: Apagar entorno Docker
-        if: always()
-        run: docker compose down
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.lock
+      - name: Install locked dependencies
+        run: python -m pip install --require-hashes -r requirements.lock
+      - name: Validate migrations
+        run: alembic upgrade head
+      - name: Ruff lint
+        run: ruff check .
+      - name: Ruff format
+        run: ruff format --check .
+      - name: mypy
+        run: mypy app tests
+      - name: Tests and coverage
+        run: pytest --cov=app --cov-report=term-missing --cov-report=xml
+      - name: Bandit
+        run: bandit -c pyproject.toml -r app
+      - name: Dependency audit
+        run: pip-audit --require-hashes -r requirements.lock
