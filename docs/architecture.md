@@ -19,9 +19,12 @@ reglas de dependencia.
 
 Redis, Celery, Kubernetes, microservicios, AWS/S3, Clerk, OpenAI/IA y PostGIS no forman parte del bootstrap. Leaflet y OpenStreetMap se añadirán cuando comience la feature de mapas.
 
-## Modelo pendiente
+## Modelo relacional
 
-La documentación de Notion mantiene inconsistencias abiertas sobre entidades, constraints y estrategia de borrado. Por eso este bootstrap incluye `Base.metadata` y Alembic, pero no tablas ni una revision inicial vacía que pudiera confundirse con un baseline aprobado.
+El baseline aprobado se instala mediante Alembic y se representa con modelos
+SQLAlchemy dentro de cada módulo funcional. `app.db.models` importa esos modelos
+para construir la metadata completa sin convertir `db` en dueño del dominio.
 
-Los [diagramas actualizados](diagram-review-2026-09-03.md) ya orientan la propiedad de los módulos,
-pero conservan inconsistencias que impiden declarar el modelo definitivo.
+Los [diagramas actualizados](diagram-review-2026-09-03.md) fijan las 15 tablas
+iniciales. La persistencia de sesiones y cualquier cambio de auditoría siguen
+siendo decisiones posteriores y deberán entrar como nuevas revisiones Alembic.
