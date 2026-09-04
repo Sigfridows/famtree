@@ -4,6 +4,8 @@ All notable changes to FamTree are documented in this file.
 
 ## [0.1.0.0] - 2026-09-03
 
+El equipo ya puede levantar el entorno completo con `cp .env.example .env && make up`; consulta el README para los flujos Docker, híbrido y de calidad.
+
 ### Added
 
 - A reproducible Docker Compose environment for Next.js, FastAPI, PostgreSQL, and Mailpit.
