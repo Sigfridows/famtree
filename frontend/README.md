@@ -2,6 +2,8 @@
 
 Aplicación Next.js con App Router, React, TypeScript estricto y Tailwind CSS.
 
+Antes de modificar Next.js, los agentes de código deben seguir [AGENTS.md](AGENTS.md); [CLAUDE.md](CLAUDE.md) delega esas mismas reglas.
+
 ```bash
 npm ci
 cp .env.example .env.local
