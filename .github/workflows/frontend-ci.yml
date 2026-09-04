@@ -1,46 +1,41 @@
-name: FamTree Frontend CI
+name: Frontend CI
 
 on:
   pull_request:
-    branches: [ main ]
   push:
-    branches: [ main ]
+    branches: [main]
 
-# Cancela ejecuciones en progreso si subes un nuevo commit a la misma rama
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: frontend-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   frontend-checks:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api/v1
+      NEXT_TELEMETRY_DISABLED: "1"
 
     steps:
-      # 1. Obtiene el código fuente del repositorio
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      # 2. Configura Node.js v20 utilizando caché de npm
-      - name: Configurar Node.js (v20)
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: ./front-end/package-lock.json
-
-      # 3. Instala las dependencias exactas del proyecto frontend
-      - name: Instalar dependencias
-        working-directory: ./front-end
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install locked dependencies
         run: npm ci
-
-      # 4. Compila Next.js (valida tipos de TypeScript, ESLint y reglas de Tailwind)
-      - name: Compilar aplicación Next.js
-        working-directory: ./front-end
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
+      - name: ESLint
+        run: npm run lint
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Component tests and coverage
+        run: npm run test:coverage
+      - name: Production build
         run: npm run build
-
-      # 5. Ejecuta las pruebas del frontend (ignora la fase si no existe el script de tests)
-      - name: Correr Pruebas del Frontend
-        working-directory: ./front-end
-        run: npm run test --if-present
