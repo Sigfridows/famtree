@@ -1,2 +1,7 @@
-Alembic migration infrastructure is configured, but the initial business schema is intentionally
-absent until FamTree's F0 data baseline is reconciled and approved in Notion.
+Alembic owns every database change. Revision `20260904_0001` installs the
+approved relational baseline and required catalogs. Its immutable SQL artifacts
+live under `alembic/sql`; SQLAlchemy metadata is assembled from feature models
+through `app.db.models`.
+
+Use `alembic upgrade head` to apply changes and `alembic check` to detect drift.
+Do not run the SQL artifacts manually against a developer database.

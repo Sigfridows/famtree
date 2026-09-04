@@ -1,4 +1,4 @@
-.PHONY: up down logs infra-up test test-backend test-frontend lint lint-backend lint-frontend migrate migration
+.PHONY: up down logs infra-up test test-backend test-frontend lint lint-backend lint-frontend migrate migration db-check
 
 up:
 	docker compose up --build
@@ -34,3 +34,6 @@ migrate:
 migration:
 	@test -n "$(MESSAGE)" || (echo "Usage: make migration MESSAGE='describe change'" && exit 1)
 	docker compose run --rm backend alembic revision --autogenerate -m "$(MESSAGE)"
+
+db-check:
+	docker compose run --rm backend alembic check
