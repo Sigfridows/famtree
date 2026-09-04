@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  quality-and-build:
+  frontend-checks:
     runs-on: ubuntu-latest
     defaults:
       run:
