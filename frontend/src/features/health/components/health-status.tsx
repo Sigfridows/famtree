@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { getHealth } from "@/lib/api/health";
+import { getHealth } from "../api/get-health";
 
 type Status = "checking" | "online" | "offline";
 

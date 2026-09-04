@@ -1,6 +1,6 @@
-import type { HealthResponse } from "@/types/api";
+import { apiRequest } from "@/lib/api/client";
 
-import { apiRequest } from "./client";
+import type { HealthResponse } from "../types";
 
 export function getHealth(): Promise<HealthResponse> {
   return apiRequest<HealthResponse>("/health", { cache: "no-store" });
