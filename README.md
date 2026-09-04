@@ -28,6 +28,8 @@ Frontend consume FastAPI únicamente mediante REST/JSON bajo `/api/v1`. El backe
 └── Makefile
 ```
 
+Consulta la [arquitectura](docs/architecture.md), las [decisiones técnicas](docs/adr/), la [guía del frontend](frontend/README.md), la [estructura de QA](qa/) y las [reglas para scripts](scripts/README.md) para el detalle de cada área.
+
 ## Prerrequisitos
 
 - Git.
@@ -44,6 +46,8 @@ docker compose up --build
 ```
 
 Los valores de `.env.example` son solo defaults locales. Cambia `SESSION_SECRET` y cualquier credencial antes de usar un entorno compartido. Los archivos `.env` no se versionan.
+
+Variables disponibles: `COMPOSE_PROJECT_NAME` identifica el stack; `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `POSTGRES_PORT` configuran PostgreSQL; `BACKEND_PORT` y `FRONTEND_PORT` publican las aplicaciones; `MAILPIT_SMTP_PORT` y `MAILPIT_WEB_PORT` publican Mailpit; `APP_ENV`, `DATABASE_URL`, `CORS_ORIGINS`, `SESSION_SECRET`, `SMTP_HOST`, `SMTP_PORT` y `UPLOAD_DIR` configuran el backend; `NEXT_PUBLIC_API_BASE_URL` indica al navegador dónde encontrar `/api/v1`. Mantén sincronizados `DATABASE_URL` y las credenciales de PostgreSQL cuando cambies sus defaults.
 
 ## Flujo Docker
 
