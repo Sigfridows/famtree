@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from typing import cast
 
 from sqlalchemy import text
@@ -21,7 +21,7 @@ class DatabaseManager:
             expire_on_commit=False,
         )
 
-    async def session(self) -> AsyncIterator[AsyncSession]:
+    async def session(self) -> AsyncGenerator[AsyncSession]:
         async with self.session_factory() as db_session:
             yield db_session
 
