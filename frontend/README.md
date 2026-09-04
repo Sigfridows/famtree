@@ -10,7 +10,13 @@ cp .env.example .env.local
 npm run dev
 ```
 
-El acceso HTTP al backend debe pasar por `src/lib/api`; no disperses llamadas `fetch` en componentes de feature. Comandos de calidad:
+En PowerShell de Windows usa `Copy-Item .env.example .env.local`; los demás comandos son iguales.
+
+Las capacidades FT01–FT12 viven en `src/features` según su [mapa y reglas](src/features/README.md).
+Las rutas importan desde el `index.ts` público de cada feature. El acceso HTTP se define dentro de
+la feature sobre `src/lib/api/client.ts`; no disperses llamadas `fetch` en componentes.
+
+Comandos de calidad:
 
 ```bash
 npm run lint
