@@ -1,0 +1,7 @@
+Alembic owns every database change. Revision `20260904_0001` installs the
+approved relational baseline and required catalogs. Its immutable SQL artifacts
+live under `alembic/sql`; SQLAlchemy metadata is assembled from feature models
+through `app.db.models`.
+
+Use `alembic upgrade head` to apply changes and `alembic check` to detect drift.
+Do not run the SQL artifacts manually against a developer database.
