@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.pinimg.com', // Permite imágenes de Pinterest
+      },
+      // Si usas otro servidor o dominio de imágenes en el futuro, agrégalo aquí
+    ],
+  },
 };
 
 export default nextConfig;
