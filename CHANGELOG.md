@@ -2,6 +2,31 @@
 
 All notable changes to FamTree are documented in this file.
 
+## [0.2.0.0] - 2026-09-17
+
+El frontend ya puede consultar centros activos, buscar y filtrar el catálogo,
+obtener fichas y datos para mapas, y comparar entre dos y cuatro centros.
+
+### Added
+
+- Public REST endpoints for paginated search, filter catalogs, center details,
+  lightweight map pins, and ordered comparisons of 2–4 active centers.
+- Feature-owned query services and repository ports with request-scoped dependency
+  injection, and published-review rating aggregates through a public read contract.
+- Typed frontend adapters with cancellation, shared transport, and uncached reads.
+- PostgreSQL integration tests and isolated live HTTP contract checks from TypeScript.
+- API consumption guide and FT03–FT05 traceability, distinguishing the delivered
+  backend from pending business screens and authenticated modules.
+
+### Changed
+
+- Frontend coverage now includes all feature adapters.
+
+### Fixed
+
+- Structured validation errors correctly serialize ValueError context instead of
+  failing when a query contains an inverted price range or duplicate comparison IDs.
+
 ## [0.1.1.0] - 2026-09-04
 
 El equipo ya puede obtener el esquema relacional aprobado al iniciar Docker, sin
