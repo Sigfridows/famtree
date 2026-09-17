@@ -2,7 +2,7 @@
 
 FamTree es una plataforma para buscar, explorar y comparar centros de atención para adultos mayores. Este repositorio contiene el frontend y el backend del MVP como un **monolito modular**. La documentación de [Engineering & QA en Notion](https://app.notion.com/p/3d011fd4635081be9e3de97ba42fdf5e?pvs=204) es la fuente de verdad de requisitos; este README se concentra en ejecutar y contribuir al código.
 
-> Estado: bootstrap técnico con baseline relacional aprobado. No se ha implementado ninguna historia de usuario de negocio.
+> Estado: baseline relacional aprobado y primer bloque de API pública implementado: búsqueda, detalle, catálogos, mapa y comparación. Incluye adaptadores TypeScript; las pantallas de negocio y sus HUs completas siguen pendientes. Consulta la [guía de consumo y validación](docs/backend-public-discovery.md).
 
 ## Arquitectura
 
