@@ -22,7 +22,7 @@ Frontend consume FastAPI únicamente mediante REST/JSON bajo `/api/v1`. El backe
 ├── frontend/           aplicación Next.js y tests de componentes
 ├── qa/                 BDD, E2E, pruebas manuales y trazabilidad
 ├── docs/               decisiones técnicas del repositorio
-├── scripts/            automatizaciones futuras del equipo
+├── scripts/            automatizaciones y verificación reproducible
 ├── .github/workflows/  quality gates de backend y frontend
 ├── docker-compose.yml
 └── Makefile
@@ -145,7 +145,7 @@ make test-backend
 make test-frontend
 ```
 
-La suite backend ejecuta unit/API tests y una prueba real de conectividad PostgreSQL. Playwright está preparado en `frontend/playwright.config.ts`; los flujos E2E se incorporarán cuando existan historias de usuario implementadas.
+La suite backend ejecuta pruebas unitarias, de API y de integración con PostgreSQL, incluidas las consultas de descubrimiento público. `python3 scripts/check_discovery.py` reproduce las migraciones, la suite backend y el consumo de adaptadores TypeScript por HTTP real en un entorno temporal; consulta sus [prerrequisitos](scripts/README.md). Playwright está preparado en `frontend/playwright.config.ts`; los flujos E2E se incorporarán cuando existan historias de usuario implementadas.
 
 ## Lint y tipos
 
