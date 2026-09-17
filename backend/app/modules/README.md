@@ -29,6 +29,8 @@ Crea solo los archivos que el caso de uso necesite:
 router.py       # transporte HTTP y dependencies de FastAPI
 schemas.py      # contratos Pydantic
 service.py      # casos de uso y reglas
+ports.py        # contratos de persistencia recibidos por los servicios
+dependencies.py # composición e inyección de dependencias de la feature
 repository.py   # persistencia y queries
 models.py       # modelos SQLAlchemy del módulo
 ```
