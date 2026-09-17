@@ -1,1 +1,5 @@
-"""Asylum catalog module placeholder; business implementation starts in F4."""
+"""Public catalog, maps and comparison boundary."""
+
+from app.modules.asylums.router import router
+
+__all__ = ["router"]
