@@ -8,8 +8,6 @@ export function useHealth() {
   const [loading, setLoading] = useState(true);
 
   const checkHealth = useCallback(async () => {
-    setLoading(true);
-    setStatus('checking');
     try {
       await apiClient.get('/health');
       setStatus('online');
@@ -20,7 +18,28 @@ export function useHealth() {
     }
   }, []);
 
-  useEffect(() => { checkHealth(); }, [checkHealth]);
+  useEffect(() => {
+    let isMounted = true;
 
-  return { status, loading, refetch: checkHealth };
+    const loadData = async () => {
+      await Promise.resolve();
+      if (isMounted) {
+        void checkHealth();
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [checkHealth]);
+
+  const refetch = () => {
+    setLoading(true);
+    setStatus('checking');
+    void checkHealth();
+  };
+
+  return { status, loading, refetch };
 }

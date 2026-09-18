@@ -8,7 +8,6 @@ import {
   Building, 
   Building2, 
   Check, 
-  ChevronDown, 
   RotateCcw, 
   Eye, 
   Hotel
@@ -18,7 +17,7 @@ import CustomSelect from './shared/CustomSelect';
 interface FilterModalProps {
   isOpen?: boolean;
   onClose?: () => void;
-  onApply?: (filters: any) => void;
+  onApply?: (filters: unknown) => void;
 }
 
 const PROPERTY_TYPES = [

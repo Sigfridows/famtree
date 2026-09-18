@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Bell,
   Star,
   ThumbsUp,
   MoreHorizontal,
@@ -155,7 +155,6 @@ export default function ResenasPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mentionDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar menú de menciones al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -190,7 +189,6 @@ export default function ResenasPage() {
     const val = e.target.value;
     setCommentText(val);
 
-    // Ajuste dinámico de altura (Auto-expand)
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
@@ -257,7 +255,6 @@ export default function ResenasPage() {
         </div>
 
         <div className="flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-6">
-
           <HeaderControls
             logoSrc={logoFamTree}
             placeholder="¿Qué quieres encontrar?"
@@ -298,9 +295,12 @@ export default function ResenasPage() {
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-3">
-                <img
+                <Image
                   src={review.avatar}
                   alt={review.author}
+                  width={40}
+                  height={40}
+                  unoptimized
                   className="w-10 h-10 rounded-full object-cover shadow-sm border border-zinc-100"
                 />
                 <h4 className="font-extrabold text-xs text-zinc-900 leading-tight">
@@ -333,7 +333,6 @@ export default function ResenasPage() {
               </div>
             </div>
 
-            {/* Recorte con line-clamp para evitar que textos muy largos deformen la tarjeta */}
             <p className="text-[11px] text-zinc-500 leading-relaxed font-medium italic line-clamp-4 text-ellipsis overflow-hidden">
               {review.text}
             </p>
@@ -435,7 +434,6 @@ export default function ResenasPage() {
                   <Building2 className="w-3.5 h-3.5" />
                   <span>Seleccionar Asilo</span>
                 </div>
-                {/* Scrollbar estilizada y minimalista */}
                 <div className="max-h-48 overflow-y-auto space-y-1 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-zinc-200 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
                   {MOCK_ASILOS.map((asilo) => (
                     <button
@@ -477,7 +475,6 @@ export default function ResenasPage() {
             </div>
           )}
 
-          {/* Textarea con auto-expansión progresiva hacia arriba */}
           <textarea
             ref={textareaRef}
             value={commentText}
