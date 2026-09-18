@@ -3,15 +3,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/lib/apiClient';
 
+export interface FavoriteItem {
+  codigo_asilo: number;
+  fecha_creacion?: string;
+}
+
 export function useFavorites() {
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchFavorites = useCallback(async () => {
-    setLoading(true);
     try {
-      const { data } = await apiClient.get('/favorites');
-      setFavorites(data.items || data);
+      const { data } = await apiClient.get<{ items?: FavoriteItem[] } | FavoriteItem[]>('/favorites');
+      const items = Array.isArray(data) ? data : data.items || [];
+      setFavorites(items);
     } catch {
       // Manejo silencioso
     } finally {
@@ -19,7 +24,22 @@ export function useFavorites() {
     }
   }, []);
 
-  useEffect(() => { fetchFavorites(); }, [fetchFavorites]);
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      await Promise.resolve();
+      if (isMounted) {
+        void fetchFavorites();
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchFavorites]);
 
   const toggleFavorite = async (codigoAsilo: number) => {
     const isFav = favorites.some((f) => f.codigo_asilo === codigoAsilo);
@@ -45,5 +65,10 @@ export function useFavorites() {
 
   const isFavorite = (codigoAsilo: number) => favorites.some((f) => f.codigo_asilo === codigoAsilo);
 
-  return { favorites, loading, toggleFavorite, isFavorite, refetch: fetchFavorites };
+  const refetch = () => {
+    setLoading(true);
+    void fetchFavorites();
+  };
+
+  return { favorites, loading, toggleFavorite, isFavorite, refetch };
 }

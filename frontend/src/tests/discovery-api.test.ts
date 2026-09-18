@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildAsylumQuery, getAsylum, getAsylumCatalogs, getAsylums } from "@/features/asylums";
 import { compareAsylums } from "@/features/compare";
 import { getAsylumMap } from "@/features/map";
-import { ApiError } from "@/lib/api/client";
+import { ApiError } from "@/lib/apiClient";
 
 afterEach(() => vi.unstubAllGlobals());
 

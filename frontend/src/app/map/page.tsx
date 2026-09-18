@@ -2,19 +2,29 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import {
-  LocateFixed,
-  Plus,
-  Minus,
-  MapPin,
-  Navigation,
-  Bell,
-} from "lucide-react";
+import { LocateFixed, Plus, Minus, MapPin, Navigation } from "lucide-react";
 import HeaderDesign from "@/components/shared/HeaderDesing";
 import HeaderControls from "@/components/shared/HeaderControls";
 import logoFamTree from "@/assets/logo-famtree.png";
+import type L from "leaflet";
 
-const MOCK_MAP_ITEMS = [
+export interface MapItem {
+  id: string;
+  code: string;
+  status: string;
+  isOpen: boolean;
+  distance: string;
+  title: string;
+  pickup: string;
+  destination: string;
+  duration: string;
+  miles: string;
+  delay: string;
+  lat: number;
+  lng: number;
+}
+
+const MOCK_MAP_ITEMS: MapItem[] = [
   {
     id: "1",
     code: "CR-YAB-008",
@@ -92,22 +102,42 @@ const MOCK_MAP_ITEMS = [
   },
 ];
 
+// Helper visual para los marcadores fuera del componente
+function createPinHtml(isSelected: boolean): string {
+  if (isSelected) {
+    return `
+      <div class="relative flex items-center justify-center w-8 h-8">
+        <span class="absolute w-9 h-9 rounded-full bg-[#CCDD99]/60 animate-ping"></span>
+        <div class="w-6 h-6 rounded-full bg-[#CCDD99] ring-2 ring-white flex items-center justify-center shadow-[0_0_18px_rgba(204,221,153,1)]">
+          <div class="w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1)]"></div>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="relative flex items-center justify-center w-8 h-8">
+      <div class="w-5 h-5 rounded-full bg-[#CCDD99] flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+        <div class="w-3.5 h-3.5 rounded-full bg-[#161616]"></div>
+      </div>
+    </div>
+  `;
+}
+
 export default function MapaPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeItemId, setActiveItemId] = useState<string | null>("1");
   const mapRef = useRef<HTMLDivElement>(null);
-  const leafletMap = useRef<any>(null);
-  const markersRef = useRef<{ [key: string]: any }>({});
-  const LRef = useRef<any>(null);
+  const leafletMap = useRef<L.Map | null>(null);
+  const markersRef = useRef<Record<string, L.Marker>>({});
+  const LRef = useRef<typeof L | null>(null);
 
-  // Inicialización segura de Leaflet evitando el error "Map container is already initialized"
+  /// 1. Inicialización única del mapa al montar el componente
   useEffect(() => {
     let isMounted = true;
 
     const initMap = async () => {
       if (typeof window === "undefined" || !mapRef.current) return;
 
-      // Inyectar CSS de Leaflet de forma dinámica si no existe
       if (!document.getElementById("leaflet-css")) {
         const link = document.createElement("link");
         link.id = "leaflet-css";
@@ -116,57 +146,43 @@ export default function MapaPage() {
         document.head.appendChild(link);
       }
 
-      // Importar módulo de Leaflet
-      const L = (await import("leaflet")).default;
+      const LeafletModule = await import("leaflet");
+      const L = LeafletModule.default;
       LRef.current = L;
 
       if (!isMounted || !mapRef.current) return;
 
-      // Limpiar contenedor previo si ya existía una instancia de mapa
       if (leafletMap.current) {
         leafletMap.current.remove();
         leafletMap.current = null;
       }
 
-      // Reiniciar ID del contenedor en el DOM si quedó colgado
-      if ((mapRef.current as any)._leaflet_id) {
-        (mapRef.current as any)._leaflet_id = null;
+      const container = mapRef.current as HTMLDivElement & {
+        _leaflet_id?: string | null;
+      };
+      if (container._leaflet_id) {
+        container._leaflet_id = null;
       }
 
-      // Reemplaza esta sección en tu useEffect:
       const map = L.map(mapRef.current, {
         center: [18.47, -69.935],
         zoom: 13,
         zoomControl: false,
       });
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(map);
 
-      // L.tileLayer(
-      //   "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-      //   {
-      //     attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
-      //     maxZoom: 16,
-      //   },
-      // ).addTo(map);
-
-      // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      //   attribution:
-      //     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      //   maxZoom: 19,
-      // }).addTo(map);
-
       leafletMap.current = map;
 
-      // Agregar marcadores con coordenadas fijas
+      // Crear marcadores iniciales usando 'false' para no depender de activeItemId
       MOCK_MAP_ITEMS.forEach((item) => {
-        const isSelected = item.id === activeItemId;
         const customIcon = L.divIcon({
           className: "custom-pin-marker",
-          html: createPinHtml(isSelected),
+          html: createPinHtml(false),
           iconSize: [32, 32],
           iconAnchor: [16, 16],
         });
@@ -183,9 +199,8 @@ export default function MapaPage() {
       });
     };
 
-    initMap();
+    void initMap();
 
-    // Cleanup al desmontar el componente
     return () => {
       isMounted = false;
       if (leafletMap.current) {
@@ -195,7 +210,7 @@ export default function MapaPage() {
     };
   }, []);
 
-  // Actualizar marcadores y centrar suavemente al seleccionar una tarjeta
+  // 2. Reacción dinámica a selecciones (actualiza marcadores y mueve la cámara)
   useEffect(() => {
     const L = LRef.current;
     if (!L || !leafletMap.current) return;
@@ -222,27 +237,6 @@ export default function MapaPage() {
     }
   }, [activeItemId]);
 
-  // Estilo visual de los marcadores
-  function createPinHtml(isSelected: boolean) {
-    if (isSelected) {
-      return `
-        <div class="relative flex items-center justify-center w-8 h-8">
-          <span class="absolute w-9 h-9 rounded-full bg-[#CCDD99]/60 animate-ping"></span>
-          <div class="w-6 h-6 rounded-full bg-[#CCDD99] ring-2 ring-white flex items-center justify-center shadow-[0_0_18px_rgba(204,221,153,1)]">
-            <div class="w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1)]"></div>
-          </div>
-        </div>
-      `;
-    }
-    return `
-      <div class="relative flex items-center justify-center w-8 h-8">
-        <div class="w-5 h-5 rounded-full bg-[#CCDD99] flex items-center justify-center shadow-md hover:scale-110 transition-transform">
-          <div class="w-3.5 h-3.5 rounded-full bg-[#161616]"></div>
-        </div>
-      </div>
-    `;
-  }
-
   const handleZoomIn = () => leafletMap.current?.zoomIn();
   const handleZoomOut = () => leafletMap.current?.zoomOut();
   const handleCenterLocation = () => {
@@ -265,7 +259,6 @@ export default function MapaPage() {
         </div>
 
         <div className="pointer-events-auto flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-6">
-
           <HeaderControls
             logoSrc={logoFamTree}
             placeholder="¿Qué quieres encontrar?"
