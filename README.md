@@ -2,7 +2,7 @@
 
 FamTree es una plataforma para buscar, explorar y comparar centros de atención para adultos mayores. Este repositorio contiene el frontend y el backend del MVP como un **monolito modular**. La documentación de [Engineering & QA en Notion](https://app.notion.com/p/3d011fd4635081be9e3de97ba42fdf5e?pvs=204) es la fuente de verdad de requisitos; este README se concentra en ejecutar y contribuir al código.
 
-> Estado: bootstrap técnico con baseline relacional aprobado. No se ha implementado ninguna historia de usuario de negocio.
+> Estado: baseline relacional aprobado y primer bloque de API pública implementado: búsqueda, detalle, catálogos, mapa y comparación. Incluye adaptadores TypeScript; las pantallas de negocio y sus HUs completas siguen pendientes. Consulta la [guía de consumo y validación](docs/backend-public-discovery.md).
 
 ## Arquitectura
 
@@ -22,7 +22,7 @@ Frontend consume FastAPI únicamente mediante REST/JSON bajo `/api/v1`. El backe
 ├── frontend/           aplicación Next.js y tests de componentes
 ├── qa/                 BDD, E2E, pruebas manuales y trazabilidad
 ├── docs/               decisiones técnicas del repositorio
-├── scripts/            automatizaciones futuras del equipo
+├── scripts/            automatizaciones y verificación reproducible
 ├── .github/workflows/  quality gates de backend y frontend
 ├── docker-compose.yml
 └── Makefile
@@ -145,7 +145,7 @@ make test-backend
 make test-frontend
 ```
 
-La suite backend ejecuta unit/API tests y una prueba real de conectividad PostgreSQL. Playwright está preparado en `frontend/playwright.config.ts`; los flujos E2E se incorporarán cuando existan historias de usuario implementadas.
+La suite backend ejecuta pruebas unitarias, de API y de integración con PostgreSQL, incluidas las consultas de descubrimiento público. `python3 scripts/check_discovery.py` reproduce las migraciones, la suite backend y el consumo de adaptadores TypeScript por HTTP real en un entorno temporal; consulta sus [prerrequisitos](scripts/README.md). Playwright está preparado en `frontend/playwright.config.ts`; los flujos E2E se incorporarán cuando existan historias de usuario implementadas.
 
 ## Lint y tipos
 
