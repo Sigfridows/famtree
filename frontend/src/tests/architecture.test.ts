@@ -32,17 +32,19 @@ function sourceFiles(directory: string): string[] {
 
 describe("frontend architecture", () => {
   it("keeps every approved Notion feature as an explicit boundary", () => {
-    expect(requiredFeatures.filter((feature) => !existsSync(resolve(featureRoot, feature)))).toEqual(
-      [],
-    );
+    expect(
+      requiredFeatures.filter(
+        (feature) => !existsSync(resolve(featureRoot, feature)),
+      ),
+    ).toEqual([]);
   });
 
   it("keeps raw fetch calls inside the shared HTTP transport", () => {
-    const transport = resolve(srcRoot, "lib/api/client.ts");
+    const transport = resolve(srcRoot, "lib/apiClient.ts");
     const offenders = sourceFiles(srcRoot)
       .filter((file) => file !== transport)
       .filter((file) => /\bfetch\s*\(/.test(readFileSync(file, "utf8")))
-      .map((file) => relative(srcRoot, file));
+      .map((file) => relative(srcRoot, file).replace(/\\/g, "/"));
 
     expect(offenders).toEqual([]);
   });

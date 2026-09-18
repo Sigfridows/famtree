@@ -5,9 +5,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'i.pinimg.com', // Permite imágenes de Pinterest
+        hostname: 'i.pinimg.com',
       },
-      // Si usas otro servidor o dominio de imágenes en el futuro, agrégalo aquí
     ],
   },
   turbopack: {
