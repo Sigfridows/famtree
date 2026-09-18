@@ -1,2 +1,2 @@
-/** Public boundary for FT05 asylum comparison. */
-export {};
+export { compareAsylums } from "./api/compare-asylums";
+export type { AsylumComparison } from "./api/compare-asylums";

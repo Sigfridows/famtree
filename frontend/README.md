@@ -26,3 +26,12 @@ npm run build
 ```
 
 Playwright está preparado con `npm run test:e2e`, pero los specs de negocio se añadirán en `../qa/e2e` cuando existan vertical slices implementadas.
+
+## API pública disponible
+
+`features/asylums`, `features/map` y `features/compare` exponen adaptadores tipados sobre el
+transporte compartido. Consulta la [guía de consumo](../docs/backend-public-discovery.md) para
+contratos, filtros, cancelación, paginación de mapa y errores. Las pantallas siguen pendientes.
+
+La prueba con HTTP real se ejecuta desde la raíz con `python3 scripts/check_discovery.py`; crea
+PostgreSQL y FastAPI aislados y usa `vitest.discovery.config.mts`.
