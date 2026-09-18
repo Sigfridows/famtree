@@ -28,21 +28,34 @@ export function useUser() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchUser = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const { data } = await apiClient.get<UserProfile>('/users/me');
       setUser(data);
-    } catch (err: any) {
+      setError(null);
+    } catch (err: unknown) {
       setUser(null);
-      setError(err.message || 'Error al obtener el perfil de usuario');
+      const message = err instanceof Error ? err.message : 'Error al obtener el perfil de usuario';
+      setError(message);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchUser();
+    let isMounted = true;
+
+    const loadData = async () => {
+      await Promise.resolve();
+      if (isMounted) {
+        void fetchUser();
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [fetchUser]);
 
   const updateUser = async (input: UpdateUserInput) => {
@@ -52,13 +65,19 @@ export function useUser() {
       const { data } = await apiClient.patch<UserProfile>('/users/me', input);
       setUser(data);
       return data;
-    } catch (err: any) {
-      const message = err.message || 'Error al actualizar el perfil';
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al actualizar el perfil';
       setError(message);
       throw new Error(message);
     } finally {
       setUpdating(false);
     }
+  };
+
+  const refetch = () => {
+    setLoading(true);
+    setError(null);
+    void fetchUser();
   };
 
   return {
@@ -68,6 +87,6 @@ export function useUser() {
     error,
     isAuthenticated: !!user,
     updateUser,
-    refetch: fetchUser,
+    refetch,
   };
 }

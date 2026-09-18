@@ -15,17 +15,17 @@ export class ApiError extends Error {
 
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
-  params?: Record<string, any>;
+  params?: Record<string, unknown> | object;
 };
 
 export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  // Manejo automatizado de Query Parameters para peticiones GET (ej. ?search=algo&minPrice=100)
   let queryString = "";
   if (options.params) {
-    const cleanParams = Object.entries(options.params).reduce(
+    const paramsMap = options.params as Record<string, unknown>;
+    const cleanParams = Object.entries(paramsMap).reduce(
       (acc, [key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
           acc[key] = Array.isArray(value) ? value.join(",") : String(value);
@@ -58,7 +58,7 @@ export async function apiRequest<T>(
     try {
       payload = (await response.json()) as ApiErrorPayload;
     } catch {
-      // Un fallo que no responda JSON seguirá convirtiéndose en ApiError
+      // Manejo de error de parseo
     }
     throw new ApiError(
       payload.error?.message ??
@@ -75,11 +75,10 @@ export async function apiRequest<T>(
   return (await response.json()) as T;
 }
 
-/// Wrapper desacoplado que satisface la sintaxis de todos tus servicios
 export const apiClient = {
-  get: async <T = any>(
+  get: async <T = unknown>(
     path: string,
-    options?: { params?: Record<string, any> },
+    options?: { params?: Record<string, unknown> | object },
   ): Promise<{ data: T }> => {
     const data = await apiRequest<T>(path, {
       method: "GET",
@@ -88,17 +87,23 @@ export const apiClient = {
     return { data };
   },
 
-  post: async <T = any>(path: string, body?: unknown): Promise<{ data: T }> => {
+  post: async <T = unknown>(
+    path: string,
+    body?: unknown,
+  ): Promise<{ data: T }> => {
     const data = await apiRequest<T>(path, { method: "POST", body });
     return { data };
   },
 
-  put: async <T = any>(path: string, body?: unknown): Promise<{ data: T }> => {
+  put: async <T = unknown>(
+    path: string,
+    body?: unknown,
+  ): Promise<{ data: T }> => {
     const data = await apiRequest<T>(path, { method: "PUT", body });
     return { data };
   },
 
-  patch: async <T = any>(
+  patch: async <T = unknown>(
     path: string,
     body?: unknown,
   ): Promise<{ data: T }> => {
@@ -106,7 +111,7 @@ export const apiClient = {
     return { data };
   },
 
-  delete: async <T = any>(path: string): Promise<{ data: T }> => {
+  delete: async <T = unknown>(path: string): Promise<{ data: T }> => {
     const data = await apiRequest<T>(path, { method: "DELETE" });
     return { data };
   },

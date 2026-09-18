@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Bell,
   Upload,
   Phone,
   Mail,
@@ -97,7 +97,7 @@ export default function GestionarPerfilPage() {
   const [avatarUrl, setAvatarUrl] = useState(
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80"
   );
-  const [username, setUsername] = useState("SugarDaddy");
+  const [username] = useState("SugarDaddy");
   const [firstName, setFirstName] = useState("Miguel Alberto");
   const [lastName, setLastName] = useState("de Jesus Almanzar");
 
@@ -152,7 +152,6 @@ export default function GestionarPerfilPage() {
           </div>
 
           <div className="flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-6">
-
             <HeaderControls
               logoSrc={logoFamTree}
               placeholder="¿Qué quieres encontrar?"
@@ -181,9 +180,12 @@ export default function GestionarPerfilPage() {
               <div className="flex items-center gap-4">
                 <div className="relative shrink-0">
                   {avatarUrl ? (
-                    <img
+                    <Image
                       src={avatarUrl}
                       alt={username}
+                      width={80}
+                      height={80}
+                      unoptimized
                       className="w-20 h-20 rounded-full object-cover shadow-sm border-2 border-zinc-100"
                     />
                   ) : (
@@ -271,7 +273,7 @@ export default function GestionarPerfilPage() {
                   </h4>
                   <p className="text-[11px] text-zinc-400 font-medium leading-relaxed">
                     Si desea cambiar su contraseña puede hacerlo dándole clic al
-                    botón de 'cambiar contraseña'
+                    botón de cambiar contraseña
                   </p>
                 </div>
                 <button
@@ -341,7 +343,7 @@ export default function GestionarPerfilPage() {
                 Contacto
               </h3>
 
-              {/* Teléfono y Email (Texto plano sin cajas/inputs) */}
+              {/* Teléfono y Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800">

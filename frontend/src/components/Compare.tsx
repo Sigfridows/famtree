@@ -122,7 +122,6 @@ export default function Compare({ onClose }: CompareProps) {
 
   return (
     <div className="relative w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 text-[#161616] font-montserrat flex flex-col max-h-[88vh]">
-      {/* Botón de cierre estático en el header */}
       {onClose && (
         <button
           onClick={onClose}
@@ -142,7 +141,6 @@ export default function Compare({ onClose }: CompareProps) {
             transition={{ duration: 0.2 }}
             className="w-full flex flex-col overflow-hidden"
           >
-            {/* Encabezado Verde */}
             <div className="bg-[#D6E6B8] px-8 py-6 flex items-center justify-between pr-16">
               <h1 className="text-2xl font-black text-zinc-900 tracking-tight">
                 Favoritos
@@ -162,7 +160,6 @@ export default function Compare({ onClose }: CompareProps) {
               </button>
             </div>
 
-            {/* Cuerpo escroleable de la tabla */}
             <div className="p-6 md:p-8 overflow-y-auto space-y-3">
               <div className="grid grid-cols-12 text-[11px] font-bold text-zinc-400 uppercase tracking-wider px-3 pb-1">
                 <div className="col-span-5 flex items-center gap-3">
@@ -193,9 +190,12 @@ export default function Compare({ onClose }: CompareProps) {
                         onChange={() => {}}
                         className="w-4 h-4 rounded border-zinc-300 text-zinc-900 focus:ring-0 cursor-pointer accent-zinc-900"
                       />
-                      <img
+                      <Image
                         src={item.image}
                         alt={item.name}
+                        width={40}
+                        height={40}
+                        unoptimized
                         className="w-10 h-10 rounded-xl object-cover border border-zinc-100 shrink-0"
                       />
                       <div className="truncate">
@@ -241,7 +241,6 @@ export default function Compare({ onClose }: CompareProps) {
             transition={{ duration: 0.2 }}
             className="w-full p-6 md:p-8 overflow-y-auto"
           >
-            {/* Regresar */}
             <div className="mb-6">
               <button
                 onClick={() => setViewMode("table")}
@@ -252,7 +251,6 @@ export default function Compare({ onClose }: CompareProps) {
               </button>
             </div>
 
-            {/* Matriz Comparativa */}
             <div className="grid grid-cols-12 gap-4 items-stretch">
               <div className="col-span-12 lg:col-span-3 flex flex-col justify-between pt-2 pb-2">
                 <div>
@@ -292,9 +290,12 @@ export default function Compare({ onClose }: CompareProps) {
                     }`}
                   >
                     <div>
-                      <img
+                      <Image
                         src={asilo.image}
                         alt={asilo.name}
+                        width={300}
+                        height={128}
+                        unoptimized
                         className="w-full h-32 rounded-xl object-cover mb-3 shadow-sm"
                       />
                       <h3 className="font-extrabold text-xs text-zinc-900 text-center leading-tight min-h-8 flex items-center justify-center">

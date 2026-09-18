@@ -17,8 +17,6 @@ import {
   Send,
   CheckCircle2,
   HelpCircle,
-  FileText,
-  Clock,
   Sparkles,
 } from "lucide-react";
 
@@ -149,8 +147,8 @@ export default function SupportPage() {
   return (
     <div className="min-h-screen bg-[#121315] text-white font-sans selection:bg-[#CCD999] selection:text-zinc-950 pb-20">
       {/* 1. HERO SECTION: Buscador Principal */}
-      <section className="relative w-full py-20 px-6 sm:px-12 flex flex-col items-center justify-center border-b border-white/5 bg-gradient-to-b from-[#181a1d] to-[#121315]">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[250px] bg-[#CCD999]/10 blur-[120px] rounded-full pointer-events-none" />
+      <section className="relative w-full py-20 px-6 sm:px-12 flex flex-col items-center justify-center border-b border-white/5 bg-linear-to-b from-[#181a1d] to-[#121315]">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-62.5 bg-[#CCD999]/10 blur-[120px] rounded-full pointer-events-none" />
 
         <motion.div
           initial={{ opacity: 0, y: -15 }}
@@ -238,7 +236,7 @@ export default function SupportPage() {
                   className={`p-6 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
                     isSelected
                       ? "bg-[#CCD999]/10 border-[#CCD999] shadow-[0_0_25px_rgba(204,217,153,0.15)]"
-                      : "bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]"
+                      : "bg-white/3 border-white/10 hover:border-white/20 hover:bg-white/5"
                   }`}
                 >
                   <div>
@@ -263,7 +261,7 @@ export default function SupportPage() {
         </section>
 
         {/* 3. PREGUNTAS FRECUENTES (FAQ ACCORDION) */}
-        <section className="bg-white/[0.02] border border-white/10 rounded-3xl p-6 sm:p-10 backdrop-blur-xl">
+        <section className="bg-white/2 border border-white/10 rounded-3xl p-6 sm:p-10 backdrop-blur-xl">
           <div className="mb-8">
             <div className="flex items-center gap-2 text-[#CCD999] text-xs font-bold mb-1 uppercase tracking-wider">
               <HelpCircle className="w-4 h-4" />
@@ -280,7 +278,7 @@ export default function SupportPage() {
                 return (
                   <div
                     key={faq.id}
-                    className="border border-white/10 rounded-2xl overflow-hidden transition-colors bg-white/[0.02] hover:bg-white/[0.04]"
+                    className="border border-white/10 rounded-2xl overflow-hidden transition-colors bg-white/2 hover:bg-white/4"
                   >
                     <button
                       onClick={() => setExpandedFaq(isOpen ? null : faq.id)}
@@ -331,7 +329,7 @@ export default function SupportPage() {
             </div>
 
             {/* Card Emergencia Verde FamTree */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-[#CCD999] to-[#9db84a] text-zinc-950 space-y-4 shadow-xl">
+            <div className="p-6 rounded-2xl bg-linear-to-br from-[#CCD999] to-[#9db84a] text-zinc-950 space-y-4 shadow-xl">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider bg-zinc-950/10 px-3 py-1 rounded-full">
                   Atención Prioritaria
@@ -357,7 +355,7 @@ export default function SupportPage() {
 
             {/* Chat & Email Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center gap-3.5">
+              <div className="p-4 rounded-2xl bg-white/3 border border-white/10 flex items-center gap-3.5">
                 <div className="p-2.5 rounded-xl bg-white/5 text-[#CCD999]">
                   <MessageSquare className="w-5 h-5" />
                 </div>
@@ -367,7 +365,7 @@ export default function SupportPage() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center gap-3.5">
+              <div className="p-4 rounded-2xl bg-white/3 border border-white/10 flex items-center gap-3.5">
                 <div className="p-2.5 rounded-xl bg-white/5 text-[#CCD999]">
                   <Mail className="w-5 h-5" />
                 </div>
@@ -380,7 +378,7 @@ export default function SupportPage() {
           </div>
 
           {/* Lado Derecho: Formulario de Ticket / Solicitud */}
-          <div className="lg:col-span-7 bg-white/[0.03] border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl">
+          <div className="lg:col-span-7 bg-white/3 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl">
             <h3 className="text-lg font-bold mb-1">Envíanos un mensaje</h3>
             <p className="text-xs text-zinc-400 font-light mb-6">
               Déjanos tu consulta y un especialista en atención a familias te responderá en breve.

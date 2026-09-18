@@ -9,6 +9,9 @@ export interface AsylumFilters {
   maxPrice?: number;
   status?: AsylumStatus;
   serviceIds?: number[];
+  page?: number;
+  pageSize?: number;
+  page_size?: number;
 }
 
 export interface CreateAsylumPayload {
@@ -37,7 +40,9 @@ export interface UpdateAsylumPayload extends Partial<CreateAsylumPayload> {
 
 export const asylumService = {
   getAsylums: async (filters?: AsylumFilters): Promise<Asylum[]> => {
-    const response = await apiClient.get<Asylum[]>("/asylums", { params: filters });
+    const response = await apiClient.get<Asylum[]>("/asylums", {
+      params: filters,
+    });
     return response.data;
   },
 
@@ -51,7 +56,10 @@ export const asylumService = {
     return response.data;
   },
 
-  updateAsylum: async (id: number, payload: UpdateAsylumPayload): Promise<Asylum> => {
+  updateAsylum: async (
+    id: number,
+    payload: UpdateAsylumPayload,
+  ): Promise<Asylum> => {
     const response = await apiClient.put<Asylum>(`/asylums/${id}`, payload);
     return response.data;
   },

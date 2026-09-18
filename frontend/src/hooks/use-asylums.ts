@@ -1,19 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { asylumService } from "@/services/asylumService";
-import { Asylum } from "@/types";
-
-export interface AsylumFilters {
-  search?: string;
-  codigo_provincia?: number;
-  codigo_municipio?: number;
-  precio_minimo?: number;
-  precio_maximo?: number;
-  solo_favoritos?: boolean;
-  page?: number;
-  page_size?: number;
-}
+import { useState, useEffect, useCallback } from 'react';
+import { asylumService, AsylumFilters } from '@/services/asylumService';
+import { Asylum } from '@/types';
 
 export function useAsylums(initialFilters?: AsylumFilters) {
   const [filters, setFilters] = useState<AsylumFilters>({
@@ -26,24 +15,44 @@ export function useAsylums(initialFilters?: AsylumFilters) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchAsylums = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const result = await asylumService.getAsylums(filters);
       setData(result);
-    } catch (err: any) {
-      setError(err.message || "Error al cargar asilos");
+      setError(null);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al cargar asilos';
+      setError(message);
     } finally {
       setLoading(false);
     }
   }, [filters]);
 
   useEffect(() => {
-    fetchAsylums();
+    let isMounted = true;
+
+    const loadData = async () => {
+      await Promise.resolve();
+      if (isMounted) {
+        void fetchAsylums();
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [fetchAsylums]);
 
   const updateFilters = (next: Partial<AsylumFilters>) => {
+    setLoading(true);
     setFilters((prev) => ({ ...prev, ...next, page: 1 }));
+  };
+
+  const refetch = () => {
+    setLoading(true);
+    setError(null);
+    void fetchAsylums();
   };
 
   return {
@@ -52,6 +61,6 @@ export function useAsylums(initialFilters?: AsylumFilters) {
     error,
     filters,
     updateFilters,
-    refetch: fetchAsylums,
+    refetch,
   };
 }

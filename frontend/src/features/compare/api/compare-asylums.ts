@@ -1,5 +1,5 @@
 import type { AsylumDetail } from "@/features/asylums";
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest } from "@/lib/apiClient";
 
 export type AsylumComparison = { items: AsylumDetail[] };
 

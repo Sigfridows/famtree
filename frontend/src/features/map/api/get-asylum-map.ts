@@ -1,6 +1,6 @@
 import { buildAsylumQuery } from "@/features/asylums";
 import type { AsylumFilters, AsylumSummary, DiscoveryPage } from "@/features/asylums";
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest } from "@/lib/apiClient";
 
 export type AsylumMapPin = Pick<AsylumSummary,
   "id" | "name" | "latitude" | "longitude" | "price_min" | "price_max" | "cover_url" | "rating" | "review_count"

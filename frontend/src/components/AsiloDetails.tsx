@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -15,7 +16,7 @@ import {
   Utensils,
   Trees,
 } from "lucide-react";
-import Compare from "./Compare"; // Importación del componente Compare
+import Compare from "./Compare";
 
 export interface AsiloDetailData {
   id: string;
@@ -73,7 +74,6 @@ export default function AsiloDetails({
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-xs">
-            {/* Overlay para cerrar */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -82,7 +82,6 @@ export default function AsiloDetails({
               className="absolute inset-0"
             />
 
-            {/* Modal Card Principal */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -90,7 +89,6 @@ export default function AsiloDetails({
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="relative w-full h-full max-w-5xl max-h-212.5 bg-white rounded-3xl shadow-2xl overflow-hidden z-10 p-6 sm:p-7 text-[#161616] flex flex-col"
             >
-              {/* Botón Cerrar */}
               <button
                 onClick={onClose}
                 className="absolute top-5 right-5 sm:top-6 sm:right-6 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center hover:bg-zinc-800 transition-colors z-30 cursor-pointer shadow-md"
@@ -99,9 +97,7 @@ export default function AsiloDetails({
               </button>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch w-full h-full">
-                {/* COLUMNA IZQUIERDA: Detalle e Información */}
                 <div className="lg:col-span-6 flex flex-col justify-between h-full space-y-4 pr-0 lg:pr-2">
-                  {/* Badges superiores y Acciones */}
                   <div className="flex items-center justify-between gap-2 pt-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="px-3 py-0.5 bg-[#E2F2C5] text-[#44680A] rounded-full text-xs font-bold">
@@ -147,7 +143,6 @@ export default function AsiloDetails({
                     </div>
                   </div>
 
-                  {/* Título y Dirección */}
                   <div className="space-y-1">
                     <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">
                       {data.title}
@@ -157,7 +152,6 @@ export default function AsiloDetails({
                     </p>
                   </div>
 
-                  {/* Contacto & Precio */}
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                     <div className="sm:col-span-8 space-y-3">
                       <div className="flex items-center gap-3">
@@ -232,7 +226,6 @@ export default function AsiloDetails({
                     </div>
                   </div>
 
-                  {/* Descripción */}
                   <div className="space-y-1.5">
                     <h4 className="text-xs sm:text-sm font-bold text-zinc-900">
                       Descripción
@@ -242,7 +235,6 @@ export default function AsiloDetails({
                     </p>
                   </div>
 
-                  {/* Características */}
                   <div className="space-y-2">
                     <h4 className="text-xs sm:text-sm font-bold text-zinc-900">
                       Características
@@ -267,7 +259,6 @@ export default function AsiloDetails({
                     </div>
                   </div>
 
-                  {/* Botones de Acción */}
                   <div className="flex items-center gap-3 pt-2">
                     <button
                       onClick={() => setIsCompareOpen(true)}
@@ -281,21 +272,26 @@ export default function AsiloDetails({
                   </div>
                 </div>
 
-                {/* COLUMNA DERECHA: Galería de Fotos */}
                 <div className="lg:col-span-6 w-full h-full">
                   <div className="grid grid-cols-2 gap-2.5 w-full h-full">
                     <div className="flex flex-col gap-2.5 w-full h-full">
                       <div className="h-[32%] rounded-2xl overflow-hidden bg-zinc-100 shrink-0">
-                        <img
+                        <Image
                           src={data.images[0]}
                           alt="Interior Madera"
+                          width={400}
+                          height={300}
+                          unoptimized
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                       <div className="h-[68%] rounded-2xl overflow-hidden bg-zinc-100">
-                        <img
+                        <Image
                           src={data.images[1]}
                           alt="Comedor Amarillas"
+                          width={400}
+                          height={500}
+                          unoptimized
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
                       </div>
@@ -303,16 +299,22 @@ export default function AsiloDetails({
 
                     <div className="flex flex-col gap-2.5 w-full h-full">
                       <div className="h-[70%] rounded-2xl overflow-hidden bg-zinc-100">
-                        <img
+                        <Image
                           src={data.images[2]}
                           alt="Pasillo Alto"
+                          width={400}
+                          height={500}
+                          unoptimized
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                       <div className="h-[30%] rounded-2xl overflow-hidden relative bg-zinc-100 group cursor-pointer shrink-0">
-                        <img
+                        <Image
                           src={data.images[3]}
                           alt="Vista Noche"
+                          width={400}
+                          height={300}
+                          unoptimized
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -330,11 +332,9 @@ export default function AsiloDetails({
         )}
       </AnimatePresence>
 
-      {/* MODAL DE COMPARACIÓN / FAVORITOS */}
       <AnimatePresence>
         {isCompareOpen && (
           <div className="fixed inset-0 z-60 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md">
-            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -343,7 +343,6 @@ export default function AsiloDetails({
               className="absolute inset-0"
             />
 
-            {/* Contenedor Único Sin Desbordamiento */}
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
