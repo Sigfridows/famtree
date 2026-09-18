@@ -1,2 +1,2 @@
-/** Public boundary for FT04 location and maps. */
-export {};
+export { getAsylumMap } from "./api/get-asylum-map";
+export type { AsylumMapPage, AsylumMapPin } from "./api/get-asylum-map";
