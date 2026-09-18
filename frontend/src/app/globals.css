@@ -1,20 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #022c22;
-  --foreground: #ecfdf5;
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Inter", "Segoe UI", sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, monospace;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
 body {
-  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* Ocultar la atribución flotante de Leaflet */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+@layer utilities {
+  .font-cinzel {
+    font-family: var(--font-cinzel), serif;
+  }
+  .font-montserrat {
+    font-family: var(--font-montserrat), sans-serif;
+  }
+  .font-nunito {
+    font-family: var(--font-nunito), sans-serif;
+  }
+  .font-poppins {
+    font-family: var(--font-poppins), sans-serif;
+  }
+  .font-roboto-mono {
+    font-family: var(--font-roboto-mono), monospace;
+  }
 }
