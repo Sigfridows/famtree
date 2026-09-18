@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest } from "@/lib/apiClient";
 import type { AsylumCatalogs, AsylumDetail, AsylumFilters, AsylumPage } from "../types";
 
 /** Shared by catalog and map so filters cannot silently diverge. */

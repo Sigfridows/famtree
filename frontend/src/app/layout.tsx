@@ -1,16 +1,55 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
+import { Cinzel, Montserrat, Nunito, Poppins, Roboto_Mono } from "next/font/google";
+import SideBar from '../components/shared/SideBar';
+import './globals.css';
 
-import "./globals.css";
+
+// Fuentes variables (cargan automáticamente todos los pesos)
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  variable: "--font-cinzel",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+});
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: "--font-roboto-mono",
+});
+
+// Poppins requiere especificar los pesos explícitamente
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+});
 
 export const metadata: Metadata = {
-  title: "FamTree",
-  description: "Plataforma para explorar y comparar centros de atención para adultos mayores.",
+  title: 'FamTree',
+  description: 'El mejor lugar para descansar',
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="es" className="h-full antialiased">
-      <body className="min-h-full">{children}</body>
+    <html lang="es" className={`${cinzel.variable} ${montserrat.variable} ${nunito.variable} ${poppins.variable} ${robotoMono.variable}`}>
+      <body className="bg-zinc-950 text-white min-h-screen antialiased">
+        <SideBar />
+        <main className="w-full min-h-screen">
+          {children}
+        </main>
+      </body>
     </html>
   );
 }
