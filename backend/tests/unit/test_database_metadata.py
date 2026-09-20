@@ -6,6 +6,9 @@ def test_approved_tables_are_registered_by_feature_models() -> None:
     load_models()
 
     assert set(Base.metadata.tables) == {
+        "famtree.sessions",
+        "famtree.moderation_decisions",
+        "famtree.login_guards",
         "famtree.asilos",
         "famtree.asilos_servicios",
         "famtree.asilos_tipos_adulto",
