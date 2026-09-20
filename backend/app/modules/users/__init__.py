@@ -1,1 +1,4 @@
-"""User module placeholder; business implementation starts after F0/F2."""
+from app.modules.users.schemas import UserProfile
+from app.modules.users.service import Credentials, UserDirectory
+
+__all__ = ["Credentials", "UserDirectory", "UserProfile"]

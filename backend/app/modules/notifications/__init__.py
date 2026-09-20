@@ -1,1 +1,3 @@
-"""Notifications module placeholder; business implementation starts in F10."""
+from app.modules.notifications.service import NotificationService
+
+__all__ = ["NotificationService"]

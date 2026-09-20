@@ -375,3 +375,16 @@ async def test_map_pagination_does_not_drop_centers_after_first_hundred(
     assert len(first["items"]) == 100 and len(second["items"]) == 1
     actual = [item["id"] for item in first["items"] + second["items"]]
     assert actual == discovery.ids[:18] + [center.codigo_asilo for center in extra]
+
+
+async def test_normalized_search_and_location_match(discovery: Discovery) -> None:
+    source = await discovery.session.get(Asilo, discovery.ids[0])
+    assert source is not None
+    source.nombre_asilo = "  Los \t  Róbles  "
+    await discovery.session.flush()
+    response = await discovery.client.get("/api/v1/asylums?q=los%20robles")
+    assert [item["id"] for item in response.json()["items"]] == discovery.ids[:1]
+
+    # HU04 also matches locality; filtering must not require a name match.
+    response = await discovery.client.get("/api/v1/asylums", params={"q": "sector de pruebas"})
+    assert response.json()["pagination"]["total"] == 18

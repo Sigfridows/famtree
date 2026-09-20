@@ -13,6 +13,7 @@ from sqlalchemy import (
     func,
     text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -28,10 +29,11 @@ class Notificacion(Base):
     __table_args__ = (
         CheckConstraint("length(btrim(titulo)) > 0", name="ck_notificaciones_titulo"),
         CheckConstraint(
-            "(tipo_evento = 'RESOLUCION_REPORTE' AND codigo_resena IS NOT NULL "
+            "(tipo_evento = 'RESOLUCION_REPORTE' "
+            "AND (codigo_resena IS NOT NULL OR resolution_snapshot IS NOT NULL) "
             "AND codigo_asilo IS NULL) OR "
             "(tipo_evento <> 'RESOLUCION_REPORTE' AND codigo_asilo IS NOT NULL "
-            "AND codigo_resena IS NULL)",
+            "AND codigo_resena IS NULL AND resolution_snapshot IS NULL)",
             name="ck_notificaciones_origen",
         ),
         Index("ix_notificaciones_asilo", "codigo_asilo"),
@@ -90,3 +92,5 @@ class Notificacion(Base):
     fecha_creacion: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+
+    resolution_snapshot: Mapped[dict[str, object] | None] = mapped_column(JSONB)

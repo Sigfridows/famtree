@@ -1,4 +1,4 @@
-"""Public reviews read contracts. Review writes and moderation remain pending."""
+"""Public reviews read contract used by discovery projections."""
 
 from app.modules.reviews.queries import public_ratings
 
