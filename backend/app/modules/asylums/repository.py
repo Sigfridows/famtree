@@ -3,7 +3,7 @@
 from collections import defaultdict
 from typing import Any
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, SQLColumnExpression, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -88,11 +88,20 @@ class SqlAlchemyAsylumReader:
                 .replace("%", r"\%")
                 .replace("_", r"\_")
             )
-            normalized_name = func.famtree.f_unaccent(
-                func.regexp_replace(func.btrim(Asilo.nombre_asilo), r"\s+", " ", "g")
-            )
+            pattern = func.famtree.f_unaccent(f"%{term}%")
+
+            def normalized(column: SQLColumnExpression[Any]) -> ColumnElement[Any]:
+                return func.famtree.f_unaccent(
+                    func.regexp_replace(func.btrim(column), r"\s+", " ", "g")
+                ).ilike(pattern, escape="\\")
+
             conditions.append(
-                normalized_name.ilike(func.famtree.f_unaccent(f"%{term}%"), escape="\\")
+                or_(
+                    normalized(Asilo.nombre_asilo),
+                    normalized(Asilo.sector_asilo),
+                    normalized(Municipio.nombre_municipio),
+                    normalized(Provincia.nombre_provincia),
+                )
             )
         if query.province_id is not None:
             conditions.append(Provincia.codigo_provincia == query.province_id)

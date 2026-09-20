@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import computed_field
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://famtree@localhost:5432/famtree"
     cors_origins: str = "http://localhost:3000"
     session_secret: str = "change-this-development-secret"
+    session_lifetime_seconds: int = Field(default=28800, ge=300, le=604800)
     smtp_host: str = "localhost"
     smtp_port: int = 1025
     upload_dir: Path = Path("uploads")

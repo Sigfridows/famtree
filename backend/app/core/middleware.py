@@ -22,6 +22,8 @@ class RequestIdMiddleware:
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append("x-request-id", request_id)
+                headers["Cache-Control"] = "no-store"
+                headers["X-Content-Type-Options"] = "nosniff"
             await send(message)
 
         await self.app(scope, receive, send_with_request_id)
