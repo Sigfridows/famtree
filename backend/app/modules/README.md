@@ -35,5 +35,6 @@ repository.py   # persistencia y queries
 models.py       # modelos SQLAlchemy del módulo
 ```
 
-`core` conserva infraestructura transversal; `db` conserva sesión/base de datos; `api/router.py`
-es el composition root. No se crearán carpetas globales de controllers, services o models.
+`core` conserva infraestructura transversal; `db` conserva sesión/base de datos;
+`api/dependencies.py` ensambla los servicios y sus dependencias, y `api/router.py` registra las rutas.
+No se crearán carpetas globales de controllers, services o models.
