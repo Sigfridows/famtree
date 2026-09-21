@@ -23,7 +23,7 @@ La revisión independiente encontró dos problemas, ambos corregidos y revisados
    La migración 0007 revoca UPDATE y DELETE del rol `famtree_app` cuando existe.
 
 Se revisaron también parametrización de SQL, límites de validación, propiedad de reseñas/favoritos,
-revocación de sesiones, prefencias de avisos, copias de moderación, contenido de archivos y CSV.
+revocación de sesiones, preferencias de avisos, copias de moderación, contenido de archivos y CSV.
 
 ## Límites de la evidencia
 
