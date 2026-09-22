@@ -7,3 +7,7 @@ __pycache__
 coverage.xml
 htmlcov
 tests
+
+.runtime
+uploads
+.coverage

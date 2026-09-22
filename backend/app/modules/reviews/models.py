@@ -13,6 +13,7 @@ from sqlalchemy import (
     func,
     text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -89,7 +90,7 @@ class ReporteResena(Base):
     __table_args__ = (
         UniqueConstraint("codigo_resena", "codigo_denunciante", name="uq_reportes_denunciante"),
         CheckConstraint(
-            "detalle IS NULL OR length(btrim(detalle)) BETWEEN 10 AND 250",
+            "detalle IS NULL OR length(detalle) <= 250",
             name="ck_reportes_detalle",
         ),
         CheckConstraint(
@@ -152,3 +153,16 @@ class ReporteResena(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
     fecha_resolucion: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ModerationDecision(Base):
+    """Immutable API audit snapshot; deliberately survives review/report deletion."""
+
+    __tablename__ = "moderation_decisions"
+    __table_args__ = ({"schema": SCHEMA},)
+
+    report_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    snapshot: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
