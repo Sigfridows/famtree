@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 
 
 class ErrorBody(BaseModel):
@@ -66,11 +67,26 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
             request,
             code="validation_error",
             message="Request validation failed",
-            details=jsonable_encoder(exc.errors(), custom_encoder={ValueError: str}),
+            details=jsonable_encoder(
+                [{k: v for k, v in error.items() if k != "input"} for error in exc.errors()],
+                custom_encoder={ValueError: str},
+            ),
+        ),
+    )
+
+
+async def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONResponse:
+    return JSONResponse(
+        status_code=409,
+        content=_error_payload(
+            request,
+            code="data_conflict",
+            message="La operación entra en conflicto con los datos o reglas existentes",
         ),
     )
 
 
 def register_exception_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(IntegrityError, integrity_error_handler)  # type: ignore[arg-type]
     app.add_exception_handler(AppError, app_error_handler)  # type: ignore[arg-type]
     app.add_exception_handler(RequestValidationError, validation_error_handler)  # type: ignore[arg-type]

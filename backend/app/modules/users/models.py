@@ -48,8 +48,7 @@ class Usuario(Base):
         CheckConstraint("length(btrim(apellido_usuario)) >= 2", name="ck_usuarios_apellido"),
         CheckConstraint("length(password_hash) >= 20", name="ck_usuarios_password"),
         CheckConstraint(
-            "(rol = 'ADMIN_ASILO' AND codigo_asilo_asignado IS NOT NULL) OR "
-            "(rol <> 'ADMIN_ASILO' AND codigo_asilo_asignado IS NULL)",
+            "rol = 'ADMIN_ASILO' OR codigo_asilo_asignado IS NULL",
             name="ck_usuarios_asignacion",
         ),
         CheckConstraint(
@@ -57,7 +56,8 @@ class Usuario(Base):
             name="ck_usuarios_telefono_admin",
         ),
         CheckConstraint(
-            "rol = 'USUARIO_REGISTRADO' OR (foto_perfil IS NULL AND descripcion IS NULL)",
+            "rol IN ('USUARIO_REGISTRADO', 'ADMIN_ASILO') OR "
+            "(foto_perfil IS NULL AND descripcion IS NULL)",
             name="ck_usuarios_perfil_por_rol",
         ),
         CheckConstraint(
@@ -109,6 +109,8 @@ class Usuario(Base):
         server_default=text("false"),
         comment="TRUE mientras el ADMIN_ASILO no cambie la clave temporal (HU40)",
     )
+    password_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
     fecha_registro: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
