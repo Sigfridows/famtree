@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/apiClient";
-import type { AsylumCatalogs, AsylumDetail, AsylumFilters, AsylumPage } from "../types";
+import type { AsylumCatalogs, AsylumDetail, AsylumFilters, AsylumPage } from "../types/asylum.types";
 
 /** Shared by catalog and map so filters cannot silently diverge. */
 export function buildAsylumQuery(filters: AsylumFilters = {}): string {

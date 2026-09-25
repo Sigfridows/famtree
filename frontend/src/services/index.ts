@@ -1,5 +1,3 @@
-export * from "./asylumService";
-export * from "./userService";
+export * from "../features/asylums/services/asylumService";
 export * from "./reviewService";
 export * from "./favoriteService";
-export * from "./notificationService";
