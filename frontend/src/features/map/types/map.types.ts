@@ -1,0 +1,1 @@
+export type { AsylumMapPin, AsylumMapPage } from "../api/get-asylum-map";
