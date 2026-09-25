@@ -8,6 +8,9 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Garantiza extraer la URL de la imagen sin importar cómo la resuelva el bundler/TypeScript
+  const imageSrc = typeof treeImg === "string" ? treeImg : treeImg.src;
+
   return (
     <main className="h-screen w-screen max-h-screen bg-[#0e0e0e] text-white flex items-center justify-center p-6 lg:p-12 overflow-hidden relative">
       {/* Botón Saltar */}
@@ -29,7 +32,7 @@ export default function AuthLayout({
 
         <div className="hidden lg:flex lg:col-span-7 h-full items-center justify-center relative z-10 -ml-12 lg:-ml-20 -mt-10 lg:-mt-14 pointer-events-none">
           <AsciiTree
-            imageSrc={treeImg.src}
+            imageSrc={imageSrc}
             dotSize={8}
             gap={3}
             className="w-full max-h-screen object-contain object-right transform scale-120 lg:scale-130 origin-right"
