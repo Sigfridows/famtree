@@ -18,6 +18,14 @@ services:
       timeout: 5s
       retries: 10
 
+  adminer:
+      image: adminer:latest
+      restart: always
+      ports:
+        - 8080:8080
+      depends_on:
+        - postgres
+
   mailpit:
     image: axllent/mailpit:v1.27.9
     restart: unless-stopped

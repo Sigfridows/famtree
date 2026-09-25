@@ -1,31 +1,12 @@
 import type { Metadata } from 'next';
 import { Cinzel, Montserrat, Nunito, Poppins, Roboto_Mono } from "next/font/google";
-import SideBar from '../components/shared/SideBar';
+import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import './globals.css';
 
-
-// Fuentes variables (cargan automáticamente todos los pesos)
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  variable: "--font-cinzel",
-});
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  variable: "--font-montserrat",
-});
-
-const nunito = Nunito({
-  subsets: ["latin"],
-  variable: "--font-nunito",
-});
-
-const robotoMono = Roboto_Mono({
-  subsets: ["latin"],
-  variable: "--font-roboto-mono",
-});
-
-// Poppins requiere especificar los pesos explícitamente
+const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel" });
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" });
+const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" });
+const robotoMono = Roboto_Mono({ subsets: ["latin"], variable: "--font-roboto-mono" });
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -43,12 +24,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${cinzel.variable} ${montserrat.variable} ${nunito.variable} ${poppins.variable} ${robotoMono.variable}`}>
+    <html
+      lang="es"
+      className={`${cinzel.variable} ${montserrat.variable} ${nunito.variable} ${poppins.variable} ${robotoMono.variable}`}
+    >
       <body className="bg-zinc-950 text-white min-h-screen antialiased">
-        <SideBar />
-        <main className="w-full min-h-screen">
+        <AuthProvider>
           {children}
-        </main>
+        </AuthProvider>
       </body>
     </html>
   );
