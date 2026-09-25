@@ -31,6 +31,11 @@ const navItems: NavItem[] = [
 export default function SideBar() {
   const pathname = usePathname();
 
+  // Ocultar el Sidebar en rutas de autenticación
+  if (pathname === "/login" || pathname === "/register") {
+    return null;
+  }
+
   return (
     <aside className="fixed left-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center py-6 w-20 bg-[#161616]/95 backdrop-blur-md rounded-r-[40px] border-r border-y border-white/10 shadow-2xl">
       <nav className="flex flex-col gap-4 items-center">
