@@ -30,8 +30,8 @@ export function useLoginForm() {
     setIsLoading(true);
 
     try {
-      await login({ username: username.trim(), password });
-      router.push("/");
+      const user = await login({ username: username.trim(), password });
+      router.push(user.role === "ASYLUM_ADMIN" ? "/center-admin" : "/");
     } catch (err: unknown) {
       if (err instanceof ApiError && err.message) {
         setErrorMessage(err.message);

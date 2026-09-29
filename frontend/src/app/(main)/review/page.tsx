@@ -1,5 +1,7 @@
 "use client";
 
+import { reviewService } from "@/features/reviews/api/reviewService";
+import type { ReportReason } from "@/features/reviews/types/reviews.types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -42,6 +44,7 @@ interface RawReview {
   rating?: number;
   calificacion?: number;
   date?: string;
+  createdAt?: string;
   fecha_creacion?: string;
   comment?: string;
   text?: string;
@@ -75,43 +78,23 @@ export default function ResenasPage() {
   const { user } = useAuth();
   const isAuthenticated = Boolean(user);
 
-  const { reviews, asylums, loading, error, submitReview, refetch } =
+  const { reviews, asylums, loading, error, submitReview, refetch, toggleLike, pendingLikes } =
     useReviews();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [onlyMine, setOnlyMine] = useState(false);
 
-  const [localLikesState, setLocalLikesState] = useState<
-    Record<string, { count: number; isLiked: boolean }>
-  >({});
-
-  const handleToggleLike = (id: string) => {
-    if (!isAuthenticated) {
-      router.push("/login?callbackUrl=/review");
-      return;
-    }
-
-    setLocalLikesState((prev) => {
-      const targetReview = normalizedReviews.find((r) => r.id === id);
-      const current = prev[id];
-
-      const baseLikes = targetReview ? targetReview.likes : 0;
-      const currentlyLiked = current
-        ? current.isLiked
-        : Boolean(targetReview?.isLiked);
-      const currentCount = current ? current.count : baseLikes;
-
-      return {
-        ...prev,
-        [id]: {
-          isLiked: !currentlyLiked,
-          count: currentlyLiked
-            ? Math.max(0, currentCount - 1)
-            : currentCount + 1,
-        },
-      };
-    });
+  const [action, setAction] = useState<{id: string; mode: "edit" | "report"; comment: string; rating: number} | null>(null);
+  const [reason, setReason] = useState<ReportReason>("SPAM");
+  const [detail, setDetail] = useState("");
+  const [actionBusy, setActionBusy] = useState(false);
+  const [likeError, setLikeError] = useState<string | null>(null);
+  const handleToggleLike = async (id: string) => {
+    if (!isAuthenticated) { router.push("/login?callbackUrl=/review"); return; }
+    setLikeError(null);
+    try { await toggleLike(id); }
+    catch (err) { setLikeError(err instanceof Error ? err.message : "No se pudo guardar el like. Recarga antes de reintentar."); }
   };
 
   const handleBadgeClick = (asiloId: string, e: React.MouseEvent) => {
@@ -235,17 +218,17 @@ export default function ResenasPage() {
       const baseLikes = Number(rev.likes || 0);
       const baseIsLiked = Boolean(rev.isLiked);
 
-      const localState = localLikesState[realId];
+
 
       return {
         id: realId,
         author: authorName,
         avatar: avatar,
         rating: Number(rev.rating || rev.calificacion || 5),
-        date: rev.date || rev.fecha_creacion || "Reciente",
+        date: rev.date || rev.createdAt || rev.fecha_creacion || "Reciente",
         text: rev.comment || rev.text || rev.comentario || "",
-        likes: localState ? localState.count : baseLikes,
-        isLiked: localState ? localState.isLiked : baseIsLiked,
+        likes: baseLikes,
+        isLiked: baseIsLiked,
         asiloId: realAsylumId,
         asiloName:
           matchedAsylum?.name || rev.asylumName || rev.asiloName || "Asilo",
@@ -272,6 +255,7 @@ export default function ResenasPage() {
 
   return (
     <div className="relative min-h-screen bg-[#121315] text-white font-montserrat pl-20 pr-6 pt-6 pb-36 selection:bg-[#CCD999] selection:text-black">
+      {likeError && <p role="alert" className="text-red-400">{likeError}</p>}
       {/* Glow ambiental de fondo */}
       <div className="fixed top-0 right-1/4 w-96 h-96 bg-[#CCD999]/5 rounded-full blur-3xl pointer-events-none -z-10" />
 
@@ -346,19 +330,36 @@ export default function ResenasPage() {
                 activeMenuId={activeMenuId}
                 badgePalette={BADGE_COLOR_PALETTE}
                 onToggleLike={handleToggleLike}
+                likePending={pendingLikes.includes(review.id)}
                 onBadgeClick={handleBadgeClick}
                 onToggleMenu={(id) =>
                   setActiveMenuId((prev) => (prev === id ? null : id))
                 }
-                onEdit={() => setActiveMenuId(null)}
-                onReport={() => setActiveMenuId(null)}
+                onEdit={reviews.some(item => String(item.reviewId ?? item.id) === review.id && String(item.userId) === String(user?.userId)) ? () => {setActiveMenuId(null); setLikeError(null); setAction({id: review.id, mode: "edit", comment: review.text, rating: review.rating});} : undefined}
+                onReport={user?.role === "REGISTERED_USER" && !reviews.some(item => String(item.reviewId ?? item.id) === review.id && String(item.userId) === String(user.userId)) ? () => {setActiveMenuId(null); setLikeError(null); setDetail(""); setAction({id: review.id, mode: "report", comment: "", rating: 1});} : undefined}
               />
             ))}
           </div>
         )}
       </main>
 
-      {isAuthenticated ? (
+      {action && <div role="dialog" aria-modal="true" aria-label={action.mode === "edit" ? "Editar reseña" : "Reportar reseña"} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
+        <form className="w-full max-w-lg space-y-4 rounded-2xl bg-zinc-900 p-6" onSubmit={async e => {
+          e.preventDefault(); setActionBusy(true); setLikeError(null);
+          try {
+            if (action.mode === "edit") await reviewService.updateReview(action.id, {rating: action.rating, comment: action.comment});
+            else await reviewService.reportReview(Number(action.id), reason, detail || undefined);
+            setAction(null); await refetch();
+          } catch (err) { setLikeError(err instanceof Error ? err.message : "No se pudo guardar"); }
+          finally {setActionBusy(false);}
+        }}>
+          <h2>{action.mode === "edit" ? "Editar reseña" : "Reportar reseña"}</h2>
+          {action.mode === "edit" ? <><label>Calificación<input className="block border p-2" required type="number" min="1" max="5" value={action.rating} onChange={e => setAction({...action, rating: Number(e.target.value)})} /></label><label>Comentario<textarea className="block w-full border p-2" required minLength={10} maxLength={500} value={action.comment} onChange={e => setAction({...action, comment: e.target.value})} /></label></> : <><label>Motivo<select className="block w-full bg-zinc-900 p-2" value={reason} onChange={e => setReason(e.target.value as ReportReason)}>{Object.entries({SPAM: "Spam", OFFENSIVE_LANGUAGE: "Lenguaje ofensivo", FALSE_INFO: "Información falsa", CONFLICT_OF_INTEREST: "Conflicto de interés", OTHER: "Otro"}).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label>Detalle opcional<textarea className="block w-full border p-2" maxLength={250} value={detail} onChange={e => setDetail(e.target.value)} /></label></>}
+          {likeError && <p role="alert">{likeError}</p>}
+          <button disabled={actionBusy} className="mr-6 rounded bg-emerald-800 p-2">Guardar</button><button type="button" disabled={actionBusy} onClick={() => setAction(null)}>Cancelar</button>
+        </form>
+      </div>}
+      {user?.role === "REGISTERED_USER" ? (
         <ReviewComposer
           asilos={asylums as unknown as Asilo[]}
           badgePalette={BADGE_COLOR_PALETTE}

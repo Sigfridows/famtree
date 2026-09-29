@@ -15,7 +15,7 @@ import {
 
 interface ForcePasswordChangeModalProps {
   isOpen: boolean;
-  onPasswordChanged: (newPassword: string) => Promise<void>;
+  onPasswordChanged: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 export default function ForcePasswordChangeModal({
@@ -39,6 +39,7 @@ export default function ForcePasswordChangeModal({
   const hasMinLength = newPassword.length >= 8;
   const hasVariety =
     /[A-Z]/.test(newPassword) &&
+    /[a-z]/.test(newPassword) &&
     /[0-9]/.test(newPassword) &&
     /[^A-Za-z0-9]/.test(newPassword);
 
@@ -58,7 +59,7 @@ export default function ForcePasswordChangeModal({
 
     try {
       setLoading(true);
-      await onPasswordChanged(newPassword);
+      await onPasswordChanged(tempPassword, newPassword);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Error al actualizar contraseña";

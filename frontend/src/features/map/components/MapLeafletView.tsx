@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type L from "leaflet";
 import type { AsylumMapPin } from "../api/get-asylum-map";
 import { createPinHtml } from "./MapPopup";
@@ -22,6 +22,7 @@ export default function MapLeafletView({
   const leafletMap = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<number, L.Marker>>({});
   const LRef = useRef<typeof L | null>(null);
+  const [readyMap, setReadyMap] = useState<L.Map | null>(null);
 
   // Mantenemos referencias estables de callbacks
   const onMapReadyRef = useRef(onMapReady);
@@ -79,6 +80,7 @@ export default function MapLeafletView({
       }).addTo(map);
 
       leafletMap.current = map;
+      setReadyMap(map);
 
       if (!isCancelled && onMapReadyRef.current) {
         onMapReadyRef.current(map);
@@ -93,13 +95,14 @@ export default function MapLeafletView({
         leafletMap.current.remove();
         leafletMap.current = null;
       }
+      markersRef.current = {};
     };
   }, []);
 
   // 2. Manejo y actualización reactiva de marcadores
   useEffect(() => {
     const L = LRef.current;
-    const map = leafletMap.current;
+    const map = readyMap;
     if (!L || !map) return;
 
     const currentPinIds = new Set(pins.map((p) => p.id));
@@ -113,7 +116,7 @@ export default function MapLeafletView({
     });
 
     pins.forEach((pin) => {
-      if (!pin.latitude || !pin.longitude) return;
+      if (pin.latitude == null || pin.longitude == null) return;
 
       const isSelected = pin.id === activePinId;
       const customIcon = L.divIcon({
@@ -125,6 +128,7 @@ export default function MapLeafletView({
 
       if (markersRef.current[pin.id]) {
         markersRef.current[pin.id].setIcon(customIcon);
+        markersRef.current[pin.id].setLatLng([pin.latitude, pin.longitude]);
       } else {
         const marker = L.marker([pin.latitude, pin.longitude], {
           icon: customIcon,
@@ -139,20 +143,20 @@ export default function MapLeafletView({
         markersRef.current[pin.id] = marker;
       }
     });
-  }, [pins, activePinId]);
+  }, [pins, activePinId, readyMap]);
 
   // 3. Animación de vuelo (flyTo)
   useEffect(() => {
-    const map = leafletMap.current;
+    const map = readyMap;
     if (!map || !activePinId) return;
 
     const activePin = pins.find((p) => p.id === activePinId);
-    if (activePin?.latitude && activePin.longitude) {
+    if (activePin && activePin.latitude != null && activePin.longitude != null) {
       map.flyTo([activePin.latitude, activePin.longitude], 14, {
         duration: 0.8,
       });
     }
-  }, [activePinId, pins]);
+  }, [activePinId, pins, readyMap]);
 
   return (
     <div 

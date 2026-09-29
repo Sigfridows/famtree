@@ -20,6 +20,7 @@ export interface Review {
 }
 
 interface ReviewCardProps {
+  likePending?: boolean;
   review: Review;
   idx: number;
   activeMenuId: string | null;
@@ -37,6 +38,7 @@ export default function ReviewCard({
   activeMenuId,
   badgePalette,
   onToggleLike,
+  likePending = false,
   onBadgeClick,
   onToggleMenu,
   onEdit,
@@ -129,6 +131,9 @@ export default function ReviewCard({
       <div className="pt-3 border-t border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <motion.button
+            disabled={likePending}
+            aria-label={review.isLiked ? "Quitar like" : "Dar like"}
+            aria-pressed={review.isLiked}
             onClick={() => onToggleLike(review.id)}
             whileTap={{ scale: 0.85 }}
             className="flex items-center gap-1.5 text-xs font-bold cursor-pointer"
@@ -178,20 +183,20 @@ export default function ReviewCard({
                 exit={{ opacity: 0, scale: 0.95, y: -5 }}
                 className="absolute right-0 bottom-full mb-2 w-32 bg-[#1a1a1a] rounded-xl shadow-2xl border border-white/10 p-1.5 z-30 space-y-1"
               >
-                <button
-                  onClick={() => onEdit?.(review.id)}
+                {onEdit && <button
+                  onClick={() => onEdit(review.id)}
                   className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-bold text-zinc-300 hover:bg-white/10 hover:text-white rounded-lg cursor-pointer"
                 >
                   <Edit className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Editar</span>
-                </button>
-                <button
-                  onClick={() => onReport?.(review.id)}
+                </button>}
+                {onReport && <button
+                  onClick={() => onReport(review.id)}
                   className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-bold text-zinc-300 hover:bg-white/10 hover:text-white rounded-lg cursor-pointer"
                 >
                   <AlertCircle className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Reportar</span>
-                </button>
+                </button>}
               </motion.div>
             )}
           </AnimatePresence>

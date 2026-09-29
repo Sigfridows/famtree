@@ -30,7 +30,7 @@ export const reviewService = {
   },
 
   updateReview: async (id: number, payload: UpdateReviewPayload): Promise<Review> => {
-    const response = await apiClient.put<Review>(`/reviews/${id}`, payload);
+    const response = await apiClient.patch<Review>(`/reviews/${id}`, payload);
     return response.data;
   },
 

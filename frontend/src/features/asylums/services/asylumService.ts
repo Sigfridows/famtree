@@ -3,32 +3,31 @@ import type {
   AsylumDetail,
   AsylumFilters,
   AsylumPage,
-  AsylumStatus,
 } from "../types/asylum.types";
 
 export interface CreateAsylumPayload {
-  municipality_id: number;
+  municipalityId: number;
   name: string;
   description: string;
   sector: string;
   address: string;
   latitude: number;
   longitude: number;
-  capacity: number;
-  price_min: number;
-  price_max: number;
-  admission_requirements: string;
+  totalCapacity: number;
+  minPrice: number;
+  maxPrice: number;
+  entryRequirements: string;
   certifications?: string | null;
   phone: string;
   email: string;
   website?: string | null;
-  services?: number[];
-  care_types?: number[];
+  images: {url: string}[];
+  serviceIds: number[];
+  seniorTypeIds: number[];
 }
 
-export interface UpdateAsylumPayload extends Partial<CreateAsylumPayload> {
-  status?: AsylumStatus;
-}
+export type UpdateAsylumPayload = Partial<Omit<CreateAsylumPayload, "images">>;
+export interface ManagedAsylum extends Omit<CreateAsylumPayload, "images"> { asylumId: number; status: "ACTIVE" | "INACTIVE"; }
 
 export const asylumService = {
   /**
@@ -52,8 +51,8 @@ export const asylumService = {
   /**
    * Crear un nuevo asilo (Panel de Administración).
    */
-  createAsylum: async (payload: CreateAsylumPayload): Promise<AsylumDetail> => {
-    const response = await apiClient.post<AsylumDetail>("/asylums", payload);
+  createAsylum: async (payload: CreateAsylumPayload): Promise<ManagedAsylum> => {
+    const response = await apiClient.post<ManagedAsylum>("/admin/asylums", payload);
     return response.data;
   },
 
@@ -63,8 +62,8 @@ export const asylumService = {
   updateAsylum: async (
     id: number,
     payload: UpdateAsylumPayload
-  ): Promise<AsylumDetail> => {
-    const response = await apiClient.put<AsylumDetail>(`/asylums/${id}`, payload);
+  ): Promise<ManagedAsylum> => {
+    const response = await apiClient.patch<ManagedAsylum>(`/admin/asylums/${id}`, payload);
     return response.data;
   },
 
@@ -72,6 +71,6 @@ export const asylumService = {
    * Desactivar o eliminar un asilo.
    */
   deleteAsylum: async (id: number): Promise<void> => {
-    await apiClient.delete(`/asylums/${id}`);
+    await apiClient.patch(`/admin/asylums/${id}/deactivate`);
   },
 };

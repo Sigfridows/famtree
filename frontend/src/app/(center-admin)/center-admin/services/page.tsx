@@ -1,3 +1,2 @@
-export default function ServicePage() {
-  return <div>Servicios</div>;
-}
+import CenterEditor from "@/features/center-admin/components/CenterEditor";
+export default CenterEditor;

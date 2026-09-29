@@ -54,7 +54,7 @@ export const profileService = {
 
   // Gestión de usuarios (Admin)
   getUserById: async (id: number): Promise<User> => {
-    const { data } = await apiClient.get<User>(`/users/${id}`);
+    const { data } = await apiClient.get<User>(`/admin/users/${id}`);
     return {
       ...data,
       profilePicture: getImageUrl(data.profilePicture),
@@ -62,19 +62,17 @@ export const profileService = {
   },
 
   getUsers: async (): Promise<User[]> => {
-    const { data } = await apiClient.get<User[]>("/users");
-    return data.map((user) => ({
+    const { data } = await apiClient.get<{items: User[]}>("/admin/users");
+    return data.items.map((user) => ({
       ...user,
       profilePicture: getImageUrl(user.profilePicture),
     }));
   },
 
-  updateUserStatus: async (id: number, status: UserStatus): Promise<User> => {
-    const { data } = await apiClient.patch<User>(`/users/${id}/status`, { status });
-    return {
-      ...data,
-      profilePicture: getImageUrl(data.profilePicture),
-    };
+  updateUserStatus: async (id: number, status: UserStatus, reason: string): Promise<User> => {
+    if (status === "BLOCKED") await apiClient.patch(`/admin/users/${id}/block`, {reason});
+    else await apiClient.patch(`/admin/users/${id}/unblock`, {reason});
+    return profileService.getUserById(id);
   },
 };
 
