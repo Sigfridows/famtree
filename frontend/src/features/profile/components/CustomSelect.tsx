@@ -33,15 +33,15 @@ export function CustomSelect({
   }, []);
 
   return (
-    <div ref={dropdownRef} className="space-y-1.5 relative">
-      <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800">
+    <div ref={dropdownRef} className="space-y-1.5 relative font-montserrat">
+      <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-300">
         {icon}
         <span>{label}</span>
       </div>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full bg-white border border-zinc-200 rounded-[5px] px-3.5 py-2 text-xs font-semibold text-zinc-700 flex items-center justify-between shadow-xs hover:border-zinc-300 transition-colors cursor-pointer text-left"
+        className="w-full bg-[#1c1c1c] border border-white/10 rounded-2xl px-4 py-2.5 text-xs font-semibold text-white flex items-center justify-between shadow-inner hover:border-white/20 focus:border-[#CCD999] transition-all cursor-pointer text-left"
       >
         <span>{value}</span>
         <ChevronDown
@@ -58,7 +58,7 @@ export function CustomSelect({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl z-40 py-1 overflow-hidden"
+            className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl z-40 py-1.5 overflow-hidden backdrop-blur-xl"
           >
             {options.map((opt) => (
               <button
@@ -68,14 +68,14 @@ export function CustomSelect({
                   onChange(opt);
                   setIsOpen(false);
                 }}
-                className={`w-full px-3.5 py-2 text-xs text-left font-semibold transition-colors cursor-pointer flex items-center justify-between ${
+                className={`w-full px-4 py-2.5 text-xs text-left font-semibold transition-colors cursor-pointer flex items-center justify-between ${
                   value === opt
-                    ? "bg-zinc-100 text-zinc-900 font-bold"
-                    : "text-zinc-600 hover:bg-zinc-50"
+                    ? "bg-[#CCD999] text-zinc-950 font-bold"
+                    : "text-zinc-300 hover:bg-white/10"
                 }`}
               >
                 <span>{opt}</span>
-                {value === opt && <Check className="w-3.5 h-3.5 text-zinc-800" />}
+                {value === opt && <Check className="w-3.5 h-3.5 text-zinc-950" />}
               </button>
             ))}
           </motion.div>

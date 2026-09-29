@@ -41,14 +41,26 @@ export async function apiRequest<T>(
     }
   }
 
+  const isFormData = options.body instanceof FormData;
   const headers = new Headers(options.headers);
-  if (options.body !== undefined) {
+
+  // Solo agregar Content-Type: application/json si NO es FormData
+  if (options.body !== undefined && !isFormData && !headers.has("content-type")) {
     headers.set("content-type", "application/json");
   }
 
+  // Si es FormData, dejamos el body intacto para que fetch configure el multipart/form-data
+  const formattedBody = isFormData
+    ? (options.body as FormData)
+    : options.body === undefined
+    ? undefined
+    : typeof options.body === "string"
+    ? options.body
+    : JSON.stringify(options.body);
+
   const response = await fetch(`${env.apiBaseUrl}${path}${queryString}`, {
     ...options,
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    body: formattedBody,
     credentials: "include",
     headers,
   });
