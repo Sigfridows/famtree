@@ -1,35 +1,15 @@
 "use client";
-
-import DashboardHeader from "@/features/center-admin/components/dashboard/DashboardHeader";
-import DashboardKpis from "@/features/center-admin/components/dashboard/DashboardKpis";
-import RecentRequestsTable from "@/features/center-admin/components/dashboard/RecentRequestsTable";
-import PriorityReviews from "@/features/center-admin/components/dashboard/PriorityReviews";
-import ProfileStatusCard from "@/features/center-admin/components/dashboard/ProfileStatusCard";
-import TodayScheduleCard from "@/features/center-admin/components/dashboard/TodayScheduleCard";
-
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { centerAdminService } from "@/features/center-admin/api/centerAdminService";
+import type { CenterInfo, CenterReputation } from "@/features/center-admin/types/centerAdmin.types";
 export default function DashboardPage() {
-  return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Banner Superior */}
-      <DashboardHeader />
-
-      {/* Tarjetas KPI */}
-      <DashboardKpis />
-
-      {/* Grid Principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Columna Principal (Solicitudes y Reseñas) */}
-        <div className="lg:col-span-2 space-y-6">
-          <RecentRequestsTable />
-          <PriorityReviews />
-        </div>
-
-        {/* Columna Lateral (Estado y Horarios) */}
-        <div className="space-y-6">
-          <ProfileStatusCard />
-          <TodayScheduleCard />
-        </div>
-      </div>
-    </div>
-  );
+  const [data, setData] = useState<{center: CenterInfo; reviews: CenterReputation} | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {let alive = true; Promise.all([centerAdminService.getMyCenterInfo(), centerAdminService.getReviews()]).then(([center, reviews]) => {if (alive) setData({center, reviews});}).catch(err => {if (alive) setError(err.message);}); return () => {alive = false;};}, []);
+  if (!data) return <p role={error ? "alert" : "status"}>{error || "Cargando resumen…"}</p>;
+  return <div className="max-w-5xl space-y-6"><h1 className="text-2xl font-bold">{data.center.name}</h1><p>Resumen del centro que administras</p>
+    <div className="grid gap-4 sm:grid-cols-3">{[["Capacidad total", data.center.totalCapacity], ["Reseñas publicadas", data.reviews.summary.count], ["Calificación media", `${data.reviews.summary.average} / 5`]].map(([label, value]) => <div key={label} className="rounded-2xl bg-white p-6 shadow-sm"><p>{label}</p><strong className="text-3xl">{value}</strong></div>)}</div>
+    <p>Estado: {data.center.status === "ACTIVE" ? "Activo" : "Inactivo"}</p><nav className="flex gap-6"><Link className="underline" href="/center-admin/asylum">Editar mi asilo</Link><Link className="underline" href="/center-admin/reviews">Consultar reseñas</Link></nav>
+  </div>;
 }

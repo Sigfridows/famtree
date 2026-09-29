@@ -1,8 +1,24 @@
 # Integración de interfaces y revisión de rutas — 2026-09-29
 
 Base revisada: `main` en `3dd00db` (PRs 12, 13 y 14 fusionados). El pull fue fast-forward,
-sin conflictos. Los cambios de esta rama son exclusivamente de backend. Esta guía describe
-el frontend recibido, no certifica cambios que todavía no se hayan subido.
+sin conflictos. La rama incluye ahora ajustes de frontend autorizados posteriormente:
+likes persistentes, favoritos, edición/reportes de reseñas y administración del centro.
+No certifica cambios de compañeros que todavía no se hayan subido.
+
+## Actualización local de integración
+
+- Las cinco rutas inexistentes identificadas abajo fueron corregidas; la auditoría estática
+  actual informa cero rutas faltantes. Esto no sustituye pruebas autenticadas en navegador.
+- Los likes usan la respuesta del servidor y bloquean clics mientras la petición está pendiente.
+- El administrador del centro consume `/center`, imágenes y reputación; el acceso exige
+  `ASYLUM_ADMIN` y el cambio de contraseña temporal cuando corresponde.
+- `lucide-react` ya figuraba en el lockfile: se corrigió el volumen desactualizado de
+  dependencias ejecutando `npm ci` dentro del contenedor frontend.
+- El mapa recibido usa Leaflet 2D. No se encontró implementación 3D ni selector en el
+  código local o su historial disponible. Pendiente localizar la versión indicada por el equipo.
+- Se corrigió la sincronización de marcadores con la inicialización asíncrona de Leaflet.
+
+Las observaciones de UI siguientes documentan la **base recibida**, no el estado actual.
 
 ## Volver a verificar tras subir cambios
 
@@ -60,7 +76,7 @@ No se deben fusionar eliminando controles de acceso.
 
 También hay clientes duplicados en el frontend: `services/reviewService.ts`,
 `features/reviews/api/reviewService.ts` y `hooks/use-reviews.ts`. Conviene concentrar llamadas y
-adaptación en la feature; esta rama no los modifica.
+adaptación en la feature; los consumidores se han ajustado, pero la consolidación sigue pendiente.
 
 ## Likes de reseñas/comentarios
 
@@ -86,7 +102,7 @@ El POST es un **toggle, no idempotente**: desactivar el botón mientras esté pe
 reintentar automáticamente ante una respuesta perdida. Si hay duda, recargar el listado;
 usar la respuesta del servidor para reconciliar la UI.
 
-### Ajustes de UI todavía necesarios
+### Discrepancias de UI identificadas en la base (corregidas localmente)
 
 - `app/(main)/review/page.tsx` usa `localLikesState`: el clic actual solo cambia estado local
   y no llama a `toggleLike` del hook. Conectar el evento al servicio y reconciliar `likes/isLiked`.

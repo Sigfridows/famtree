@@ -14,8 +14,8 @@ export function useFavorites() {
 
   const fetchFavorites = useCallback(async () => {
     try {
-      const { data } = await apiClient.get<{ items?: FavoriteItem[] } | FavoriteItem[]>('/favorites');
-      const items = Array.isArray(data) ? data : data.items || [];
+      const { data } = await apiClient.get<{asylumId: number; createdAt: string}[]>('/favorites');
+      const items = data.map(item => ({codigo_asilo: item.asylumId, fecha_creacion: item.createdAt}));
       setFavorites(items);
     } catch {
       // Manejo silencioso
@@ -55,7 +55,7 @@ export function useFavorites() {
       if (isFav) {
         await apiClient.delete(`/favorites/${codigoAsilo}`);
       } else {
-        await apiClient.post('/favorites', { codigo_asilo: codigoAsilo });
+        await apiClient.post('/favorites', { asylumId: codigoAsilo });
       }
     } catch (err) {
       setFavorites(previous);

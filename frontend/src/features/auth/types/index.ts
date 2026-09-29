@@ -1,4 +1,4 @@
-export type UserRole = 'SYSTEM_ADMIN' | 'ASYLUM_ADMIN' | 'USER';
+export type UserRole = 'SYSTEM_ADMIN' | 'ASYLUM_ADMIN' | 'REGISTERED_USER';
 export type UserStatus = 'ACTIVE' | 'BLOCKED' | 'PENDING';
 
 export interface UserProfile {
