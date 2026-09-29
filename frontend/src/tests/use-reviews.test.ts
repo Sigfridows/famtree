@@ -10,6 +10,7 @@ vi.mock('@/features/reviews/api/reviewService', () => ({
     getReviewsByAsylum: vi.fn(),
     createReview: vi.fn(),
     toggleLikeReview: vi.fn(),
+    getAsylums: vi.fn(),
   },
 }));
 
@@ -31,8 +32,9 @@ describe('useReviews Hook', () => {
     ];
     const mockAsylums = [{ id: '1', name: 'Asilo Esperanza' }];
 
-    vi.mocked(reviewService.getAllReviews).mockResolvedValueOnce(mockReviews);
-    vi.mocked(apiClient.get).mockResolvedValueOnce({ data: mockAsylums });
+    vi.mocked(reviewService.getAllReviews).mockResolvedValue(mockReviews);
+    vi.mocked(reviewService.getAsylums).mockResolvedValue(mockAsylums);
+    vi.mocked(apiClient.get).mockResolvedValue({ data: mockAsylums });
 
     const { result } = renderHook(() => useReviews());
 
@@ -47,7 +49,7 @@ describe('useReviews Hook', () => {
 
   it('debe manejar los errores correctamente cuando falla la API al cargar', async () => {
     vi.mocked(reviewService.getAllReviews).mockRejectedValueOnce(new Error('Error de conexión'));
-    vi.mocked(apiClient.get).mockRejectedValueOnce(new Error('Error al obtener asilos'));
+    vi.mocked(reviewService.getAsylums).mockResolvedValueOnce([]);
 
     const { result } = renderHook(() => useReviews());
 
@@ -64,9 +66,9 @@ describe('useReviews Hook', () => {
       { id: '1', text: 'Reseña de prueba', author: 'Wilson Segura', likes: 2, isLiked: false }
     ];
 
-    vi.mocked(reviewService.getAllReviews).mockResolvedValueOnce(mockReviews);
-    vi.mocked(apiClient.get).mockResolvedValueOnce({ data: [] });
-    vi.mocked(reviewService.toggleLikeReview).mockResolvedValueOnce(undefined);
+    vi.mocked(reviewService.getAllReviews).mockResolvedValue(mockReviews);
+    vi.mocked(reviewService.getAsylums).mockResolvedValue([]);
+    vi.mocked(reviewService.toggleLikeReview).mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useReviews());
 
@@ -89,8 +91,8 @@ describe('useReviews Hook', () => {
       { id: '1', text: 'Reseña de prueba', author: 'Wilson Segura', likes: 2, isLiked: false }
     ];
 
-    vi.mocked(reviewService.getAllReviews).mockResolvedValueOnce(mockReviews);
-    vi.mocked(apiClient.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(reviewService.getAllReviews).mockResolvedValue(mockReviews);
+    vi.mocked(reviewService.getAsylums).mockResolvedValue([]);
     vi.mocked(reviewService.toggleLikeReview).mockRejectedValueOnce(new Error('Fallo de red'));
 
     const { result } = renderHook(() => useReviews());
@@ -100,24 +102,25 @@ describe('useReviews Hook', () => {
     });
 
     await act(async () => {
-      await result.current.toggleLike('1');
+      try {
+        await result.current.toggleLike('1');
+      } catch {
+        // Se ignora el rechazo intencional para verificar el rollback
+      }
     });
 
-    // Validar el rollback de la UI optimista: la reseña debe volver a su estado inicial
     await waitFor(() => {
       expect(result.current.reviews[0].isLiked).toBe(false);
       expect(result.current.reviews[0].likes).toBe(2);
-      
-      // Opcional: Confirmar que el hook decidió mantener el error en null de manera intencional
-      expect(result.current.error).toBeNull(); 
+      expect(result.current.error).toBeNull();
     });
   });
 
   it('debe agregar una nueva reseña con submitReview', async () => {
     const newReview = { id: '2', text: 'Nueva reseña', author: 'Wilson Segura', likes: 0, isLiked: false };
 
-    vi.mocked(reviewService.getAllReviews).mockResolvedValueOnce([]);
-    vi.mocked(apiClient.get).mockResolvedValueOnce({ data: [] });
+    vi.mocked(reviewService.getAllReviews).mockResolvedValue([]);
+    vi.mocked(reviewService.getAsylums).mockResolvedValue([]);
     vi.mocked(reviewService.createReview).mockResolvedValueOnce(newReview);
 
     const { result } = renderHook(() => useReviews());
@@ -127,7 +130,7 @@ describe('useReviews Hook', () => {
     });
 
     await act(async () => {
-      await result.current.submitReview({ text: 'Nueva reseña', asylumId: '1' });
+      await result.current.submitReview({ comment: 'Nueva reseña', asylumId: '1', rating: 5 });
     });
 
     expect(result.current.reviews).toContainEqual(newReview);

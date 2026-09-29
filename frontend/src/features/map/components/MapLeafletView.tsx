@@ -23,13 +23,23 @@ export default function MapLeafletView({
   const markersRef = useRef<Record<number, L.Marker>>({});
   const LRef = useRef<typeof L | null>(null);
 
-  // 1. Inicialización del mapa Leaflet
+  // Mantenemos referencias estables de callbacks
+  const onMapReadyRef = useRef(onMapReady);
+  const onPinSelectRef = useRef(onPinSelect);
+
   useEffect(() => {
-    let isMounted = true;
+    onMapReadyRef.current = onMapReady;
+    onPinSelectRef.current = onPinSelect;
+  });
+
+  // 1. Inicialización ÚNICA del mapa Leaflet
+  useEffect(() => {
+    let isCancelled = false;
 
     const initMap = async () => {
       if (typeof window === "undefined" || !mapRef.current) return;
 
+      // Inyección de CSS de Leaflet si no existe
       if (!document.getElementById("leaflet-css")) {
         const link = document.createElement("link");
         link.id = "leaflet-css";
@@ -42,18 +52,18 @@ export default function MapLeafletView({
       const L = LeafletModule.default;
       LRef.current = L;
 
-      if (!isMounted || !mapRef.current) return;
-
-      if (leafletMap.current) {
-        leafletMap.current.remove();
-        leafletMap.current = null;
-      }
+      if (isCancelled || !mapRef.current) return;
 
       const container = mapRef.current as HTMLDivElement & {
         _leaflet_id?: string | null;
       };
       if (container._leaflet_id) {
         container._leaflet_id = null;
+      }
+
+      if (leafletMap.current) {
+        leafletMap.current.remove();
+        leafletMap.current = null;
       }
 
       const map = L.map(mapRef.current, {
@@ -69,31 +79,38 @@ export default function MapLeafletView({
       }).addTo(map);
 
       leafletMap.current = map;
-      if (isMounted && onMapReady) {
-        onMapReady(map);
+
+      if (!isCancelled && onMapReadyRef.current) {
+        onMapReadyRef.current(map);
       }
     };
 
     void initMap();
 
     return () => {
-      isMounted = false;
+      isCancelled = true;
       if (leafletMap.current) {
         leafletMap.current.remove();
         leafletMap.current = null;
       }
     };
-  }, [onMapReady]);
+  }, []);
 
-  // 2. Renderizado dinámico de marcadores reales
+  // 2. Manejo y actualización reactiva de marcadores
   useEffect(() => {
     const L = LRef.current;
     const map = leafletMap.current;
     if (!L || !map) return;
 
-    // Limpiar marcadores viejos
-    Object.values(markersRef.current).forEach((m) => m.remove());
-    markersRef.current = {};
+    const currentPinIds = new Set(pins.map((p) => p.id));
+
+    Object.keys(markersRef.current).forEach((idStr) => {
+      const id = Number(idStr);
+      if (!currentPinIds.has(id)) {
+        markersRef.current[id].remove();
+        delete markersRef.current[id];
+      }
+    });
 
     pins.forEach((pin) => {
       if (!pin.latitude || !pin.longitude) return;
@@ -106,29 +123,41 @@ export default function MapLeafletView({
         iconAnchor: [16, 16],
       });
 
-      const marker = L.marker([pin.latitude, pin.longitude], {
-        icon: customIcon,
-      }).addTo(map);
+      if (markersRef.current[pin.id]) {
+        markersRef.current[pin.id].setIcon(customIcon);
+      } else {
+        const marker = L.marker([pin.latitude, pin.longitude], {
+          icon: customIcon,
+        }).addTo(map);
 
-      marker.on("click", () => {
-        onPinSelect(pin.id);
-      });
+        marker.on("click", () => {
+          if (onPinSelectRef.current) {
+            onPinSelectRef.current(pin.id);
+          }
+        });
 
-      markersRef.current[pin.id] = marker;
+        markersRef.current[pin.id] = marker;
+      }
     });
-  }, [pins, activePinId, onPinSelect]);
+  }, [pins, activePinId]);
 
-  // 3. Volar a la ubicación del pin activo
+  // 3. Animación de vuelo (flyTo)
   useEffect(() => {
-    if (!leafletMap.current || !activePinId) return;
+    const map = leafletMap.current;
+    if (!map || !activePinId) return;
 
     const activePin = pins.find((p) => p.id === activePinId);
     if (activePin?.latitude && activePin.longitude) {
-      leafletMap.current.flyTo([activePin.latitude, activePin.longitude], 14, {
+      map.flyTo([activePin.latitude, activePin.longitude], 14, {
         duration: 0.8,
       });
     }
   }, [activePinId, pins]);
 
-  return <div ref={mapRef} className="absolute inset-0 w-full h-full z-0" />;
+  return (
+    <div 
+      ref={mapRef} 
+      className="absolute inset-0 w-full h-full z-0 dark:brightness-[0.82] dark:contrast-[1.25] dark:hue-rotate-180 dark:invert-[0.92] transition-all duration-300" 
+    />
+  );
 }
