@@ -18,7 +18,7 @@ export interface UserProfile {
 }
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string; // Si en FastAPI el schema Login usa 'password', de lo contrario usa 'password_hash'
 }
 
@@ -29,4 +29,5 @@ export interface RegisterData {
   email: string;
   phone?: string;
   password: string;
+  confirmPassword: string;
 }
