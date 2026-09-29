@@ -6,7 +6,7 @@ from sqlalchemy.orm import aliased
 from app.core.pagination import literal_pattern
 from app.db.types import EstadoResena
 from app.modules.asylums.models import Asilo
-from app.modules.reviews.models import ModerationDecision, ReporteResena, Resena
+from app.modules.reviews.models import ModerationDecision, ReporteResena, Resena, ReviewLike
 from app.modules.reviews.schemas import ReportQuery
 from app.modules.users.models import Usuario
 
@@ -33,6 +33,31 @@ class ReviewRepository:
                 .limit(limit)
             )
         )
+
+    async def like_counts(
+        self, review_ids: list[int], viewer_id: int | None
+    ) -> dict[int, tuple[int, bool]]:
+        if not review_ids:
+            return {}
+        rows = await self.session.execute(
+            select(
+                ReviewLike.review_id,
+                func.count(),
+                func.bool_or(ReviewLike.user_id == (viewer_id or 0)),
+            )
+            .where(ReviewLike.review_id.in_(review_ids))
+            .group_by(ReviewLike.review_id)
+        )
+        return {review_id: (count, liked) for review_id, count, liked in rows}
+
+    async def toggle_like(self, review_id: int, user_id: int) -> None:
+        # Caller holds the parent review lock, serializing reactions and deletion.
+        existing = await self.session.get(ReviewLike, (review_id, user_id))
+        if existing is None:
+            self.session.add(ReviewLike(review_id=review_id, user_id=user_id))
+        else:
+            await self.session.delete(existing)
+        await self.session.flush()
 
     async def report_cases(self, filters: ReportQuery) -> tuple[list[dict[str, object]], int]:
         author = aliased(Usuario)

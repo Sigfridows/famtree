@@ -520,3 +520,96 @@ async def test_uploaded_profile_and_gallery_files(workflow: Workflow) -> None:
             await center.delete(PREFIX + f"/center/images/{image['imageId']}")
         ).status_code == 204
         assert (await center.get(image["url"])).status_code == 404
+
+
+async def test_review_likes_persist_are_personal_and_cleanup(workflow: Workflow) -> None:
+    async with workflow.client() as author, workflow.client() as reader, workflow.client() as guest:
+        await register(author, "likeauthor")
+        await login(author, "likeauthor")
+        await register(reader, "likereader")
+        await login(reader, "likereader")
+        center = workflow.ids[0]
+        created = await author.post(
+            PREFIX + "/reviews",
+            json={"asylumId": center, "rating": 5, "comment": "Una reseña para probar reacciones"},
+        )
+        assert created.status_code == 201, created.text
+        review_id = created.json()["reviewId"]
+        path = PREFIX + f"/reviews/{review_id}/like"
+        listing = PREFIX + f"/asylums/{center}/reviews"
+        assert (await guest.post(path)).status_code == 401
+        assert (
+            await reader.post(path, headers={"Origin": "https://evil.invalid"})
+        ).status_code == 403
+        liked = await reader.post(path)
+        assert liked.status_code == 200, liked.text
+        assert liked.json() == {"reviewId": review_id, "likes": 1, "isLiked": True}
+        assert (await reader.get(listing)).json()[0]["isLiked"] is True
+        public = (await guest.get(listing)).json()[0]
+        assert public["likes"] == 1 and public["isLiked"] is False
+        assert (await author.get(listing)).json()[0]["isLiked"] is False
+        await login(reader, "likereader")
+        assert (await reader.get(listing)).json()[0]["isLiked"] is True
+        unliked = (await reader.post(path)).json()
+        assert unliked["likes"] == 0 and unliked["isLiked"] is False
+        await reader.post(path)
+        # Registered authors may react as well; the product has no self-like restriction.
+        assert (await author.post(path)).json()["likes"] == 2
+        edited = await author.patch(PREFIX + f"/reviews/{review_id}", json={"rating": 4})
+        assert edited.json()["likes"] == 2 and edited.json()["isLiked"] is True
+        rep = await reader.get(PREFIX + f"/asylums/{center}/reputation")
+        reaction = next(item for item in rep.json()["items"] if item["reviewId"] == review_id)
+        assert reaction["likes"] == 2 and reaction["isLiked"] is True
+        assert (await author.delete(PREFIX + f"/reviews/{review_id}")).status_code == 204
+        assert (await reader.post(path)).status_code == 404
+        assert all(item["reviewId"] != review_id for item in (await guest.get(listing)).json())
+        assert (await reader.post(PREFIX + "/reviews/0/like")).status_code == 422
+        guest.cookies.set("famtree_session", "expired")
+        assert (await guest.get(listing)).status_code == 200
+        # Foreign keys remove reactions when the review is removed.
+        async for db in workflow.app.dependency_overrides[get_db_session]():
+            assert await db.scalar(text("SELECT count(*) FROM famtree.review_likes")) == 0
+
+
+async def test_review_likes_deny_admin_blocked_hidden_and_inactive(workflow: Workflow) -> None:
+    async with workflow.client() as user, workflow.client() as admin:
+        account = await register(user, "restrictedlikes")
+        await login(user, "restrictedlikes")
+        await login(admin, "systemadmin")
+        center = workflow.ids[0]
+        created = await user.post(
+            PREFIX + "/reviews",
+            json={"asylumId": center, "rating": 3, "comment": "Comentario para permisos de likes"},
+        )
+        review_id = created.json()["reviewId"]
+        path = PREFIX + f"/reviews/{review_id}/like"
+        assert (await admin.post(path)).status_code == 403
+        async for db in workflow.app.dependency_overrides[get_db_session]():
+            await db.execute(
+                text(
+                    "UPDATE famtree.resenas SET estado_resena = 'OCULTA' WHERE codigo_resena = :id"
+                ),
+                {"id": review_id},
+            )
+            await db.commit()
+        assert (await user.post(path)).status_code == 404
+        async for db in workflow.app.dependency_overrides[get_db_session]():
+            await db.execute(
+                text(
+                    "UPDATE famtree.resenas SET estado_resena = 'PUBLICADA' "
+                    "WHERE codigo_resena = :id"
+                ),
+                {"id": review_id},
+            )
+            await db.commit()
+        assert (
+            await admin.patch(PREFIX + f"/admin/asylums/{center}/deactivate")
+        ).status_code == 200
+        assert (await user.post(path)).status_code == 404
+        assert (await admin.patch(PREFIX + f"/admin/asylums/{center}/activate")).status_code == 200
+        blocked = await admin.patch(
+            PREFIX + f"/admin/users/{account['userId']}/block",
+            json={"reason": "Bloqueado para verificar permisos"},
+        )
+        assert blocked.status_code == 204, blocked.text
+        assert (await user.post(path)).status_code in {401, 403}

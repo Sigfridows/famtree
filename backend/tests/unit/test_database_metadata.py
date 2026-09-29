@@ -21,6 +21,7 @@ def test_approved_tables_are_registered_by_feature_models() -> None:
         "famtree.provincias",
         "famtree.reportes_resena",
         "famtree.resenas",
+        "famtree.review_likes",
         "famtree.servicios",
         "famtree.tipos_adulto_mayor",
         "famtree.usuarios",
