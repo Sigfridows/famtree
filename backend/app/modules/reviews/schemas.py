@@ -20,6 +20,12 @@ class ReviewUpdate(Contract):
     comment: str | None = Field(default=None, min_length=10, max_length=500)
 
 
+class ReviewLikeView(Contract):
+    review_id: int
+    likes: int
+    is_liked: bool
+
+
 class ReviewView(Contract):
     review_id: int
     user_id: int
@@ -30,6 +36,8 @@ class ReviewView(Contract):
     created_at: datetime
     updated_at: datetime | None
     author: dict[str, object] | None = None
+    likes: int = 0
+    is_liked: bool = False
 
 
 class ReportInput(Contract):

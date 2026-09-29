@@ -69,7 +69,7 @@ async def test_approved_schema_and_catalogs_were_migrated() -> None:
                 )
             ).scalars()
 
-            assert table_count == 18
+            assert table_count == 19
             assert trigger_count == 21
             assert provinces == 32
             assert list(motives) == [

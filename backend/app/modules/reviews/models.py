@@ -166,3 +166,24 @@ class ModerationDecision(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+
+
+class ReviewLike(Base):
+    """One reaction per user/review; reactions disappear with their parent."""
+
+    __tablename__ = "review_likes"
+    __table_args__ = (Index("ix_review_likes_user", "user_id"), {"schema": SCHEMA})
+
+    review_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey(f"{SCHEMA}.resenas.codigo_resena", ondelete="CASCADE", onupdate="CASCADE"),
+        primary_key=True,
+    )
+    user_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey(f"{SCHEMA}.usuarios.codigo_usuario", ondelete="CASCADE", onupdate="CASCADE"),
+        primary_key=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )

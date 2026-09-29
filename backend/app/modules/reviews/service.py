@@ -17,6 +17,7 @@ from app.modules.reviews.schemas import (
     ReportQuery,
     ReportView,
     ReviewInput,
+    ReviewLikeView,
     ReviewQuery,
     ReviewUpdate,
     ReviewView,
@@ -72,14 +73,41 @@ class ReviewService:
         self.centers = centers
         self.users = users
 
-    async def list_for_center(self, asylum_id: int, offset: int, limit: int) -> list[ReviewView]:
-        await self.centers.require_active(asylum_id)
-        rows = await self.repository.list_for_center(asylum_id, offset, limit)
+    async def views(self, rows: list[Resena], viewer_id: int | None = None) -> list[ReviewView]:
         authors = await self.users.public_authors([row.codigo_usuario for row in rows])
+        reactions = await self.repository.like_counts(
+            [row.codigo_resena for row in rows], viewer_id
+        )
         return [
-            review_view(row).model_copy(update={"author": authors[row.codigo_usuario]})
+            review_view(row).model_copy(
+                update={
+                    "author": authors[row.codigo_usuario],
+                    "likes": reactions.get(row.codigo_resena, (0, False))[0],
+                    "is_liked": reactions.get(row.codigo_resena, (0, False))[1],
+                }
+            )
             for row in rows
         ]
+
+    async def list_for_center(
+        self, asylum_id: int, offset: int, limit: int, viewer_id: int | None = None
+    ) -> list[ReviewView]:
+        await self.centers.require_active(asylum_id)
+        rows = await self.repository.list_for_center(asylum_id, offset, limit)
+        return await self.views(rows, viewer_id)
+
+    async def toggle_like(self, user_id: int, review_id: int) -> ReviewLikeView:
+        row = await self.repository.get(review_id, lock=True)
+        if row is None or row.estado_resena != EstadoResena.PUBLICADA:
+            raise AppError(code="review_not_found", message="Reseña no disponible", status_code=404)
+        await self.centers.require_active(row.codigo_asilo)
+        await self.repository.toggle_like(review_id, user_id)
+        count, liked = (await self.repository.like_counts([review_id], user_id)).get(
+            review_id, (0, False)
+        )
+        result = ReviewLikeView(review_id=review_id, likes=count, is_liked=liked)
+        await self.repository.session.commit()
+        return result
 
     async def create(self, user_id: int, asylum_id: int, data: ReviewInput) -> ReviewView:
         await self.centers.require_active(asylum_id, lock=True)
@@ -91,7 +119,7 @@ class ReviewService:
         )
         self.repository.session.add(row)
         await self.repository.session.commit()
-        return review_view(row)
+        return (await self.views([row], user_id))[0]
 
     async def owned(self, user_id: int, review_id: int) -> Resena:
         row = await self.repository.get(review_id, lock=True)
@@ -117,7 +145,7 @@ class ReviewService:
             row.comentario = data.comment
         row.fecha_actualizacion = datetime.now(UTC)
         await self.repository.session.commit()
-        return review_view(row)
+        return (await self.views([row], user_id))[0]
 
     async def delete(self, user_id: int, review_id: int) -> None:
         row = await self.owned(user_id, review_id)
@@ -229,7 +257,9 @@ class ReviewService:
             for row in rows
         ]
 
-    async def reputation(self, asylum_id: int, filters: ReviewQuery) -> dict[str, object]:
+    async def reputation(
+        self, asylum_id: int, filters: ReviewQuery, viewer_id: int | None = None
+    ) -> dict[str, object]:
         await self.centers.require_active(asylum_id)
         db = self.repository.session
         query = select(Resena).where(
@@ -272,12 +302,8 @@ class ReviewService:
                 .limit(10)
             )
         )
-        profiles = await self.users.public_authors([row.codigo_usuario for row in rows])
         return {
-            "items": [
-                review_view(row).model_copy(update={"author": profiles[row.codigo_usuario]})
-                for row in rows
-            ],
+            "items": await self.views(rows, viewer_id),
             "total": total,
             "page": filters.page,
             "pageSize": 10,

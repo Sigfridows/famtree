@@ -77,3 +77,18 @@ async def profile_user(user: Annotated[UserProfile, Depends(current_user)]) -> U
     if user.role not in {"REGISTERED_USER", "ASYLUM_ADMIN"}:
         raise AppError(code="forbidden", message="Perfil personal no disponible", status_code=403)
     return user
+
+
+async def optional_identity(
+    request: Request, auth: Annotated[AuthService, Depends(get_auth)]
+) -> UserProfile | None:
+    """Personalize public reads only for a valid, active session."""
+    token = request.cookies.get("famtree_session")
+    if not token:
+        return None
+    try:
+        return await auth.identity(token)
+    except AppError as exc:
+        if exc.status_code in {401, 403}:
+            return None
+        raise
