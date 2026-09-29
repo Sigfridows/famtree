@@ -67,7 +67,12 @@ async def logout(request: Request, response: Response, auth: Auth) -> None:
 
 
 @router.post("/change-password", status_code=204)
-@router.post("/change-temporary-password", status_code=204)
+@router.post(
+    "/change-temporary-password",
+    status_code=204,
+    deprecated=True,
+    description="Use POST /auth/change-password; it also accepts a temporary password.",
+)
 async def change_password(
     data: PasswordChange, user: Identity, auth: Auth, request: Request, response: Response
 ) -> None:
