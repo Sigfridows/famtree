@@ -4,7 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Star, Clock, Wrench, CheckCheck, Loader2 } from "lucide-react";
 import { useNotifications } from "../hooks/useNotifications";
-import type { NotificationVariant, NotificationUIItem } from "../types/notification.types";
+import type {
+  NotificationVariant,
+  NotificationUIItem,
+} from "../types/notification.types";
 
 interface NotificationsPopoverProps {
   variant?: NotificationVariant;
@@ -17,7 +20,8 @@ export default function NotificationsPopover({
   const [activeTab, setActiveTab] = useState<"Hoy" | "Semana" | "Ayer">("Hoy");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } =
+    useNotifications();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -71,17 +75,20 @@ export default function NotificationsPopover({
       iconBg: "bg-[#252B1E] border border-[#3A452B] text-[#A8E038]",
     },
     glass: {
-      card: "bg-[#212225]/85 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-white",
-      title: "text-white",
-      link: "text-[#C5DC83] hover:text-[#b2cb6e]",
-      tabsBg: "bg-white/5 border border-white/10",
-      activeTab: "bg-white/15 text-white font-semibold border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]",
-      inactiveTab: "text-zinc-400 hover:text-zinc-200",
-      itemHover: "hover:bg-white/5",
-      textPrimary: "text-zinc-100",
-      textSecondary: "text-zinc-400",
-      divider: "border-white/5",
-      iconBg: "bg-white/5 border border-white/10 text-zinc-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
+      card: "bg-[#121316]/95 backdrop-blur-3xl backdrop-saturate-150 border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.95)] text-white ring-1 ring-white/15 rounded-3xl",
+      title: "text-white font-bold tracking-tight",
+      link: "text-[#CCD999] hover:text-[#b8cb83] font-semibold transition-colors",
+      tabsBg: "bg-black/40 border border-white/10 p-1 rounded-2xl",
+      activeTab:
+        "bg-[#CCD999] text-zinc-950 font-bold rounded-xl shadow-md transition-all",
+      inactiveTab:
+        "text-zinc-400 hover:text-zinc-200 transition-colors font-medium",
+      itemHover: "hover:bg-white/10 rounded-2xl transition-colors",
+      textPrimary: "text-zinc-100 font-medium",
+      textSecondary: "text-zinc-400 font-light",
+      divider: "border-white/10",
+      iconBg:
+        "bg-white/10 border border-white/15 text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]",
     },
   }[variant];
 
@@ -97,7 +104,7 @@ export default function NotificationsPopover({
   };
 
   return (
-    <div className="relative inline-block" ref={containerRef}>
+    <div className="relative z-9999 inline-block" ref={containerRef}>
       <motion.button
         whileTap={{ scale: 0.9 }}
         whileHover={{ scale: 1.05 }}
@@ -122,7 +129,7 @@ export default function NotificationsPopover({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className={`absolute right-0 mt-3 w-95 sm:w-105 rounded-[28px] p-6 z-50 ${styles.card}`}
+            className={`absolute right-0 mt-3 w-95 sm:w-105 rounded-[28px] p-6 z-9999 ${styles.card}`}
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className={`text-lg font-bold ${styles.title}`}>
@@ -140,7 +147,9 @@ export default function NotificationsPopover({
               )}
             </div>
 
-            <div className={`grid grid-cols-3 p-1 rounded-2xl mb-5 ${styles.tabsBg}`}>
+            <div
+              className={`grid grid-cols-3 p-1 rounded-2xl mb-5 ${styles.tabsBg}`}
+            >
               {(["Hoy", "Semana", "Ayer"] as const).map((tab) => (
                 <button
                   key={tab}
@@ -165,7 +174,9 @@ export default function NotificationsPopover({
 
               {!loading && filteredNotifications.length === 0 && (
                 <div className="py-8 text-center text-zinc-400">
-                  <p className="text-xs font-medium">No hay notificaciones en este periodo.</p>
+                  <p className="text-xs font-medium">
+                    No hay notificaciones en este periodo.
+                  </p>
                 </div>
               )}
 

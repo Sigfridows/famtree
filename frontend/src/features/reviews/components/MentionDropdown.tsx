@@ -24,18 +24,18 @@ const MentionDropdown = forwardRef<HTMLDivElement, MentionDropdownProps>(
         initial={{ opacity: 0, y: 10, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 10, scale: 0.98 }}
-        className="absolute bottom-full left-0 mb-3 w-72 bg-white rounded-2xl shadow-2xl border border-zinc-200/80 p-2 z-50 space-y-1 overflow-hidden"
+        className="absolute bottom-full left-0 mb-3 w-72 bg-[#141414]/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 p-2 z-50 space-y-1 overflow-hidden"
       >
-        <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 flex items-center gap-1.5">
-          <Building2 className="w-3.5 h-3.5" />
+        <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-white/10 flex items-center gap-1.5">
+          <Building2 className="w-3.5 h-3.5 text-[#CCD999]" />
           <span>Seleccionar Asilo</span>
         </div>
-        <div className="max-h-48 overflow-y-auto space-y-1 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-zinc-200 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
+        <div className="max-h-48 overflow-y-auto space-y-1 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-zinc-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
           {asilos.map((asilo) => (
             <button
               key={asilo.id}
               onClick={() => onSelectAsilo(asilo)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition-colors cursor-pointer text-left"
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-zinc-200 hover:bg-white/10 hover:text-white transition-colors cursor-pointer text-left"
             >
               <span>{asilo.name}</span>
               <span

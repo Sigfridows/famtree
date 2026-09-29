@@ -65,6 +65,7 @@ export function useRegisterForm() {
         last_name: lastName.trim(),
         email: email.trim(),
         password,
+        confirmPassword,
       });
       router.push("/catalog");
     } catch (err: unknown) {

@@ -16,14 +16,17 @@ export function buildAsylumQuery(filters: AsylumFilters = {}): string {
   return query ? `?${query}` : "";
 }
 
+// ME TRAE LOS ASILOS CON LOS FILTROS APLICADOS
 export function getAsylums(filters: AsylumFilters = {}, signal?: AbortSignal): Promise<AsylumPage> {
   return apiRequest<AsylumPage>(`/asylums${buildAsylumQuery(filters)}`, { signal, cache: "no-store" });
 }
 
+// ME TRAE LOS DETALLES DE UN ASILO EN ESPECIFICO
 export function getAsylum(id: number, signal?: AbortSignal): Promise<AsylumDetail> {
   return apiRequest<AsylumDetail>(`/asylums/${encodeURIComponent(String(id))}`, { signal, cache: "no-store" });
 }
 
+// ME TRAE LAS PROVINCIAS EXISTENTES??, TODO: REVISAR BIEN ESTE ENDPOINT
 export function getAsylumCatalogs(provinceId?: number, signal?: AbortSignal): Promise<AsylumCatalogs> {
   return apiRequest<AsylumCatalogs>(`/asylums/catalogs${buildAsylumQuery({ province_id: provinceId })}`, {
     signal,

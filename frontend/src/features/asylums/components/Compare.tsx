@@ -3,373 +3,173 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, Plus, ArrowLeft, GripVertical } from "lucide-react";
+import { Check, X, Plus, ArrowLeft, CheckSquare, Square } from "lucide-react";
 import logoFamTree from "@/assets/logo-famtree.png";
+import EmptyState from "./EmptyState";
 
 export interface AsiloItem {
-  id: string;
-  name: string;
-  status: string;
-  rating: number;
-  province: string;
-  price: string;
-  numericPrice?: number;
-  image: string;
-  isRecommended?: boolean;
-  features: {
-    atencion24_7: boolean;
-    terapiaFisioterapia: boolean;
-    habitacionesPrivadas: boolean;
-    camarasSeguridad: boolean;
-    menuAdaptado: boolean;
-    horarioLibre: boolean;
-  };
+  id: string; name: string; status: string; rating: number; province: string; price: string; numericPrice?: number; image: string; isRecommended?: boolean;
+  features: { atencion24_7: boolean; terapiaFisioterapia: boolean; habitacionesPrivadas: boolean; camarasSeguridad: boolean; menuAdaptado: boolean; horarioLibre: boolean; };
 }
 
-const MOCK_FAVORITOS: AsiloItem[] = [
-  {
-    id: "1",
-    name: 'Centro Geriátrico "Atardecer Dorado"',
-    status: "Abierto",
-    rating: 4.8,
-    province: "Santo Domingo",
-    price: "$5,000/mes",
-    numericPrice: 5000,
-    image:
-      "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=600&auto=format&fit=crop&q=80",
-    features: {
-      atencion24_7: true,
-      terapiaFisioterapia: true,
-      habitacionesPrivadas: true,
-      camarasSeguridad: true,
-      menuAdaptado: false,
-      horarioLibre: false,
-    },
-  },
-  {
-    id: "2",
-    name: 'Hogar Residencial "Oasis de la Paz"',
-    status: "Abierto",
-    rating: 4.3,
-    province: "Barahona",
-    price: "$2,500/mes",
-    numericPrice: 2500,
-    image:
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&auto=format&fit=crop&q=80",
-    isRecommended: true,
-    features: {
-      atencion24_7: true,
-      terapiaFisioterapia: true,
-      habitacionesPrivadas: true,
-      camarasSeguridad: false,
-      menuAdaptado: true,
-      horarioLibre: true,
-    },
-  },
-  {
-    id: "3",
-    name: 'Villa Senior "Bosques de San Rafael"',
-    status: "Abierto",
-    rating: 4.9,
-    province: "Santiago",
-    price: "$10,000/mes",
-    numericPrice: 10000,
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80",
-    features: {
-      atencion24_7: true,
-      terapiaFisioterapia: true,
-      habitacionesPrivadas: true,
-      camarasSeguridad: true,
-      menuAdaptado: false,
-      horarioLibre: true,
-    },
-  },
-  {
-    id: "4",
-    name: 'Residencial Senior "Jardines del Valle"',
-    status: "Abierto",
-    rating: 4.1,
-    province: "La Vega",
-    price: "$1,450/mes",
-    numericPrice: 1450,
-    image:
-      "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=600&auto=format&fit=crop&q=80",
-    features: {
-      atencion24_7: true,
-      terapiaFisioterapia: false,
-      habitacionesPrivadas: false,
-      camarasSeguridad: true,
-      menuAdaptado: false,
-      horarioLibre: true,
-    },
-  },
+const FEATURE_LABELS: { key: keyof AsiloItem["features"]; label: string }[] = [
+  { key: "atencion24_7", label: "Atención Médica 24/7" }, { key: "terapiaFisioterapia", label: "Terapia y Fisioterapia" },
+  { key: "habitacionesPrivadas", label: "Habitaciones Privadas" }, { key: "camarasSeguridad", label: "Cámaras y Seguridad" },
+  { key: "menuAdaptado", label: "Menú Nutricional Adaptado" }, { key: "horarioLibre", label: "Horario de Visita Libre" },
 ];
+// ... (Aquí van los MOCK_FAVORITOS que mantienes igual)
 
-interface CompareProps {
-  items?: AsiloItem[];
-  onClose?: () => void;
-}
+interface CompareProps { items?: AsiloItem[]; onClose?: () => void; }
 
-export default function Compare({ items = MOCK_FAVORITOS, onClose }: CompareProps) {
+export default function Compare({ items = [], onClose }: CompareProps) {
   const [viewMode, setViewMode] = useState<"table" | "comparison">("table");
-  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
-    items.map((item) => item.id)
-  );
+  const [selectedIds, setSelectedIds] = useState<string[]>(() => items.map((item) => item.id));
 
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-    );
-  };
-
+  const toggleSelect = (id: string) => setSelectedIds((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
+  const toggleSelectAll = () => setSelectedIds(selectedIds.length === items.length ? [] : items.map((item) => item.id));
   const selectedAsilos = items.filter((item) => selectedIds.includes(item.id));
 
   return (
-    <div className="relative w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 text-[#161616] font-montserrat flex flex-col max-h-[88vh]">
+    <div className="relative w-full bg-[#161616] rounded-3xl shadow-2xl overflow-hidden border border-zinc-800 text-white font-montserrat flex flex-col max-h-[88vh]">
       {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center hover:bg-zinc-800 transition-colors z-30 cursor-pointer shadow-md"
-        >
+        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 bg-zinc-900 text-white rounded-full flex items-center justify-center hover:bg-zinc-800 transition-colors z-30 shadow-md">
           <X className="w-4 h-4" />
         </button>
       )}
 
       <AnimatePresence mode="wait">
         {viewMode === "table" ? (
-          <motion.div
-            key="table-view"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="w-full flex flex-col overflow-hidden"
-          >
-            <div className="bg-[#D6E6B8] px-8 py-6 flex items-center justify-between pr-16">
-              <h1 className="text-2xl font-black text-zinc-900 tracking-tight">
-                Favoritos
-              </h1>
-
-              <button
-                onClick={() => selectedIds.length > 0 && setViewMode("comparison")}
-                disabled={selectedIds.length === 0}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs shadow-md transition-all cursor-pointer ${
-                  selectedIds.length > 0
-                    ? "bg-[#161616] text-white hover:bg-zinc-800"
-                    : "bg-zinc-300 text-zinc-500 cursor-not-allowed"
-                }`}
-              >
-                <Plus className="w-4 h-4" />
-                <span>comparar ({selectedIds.length})</span>
-              </button>
-            </div>
-
-            <div className="p-6 md:p-8 overflow-y-auto space-y-3">
-              <div className="grid grid-cols-12 text-[11px] font-bold text-zinc-400 uppercase tracking-wider px-3 pb-1">
-                <div className="col-span-5 flex items-center gap-3">
-                  <span className="w-4" />
-                  <span>Geriátrico</span>
-                </div>
-                <div className="col-span-2 text-center">Calificación</div>
-                <div className="col-span-2 text-center">Provincia</div>
-                <div className="col-span-3 text-right pr-6">Monto</div>
+          <motion.div key="table-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="w-full flex flex-col overflow-hidden">
+            {/* Header basado en las referencias visuales (Banner #CCDD99) */}
+            <div className="bg-[#CCDD99] px-6 sm:px-8 py-5 sm:py-6 flex flex-wrap items-center justify-between gap-4 pr-16 relative overflow-hidden">
+              <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-2xl" />
+              <div className="relative z-10">
+                <h1 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight">Comparar Favoritos</h1>
+                <p className="text-xs font-semibold text-zinc-800 mt-0.5">Selecciona las residencias que deseas evaluar en paralelo</p>
               </div>
 
+              <div className="flex items-center gap-3 relative z-10">
+                {items.length > 0 && (
+                  <button onClick={toggleSelectAll} className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/40 hover:bg-white/60 text-zinc-950 font-bold text-xs transition-all">
+                    {selectedIds.length === items.length ? <><CheckSquare className="w-3.5 h-3.5" /><span>Desmarcar</span></> : <><Square className="w-3.5 h-3.5" /><span>Marcar todo</span></>}
+                  </button>
+                )}
+                <button
+                  onClick={() => selectedIds.length > 0 && setViewMode("comparison")} disabled={selectedIds.length === 0}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs transition-all ${
+                    selectedIds.length > 0 ? "bg-zinc-950 text-[#CCDD99] hover:bg-zinc-900 shadow-md" : "bg-zinc-900/40 text-zinc-600 cursor-not-allowed"
+                  }`}
+                >
+                  <Plus className="w-4 h-4" /><span>Comparar ({selectedIds.length})</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6 md:p-8 overflow-y-auto space-y-3 max-h-[65vh]">
               {items.length === 0 ? (
-                <div className="py-12 text-center text-sm font-semibold text-zinc-400">
-                  No tienes geriátricos guardados en favoritos para comparar.
-                </div>
+                <EmptyState title="No tienes asilos guardados" description="Agrega tus opciones preferidas a favoritos para compararlas en tiempo real." />
               ) : (
-                items.map((item) => {
-                  const isChecked = selectedIds.includes(item.id);
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleSelect(item.id)}
-                      className={`grid grid-cols-12 items-center p-3.5 rounded-2xl border transition-all cursor-pointer ${
-                        isChecked
-                          ? "bg-white border-zinc-900 shadow-sm"
-                          : "bg-white border-zinc-200/70 hover:border-zinc-300"
-                      }`}
-                    >
-                      <div className="col-span-5 flex items-center gap-3.5">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => {}}
-                          className="w-4 h-4 rounded border-zinc-300 text-zinc-900 focus:ring-0 cursor-pointer accent-zinc-900"
-                        />
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          width={40}
-                          height={40}
-                          unoptimized
-                          className="w-10 h-10 rounded-xl object-cover border border-zinc-100 shrink-0"
-                        />
-                        <div className="truncate">
-                          <h4 className="font-extrabold text-xs text-zinc-900 truncate">
-                            {item.name}
-                          </h4>
-                          <span className="text-[10px] text-zinc-400 font-medium">
-                            {item.status}
-                          </span>
+                <>
+                  <div className="hidden sm:grid grid-cols-12 text-[11px] font-bold text-zinc-500 uppercase tracking-wider px-3 pb-1">
+                    <div className="col-span-6 flex items-center gap-3"><span className="w-4" /><span>Residencia</span></div>
+                    <div className="col-span-2 text-center">Calificación</div>
+                    <div className="col-span-2 text-center">Provincia</div>
+                    <div className="col-span-2 text-right pr-2">Monto</div>
+                  </div>
+
+                  {items.map((item) => {
+                    const isChecked = selectedIds.includes(item.id);
+                    return (
+                      <div
+                        key={item.id} onClick={() => toggleSelect(item.id)}
+                        className={`grid grid-cols-1 sm:grid-cols-12 items-center p-3.5 rounded-2xl border transition-all cursor-pointer gap-3 sm:gap-0 ${
+                          isChecked ? "bg-zinc-900 border-[#CCDD99]/50 shadow-sm" : "bg-[#161616] border-zinc-800 hover:border-zinc-700"
+                        }`}
+                      >
+                        <div className="sm:col-span-6 flex items-center gap-3.5">
+                          <input type="checkbox" checked={isChecked} readOnly className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 checked:bg-[#CCDD99] checked:border-[#CCDD99] focus:ring-0 cursor-pointer" />
+                          <Image src={item.image} alt={item.name} width={44} height={44} unoptimized className="w-11 h-11 rounded-xl object-cover border border-zinc-800 shrink-0" />
+                          <div className="truncate">
+                            <h4 className="font-extrabold text-xs sm:text-sm text-white truncate">{item.name}</h4>
+                            <span className="text-[10px] text-[#CCDD99] font-medium">{item.status}</span>
+                          </div>
+                        </div>
+                        <div className="sm:col-span-2 text-left sm:text-center font-extrabold text-xs text-white">
+                          <span className="sm:hidden text-zinc-500 font-normal mr-1">Rating:</span>★ {item.rating.toFixed(1)}
+                        </div>
+                        <div className="sm:col-span-2 text-left sm:text-center font-bold text-xs text-zinc-400">
+                          <span className="sm:hidden text-zinc-500 font-normal mr-1">Ubicación:</span>{item.province}
+                        </div>
+                        <div className="sm:col-span-2 text-left sm:text-right pr-2 font-black text-xs text-[#CCDD99]">
+                          <span className="sm:hidden text-zinc-500 font-normal mr-1 block text-[10px]">Precio:</span>{item.price}
                         </div>
                       </div>
-
-                      <div className="col-span-2 text-center font-extrabold text-xs text-zinc-800">
-                        {item.rating.toFixed(1)}
-                      </div>
-
-                      <div className="col-span-2 text-center font-bold text-xs text-zinc-600">
-                        {item.province}
-                      </div>
-
-                      <div className="col-span-3 flex items-center justify-end gap-4">
-                        <div className="text-right">
-                          <span className="block text-[9px] text-zinc-400 font-bold uppercase tracking-wide">
-                            Precio Total:
-                          </span>
-                          <span className="font-black text-xs text-zinc-900">
-                            {item.price}
-                          </span>
-                        </div>
-                        <GripVertical className="w-4 h-4 text-zinc-300 shrink-0" />
-                      </div>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                </>
               )}
             </div>
           </motion.div>
         ) : (
-          <motion.div
-            key="comparison-view"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="w-full p-6 md:p-8 overflow-y-auto"
-          >
-            <div className="mb-6">
-              <button
-                onClick={() => setViewMode("table")}
-                className="flex items-center gap-2 text-xs font-bold text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Regresar</span>
+          <motion.div key="comparison-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="w-full p-4 sm:p-6 md:p-8 flex flex-col overflow-hidden">
+            <div className="mb-4 flex items-center justify-between">
+              <button onClick={() => setViewMode("table")} className="flex items-center gap-2 text-xs font-bold text-[#CCDD99] hover:text-[#b8cb83] transition-colors">
+                <ArrowLeft className="w-4 h-4" /><span>Volver a la selección</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-12 gap-4 items-stretch">
-              <div className="col-span-12 lg:col-span-3 flex flex-col justify-between pt-2 pb-2">
-                <div>
-                  <div className="flex items-center gap-2 mb-8">
-                    <Image
-                      src={logoFamTree}
-                      alt="FamTree Logo"
-                      width={32}
-                      height={32}
-                      className="object-contain"
-                    />
-                    <span className="font-extrabold text-xs tracking-wider uppercase text-zinc-800">
-                      FAMTREE
-                    </span>
-                  </div>
-
-                  <div className="space-y-6 text-xs font-bold text-zinc-500 pt-36">
-                    <div className="h-6 flex items-center">Precio Mensual</div>
-                    <div className="h-6 flex items-center">Atención Médica 24/7</div>
-                    <div className="h-6 flex items-center">Terapia y Fisioterapia</div>
-                    <div className="h-6 flex items-center">Habitaciones Privadas</div>
-                    <div className="h-6 flex items-center">Cámaras y Seguridad</div>
-                    <div className="h-6 flex items-center">Menú Nutricional Adaptado</div>
-                    <div className="h-6 flex items-center">Horario de Visita Libre</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-span-12 lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                {selectedAsilos.map((asilo) => (
-                  <div
-                    key={asilo.id}
-                    className={`rounded-2xl p-4 border transition-all flex flex-col justify-between ${
-                      asilo.isRecommended
-                        ? "bg-[#E3EED0] border-[#C2D89B] shadow-sm"
-                        : "bg-white border-zinc-200/80 shadow-sm"
-                    }`}
-                  >
-                    <div>
-                      <Image
-                        src={asilo.image}
-                        alt={asilo.name}
-                        width={300}
-                        height={128}
-                        unoptimized
-                        className="w-full h-32 rounded-xl object-cover mb-3 shadow-sm"
-                      />
-                      <h3 className="font-extrabold text-xs text-zinc-900 text-center leading-tight min-h-8 flex items-center justify-center">
-                        {asilo.name}
-                      </h3>
-                    </div>
-
-                    <div className="space-y-6 pt-6 text-center">
-                      <div className="h-6 flex items-center justify-center font-black text-xs text-zinc-900">
-                        {asilo.price}
+            <div className="overflow-x-auto overflow-y-auto max-h-[70vh] rounded-2xl border border-zinc-800 bg-[#161616]">
+              <table className="w-full border-collapse text-left text-xs">
+                <thead>
+                  <tr className="bg-zinc-900 border-b border-zinc-800">
+                    <th className="p-4 min-w-50 sm:min-w-60 sticky left-0 bg-zinc-900 z-20 font-extrabold text-white border-r border-zinc-800">
+                      <div className="flex items-center gap-2">
+                        <Image src={logoFamTree} alt="FamTree Logo" width={26} height={26} className="object-contain" />
+                        <span className="font-extrabold text-xs tracking-wider uppercase text-white">FAMTREE</span>
                       </div>
-
-                      <div className="h-6 flex items-center justify-center">
-                        {asilo.features.atencion24_7 ? (
-                          <Check className="w-4 h-4 text-emerald-600 font-bold" />
-                        ) : (
-                          <X className="w-4 h-4 text-rose-500 font-bold" />
-                        )}
-                      </div>
-
-                      <div className="h-6 flex items-center justify-center">
-                        {asilo.features.terapiaFisioterapia ? (
-                          <Check className="w-4 h-4 text-emerald-600 font-bold" />
-                        ) : (
-                          <X className="w-4 h-4 text-rose-500 font-bold" />
-                        )}
-                      </div>
-
-                      <div className="h-6 flex items-center justify-center">
-                        {asilo.features.habitacionesPrivadas ? (
-                          <Check className="w-4 h-4 text-emerald-600 font-bold" />
-                        ) : (
-                          <X className="w-4 h-4 text-rose-500 font-bold" />
-                        )}
-                      </div>
-
-                      <div className="h-6 flex items-center justify-center">
-                        {asilo.features.camarasSeguridad ? (
-                          <Check className="w-4 h-4 text-emerald-600 font-bold" />
-                        ) : (
-                          <X className="w-4 h-4 text-rose-500 font-bold" />
-                        )}
-                      </div>
-
-                      <div className="h-6 flex items-center justify-center">
-                        {asilo.features.menuAdaptado ? (
-                          <Check className="w-4 h-4 text-emerald-600 font-bold" />
-                        ) : (
-                          <X className="w-4 h-4 text-rose-500 font-bold" />
-                        )}
-                      </div>
-
-                      <div className="h-6 flex items-center justify-center">
-                        {asilo.features.horarioLibre ? (
-                          <Check className="w-4 h-4 text-emerald-600 font-bold" />
-                        ) : (
-                          <X className="w-4 h-4 text-rose-500 font-bold" />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </th>
+                    {selectedAsilos.map((asilo) => (
+                      <th key={asilo.id} className="p-4 min-w-52 max-w-64 text-center align-top border-r border-zinc-800 last:border-r-0">
+                        <div className={`p-3 rounded-2xl border flex flex-col items-center justify-between h-full ${asilo.isRecommended ? "bg-[#CCDD99]/10 border-[#CCDD99]/30" : "bg-[#161616] border-zinc-800"}`}>
+                          <Image src={asilo.image} alt={asilo.name} width={220} height={110} unoptimized className="w-full h-28 rounded-xl object-cover mb-2" />
+                          <h3 className="font-extrabold text-xs text-white text-center leading-tight min-h-8 flex items-center justify-center">{asilo.name}</h3>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800">
+                  <tr className="hover:bg-zinc-900/50 transition-colors">
+                    <td className="p-4 font-bold text-zinc-300 bg-[#161616] sticky left-0 z-10 border-r border-zinc-800">Precio Mensual</td>
+                    {selectedAsilos.map((asilo) => (
+                      <td key={asilo.id} className="p-4 text-center font-black text-xs text-[#CCDD99] border-r border-zinc-800 last:border-r-0">{asilo.price}</td>
+                    ))}
+                  </tr>
+                  {FEATURE_LABELS.map(({ key, label }) => (
+                    <tr key={key} className="hover:bg-zinc-900/50 transition-colors">
+                      <td className="p-4 font-bold text-zinc-400 bg-[#161616] sticky left-0 z-10 border-r border-zinc-800">{label}</td>
+                      {selectedAsilos.map((asilo) => {
+                        const hasFeature = asilo.features[key];
+                        return (
+                          <td key={asilo.id} className="p-4 text-center border-r border-zinc-800 last:border-r-0">
+                            <div className="flex items-center justify-center">
+                              {hasFeature ? (
+                                <div className="w-6 h-6 rounded-full bg-[#CCDD99]/20 flex items-center justify-center">
+                                  <Check className="w-3.5 h-3.5 text-[#CCDD99] stroke-3" />
+                                </div>
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-rose-500/20 flex items-center justify-center">
+                                  <X className="w-3.5 h-3.5 text-rose-400 stroke-3" />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </motion.div>
         )}

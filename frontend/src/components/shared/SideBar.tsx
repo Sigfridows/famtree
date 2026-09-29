@@ -10,31 +10,38 @@ import {
   MapIcon,
   LucideIcon,
   Send,
+  LogIn,
 } from "lucide-react";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
-  isModal?: boolean;
+  requiresAuth?: boolean;
 }
-
-const navItems: NavItem[] = [
-  { label: "Inicio", href: "/", icon: Home },
-  { label: "Catálogo", href: "/catalog", icon: BookOpen, isModal: true },
-  { label: "Mapa", href: "/map", icon: MapIcon },
-  { label: "Soporte", href: "/support", icon: Truck },
-  { label: "Reseñas", href: "/review", icon: Send },
-  { label: "Perfil", href: "/profile", icon: User },
-];
 
 export default function SideBar() {
   const pathname = usePathname();
+  const { user } = useAuth(); // Extraer 'user'
+  const isAuthenticated = Boolean(user); // Derivar booleano
 
-  // Ocultar el Sidebar en rutas de autenticación
   if (pathname === "/login" || pathname === "/register") {
     return null;
   }
+
+  const navItems: NavItem[] = [
+    { label: "Inicio", href: "/", icon: Home},
+    { label: "Catálogo", href: "/catalog", icon: BookOpen },
+    { label: "Mapa", href: "/map", icon: MapIcon },
+    { label: "Soporte", href: "/support", icon: Truck },
+    { label: "Reseñas", href: "/review", icon: Send },
+    {
+      label: isAuthenticated ? "Perfil" : "Entrar",
+      href: isAuthenticated ? "/profile" : "/login",
+      icon: isAuthenticated ? User : LogIn,
+    },
+  ];
 
   return (
     <aside className="fixed left-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center py-6 w-20 bg-[#161616]/95 backdrop-blur-md rounded-r-[40px] border-r border-y border-white/10 shadow-2xl">
@@ -49,7 +56,6 @@ export default function SideBar() {
               href={item.href}
               className="relative group w-11 h-11 flex items-center justify-center z-10 hover:z-20 cursor-pointer"
             >
-              {/* Píldora de fondo */}
               <div
                 className={`absolute left-0 top-0 h-11 rounded-full transition-all duration-300 ease-in-out flex items-center overflow-hidden pointer-events-none ${
                   isActive
