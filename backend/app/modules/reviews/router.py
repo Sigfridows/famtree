@@ -4,13 +4,14 @@ from fastapi import APIRouter, Depends, Query
 
 from app.api.dependencies import get_reviews
 from app.core.contracts import Id
-from app.modules.auth.dependencies import registered_user
+from app.modules.auth.dependencies import optional_identity, registered_user
 from app.modules.reviews.schemas import (
     CreateReport,
     CreateReview,
     ReportInput,
     ReportView,
     ReviewInput,
+    ReviewLikeView,
     ReviewQuery,
     ReviewUpdate,
     ReviewView,
@@ -20,6 +21,7 @@ from app.modules.users import UserProfile
 
 router = APIRouter(tags=["Reviews"])
 User = Annotated[UserProfile, Depends(registered_user)]
+Viewer = Annotated[UserProfile | None, Depends(optional_identity)]
 Service = Annotated[ReviewService, Depends(get_reviews)]
 
 
@@ -27,10 +29,13 @@ Service = Annotated[ReviewService, Depends(get_reviews)]
 async def reviews(
     asylum_id: Id,
     service: Service,
+    viewer: Viewer,
     offset: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
 ) -> list[ReviewView]:
-    return await service.list_for_center(asylum_id, offset, limit)
+    return await service.list_for_center(
+        asylum_id, offset, limit, viewer.user_id if viewer else None
+    )
 
 
 @router.post("/asylums/{asylum_id}/reviews", status_code=201)
@@ -68,6 +73,11 @@ async def report_payload(data: CreateReport, user: User, service: Service) -> Re
 
 @router.get("/asylums/{asylum_id}/reputation")
 async def reputation(
-    asylum_id: Id, service: Service, filters: Annotated[ReviewQuery, Query()]
+    asylum_id: Id, service: Service, viewer: Viewer, filters: Annotated[ReviewQuery, Query()]
 ) -> dict[str, object]:
-    return await service.reputation(asylum_id, filters)
+    return await service.reputation(asylum_id, filters, viewer.user_id if viewer else None)
+
+
+@router.post("/reviews/{review_id}/like")
+async def toggle_like(review_id: Id, user: User, service: Service) -> ReviewLikeView:
+    return await service.toggle_like(user.user_id, review_id)

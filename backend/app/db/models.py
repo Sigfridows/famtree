@@ -14,7 +14,7 @@ from app.modules.asylums.models import (
 from app.modules.auth.models import LoginGuard, Session
 from app.modules.favorites.models import Favorito
 from app.modules.notifications.models import Notificacion
-from app.modules.reviews.models import ModerationDecision, ReporteResena, Resena
+from app.modules.reviews.models import ModerationDecision, ReporteResena, Resena, ReviewLike
 from app.modules.users.models import PreferenciaNotificacion, Usuario
 
 __all__ = [
@@ -32,6 +32,7 @@ __all__ = [
     "Provincia",
     "ReporteResena",
     "Resena",
+    "ReviewLike",
     "Servicio",
     "Session",
     "TipoAdultoMayor",
