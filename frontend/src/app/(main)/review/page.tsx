@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MessageSquareText, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { MessageSquareText, Loader2, LogIn } from "lucide-react";
 import HeaderDesign from "@/components/shared/HeaderDesign";
 import HeaderControls from "@/components/shared/HeaderControls";
 import ReviewCard, { Review } from "@/features/reviews/components/ReviewCard";
@@ -10,95 +11,107 @@ import ReviewComposer from "@/features/reviews/components/ReviewComposer";
 import StateFeedback from "@/components/shared/StateFeedback";
 import { Asilo } from "@/features/reviews/components/MentionDropdown";
 import logoFamTree from "@/assets/logo-famtree.png";
-import { apiClient } from "@/lib/apiClient";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useReviews } from "@/features/reviews/hooks/useReviews";
 
+interface RawReviewAuthor {
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  picture?: string;
+}
+
+interface RawReviewUser {
+  userId?: string | number;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  picture?: string;
+}
+
+interface RawReview {
+  id?: string | number;
+  codigo_reseña?: string | number;
+  reviewId?: string | number;
+  asylumId?: string | number;
+  asiloId?: string | number;
+  codigo_asilo?: string | number;
+  userId?: string | number;
+  author?: string | RawReviewAuthor;
+  user?: RawReviewUser;
+  rating?: number;
+  calificacion?: number;
+  date?: string;
+  fecha_creacion?: string;
+  comment?: string;
+  text?: string;
+  comentario?: string;
+  likes?: number;
+  isLiked?: boolean;
+  asylumName?: string;
+  asiloName?: string;
+  avatar?: string;
+}
+
+interface RawAsylum {
+  id?: string | number;
+  codigo_asilo?: string | number;
+  name?: string;
+  colorIndex?: number;
+}
+
+// Paleta de Badges optimizada para el tema oscuro (efecto neón translúcido)
 const BADGE_COLOR_PALETTE = [
-  "bg-sky-100 text-sky-600 border-sky-200 hover:bg-sky-200",
-  "bg-purple-100 text-purple-600 border-purple-200 hover:bg-purple-200",
-  "bg-emerald-100 text-emerald-600 border-emerald-200 hover:bg-emerald-200",
-  "bg-amber-100 text-amber-600 border-amber-200 hover:bg-amber-200",
-  "bg-rose-100 text-rose-600 border-rose-200 hover:bg-rose-200",
-  "bg-indigo-100 text-indigo-600 border-indigo-200 hover:bg-indigo-200",
+  "bg-[#0284c7]/20 text-[#38bdf8] border-[#0284c7]/40 hover:bg-[#0284c7]/30",
+  "bg-[#9333ea]/20 text-[#c084fc] border-[#9333ea]/40 hover:bg-[#9333ea]/30",
+  "bg-[#059669]/20 text-[#34d399] border-[#059669]/40 hover:bg-[#059669]/30",
+  "bg-[#d97706]/20 text-[#fbbf24] border-[#d97706]/40 hover:bg-[#d97706]/30",
+  "bg-[#e11d48]/20 text-[#fb7185] border-[#e11d48]/40 hover:bg-[#e11d48]/30",
+  "bg-[#4f46e5]/20 text-[#818cf8] border-[#4f46e5]/40 hover:bg-[#4f46e5]/30",
 ];
 
 export default function ResenasPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const isAuthenticated = Boolean(user);
+
+  const { reviews, asylums, loading, error, submitReview, refetch } =
+    useReviews();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-  
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [asilos, setAsilos] = useState<Asilo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [onlyMine, setOnlyMine] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const [reviewsRes, asilosRes] = await Promise.all([
-        apiClient.get<unknown>("/reviews"),
-        apiClient.get<unknown>("/asilos")
-      ]);
+  const [localLikesState, setLocalLikesState] = useState<
+    Record<string, { count: number; isLiked: boolean }>
+  >({});
 
-      const reviewsData = Array.isArray(reviewsRes) 
-        ? reviewsRes 
-        : ((reviewsRes as { data?: Review[] })?.data || []);
-        
-      const asilosData = Array.isArray(asilosRes) 
-        ? asilosRes 
-        : ((asilosRes as { data?: Asilo[] })?.data || []);
-
-      setReviews(reviewsData);
-      setAsilos(asilosData);
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Ocurrió un error inesperado al cargar la información.";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
+  const handleToggleLike = (id: string) => {
+    if (!isAuthenticated) {
+      router.push("/login?callbackUrl=/review");
+      return;
     }
-  }, []);
 
-  useEffect(() => {
-    let isMounted = true;
+    setLocalLikesState((prev) => {
+      const targetReview = normalizedReviews.find((r) => r.id === id);
+      const current = prev[id];
 
-    const init = async () => {
-      if (isMounted) {
-        await fetchData();
-      }
-    };
+      const baseLikes = targetReview ? targetReview.likes : 0;
+      const currentlyLiked = current
+        ? current.isLiked
+        : Boolean(targetReview?.isLiked);
+      const currentCount = current ? current.count : baseLikes;
 
-    void init();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fetchData]);
-
-  const handleToggleLike = async (id: string) => {
-    setReviews((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const currentlyLiked = item.isLiked;
-          return {
-            ...item,
-            isLiked: !currentlyLiked,
-            likes: currentlyLiked ? item.likes - 1 : item.likes + 1,
-          };
-        }
-        return item;
-      })
-    );
-
-    try {
-      await apiClient.post(`/reviews/${id}/like`);
-    } catch (err) {
-      console.error("Error al sincronizar el like", err);
-    }
+      return {
+        ...prev,
+        [id]: {
+          isLiked: !currentlyLiked,
+          count: currentlyLiked
+            ? Math.max(0, currentCount - 1)
+            : currentCount + 1,
+        },
+      };
+    });
   };
 
   const handleBadgeClick = (asiloId: string, e: React.MouseEvent) => {
@@ -106,52 +119,180 @@ export default function ResenasPage() {
     router.push(`/catalog?asiloId=${asiloId}`);
   };
 
-  const handleCreateReview = async (text: string, rating: number, selectedAsilo: Asilo | null) => {
+  const currentUserName = user
+    ? `${user.firstName} ${user.lastName}`.trim()
+    : "";
+
+  const userReviewedAsylumIds = (reviews || [])
+    .filter((rev: RawReview) => {
+      const revAuthor =
+        typeof rev.author === "string"
+          ? rev.author
+          : `${rev.user?.firstName || rev.author?.firstName || ""} ${
+              rev.user?.lastName || rev.author?.lastName || ""
+            }`.trim();
+
+      const isMatch =
+        (user?.userId &&
+          (rev.userId === user.userId || rev.user?.userId === user.userId)) ||
+        (currentUserName && revAuthor === currentUserName);
+
+      return isMatch;
+    })
+    .map((rev: RawReview) =>
+      String(rev.asylumId || rev.asiloId || rev.codigo_asilo || ""),
+    );
+
+  const handleCreateReview = async (
+    text: string,
+    rating: number,
+    selectedAsilo: Asilo | null,
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!isAuthenticated) {
+      router.push("/login?callbackUrl=/review");
+      return {
+        success: false,
+        error: "Debes iniciar sesión para publicar una reseña.",
+      };
+    }
+
+    if (!selectedAsilo) {
+      return { success: false, error: "Debes seleccionar una residencia." };
+    }
+
     try {
-      const response = await apiClient.post<unknown>("/reviews", {
-        text,
+      await submitReview({
+        asylumId: selectedAsilo.id,
         rating,
-        asiloId: selectedAsilo?.id || null,
+        comment: text,
       });
 
-      const newReviewFromServer = (response as { data?: Review })?.data || (response as unknown as Review);
-      setReviews((prev) => [newReviewFromServer, ...prev]);
-    } catch (err) {
-      console.error("Error al crear la reseña:", err);
-      alert("Hubo un error al publicar tu reseña. Inténtalo de nuevo.");
+      await refetch();
+      return { success: true };
+    } catch (err: unknown) {
+      const errorObj = err as {
+        status?: number;
+        statusCode?: number;
+        message?: string;
+      };
+
+      const isConflict =
+        errorObj?.status === 409 ||
+        errorObj?.statusCode === 409 ||
+        errorObj?.message?.includes("conflicto") ||
+        errorObj?.message?.includes("409");
+
+      if (isConflict) {
+        return {
+          success: false,
+          error: `Ya has publicado una reseña para "${selectedAsilo.name}". Solo se permite 1 reseña por residencia.`,
+        };
+      }
+
+      return {
+        success: false,
+        error:
+          errorObj?.message || "Ocurrió un error al intentar publicar tu reseña.",
+      };
     }
   };
 
-  const filteredReviews = reviews.filter((rev) => {
-    const matchesSearch = 
+  const normalizedReviews: Review[] = (reviews || []).map(
+    (rev: RawReview, index: number) => {
+      const realId = String(
+        rev.id ?? rev.codigo_reseña ?? rev.reviewId ?? `rev-${index}`,
+      );
+      const realAsylumId = String(
+        rev.asylumId ?? rev.asiloId ?? rev.codigo_asilo ?? "",
+      );
+
+      const matchedAsylum = (asylums || []).find(
+        (a: RawAsylum) =>
+          String(a.id) === realAsylumId ||
+          String(a.codigo_asilo) === realAsylumId,
+      );
+
+      let authorName = "Usuario Anónimo";
+      if (typeof rev.author === "string") {
+        authorName = rev.author;
+      } else if (rev.author && typeof rev.author === "object") {
+        authorName =
+          rev.author.name ||
+          `${rev.author.firstName || ""} ${rev.author.lastName || ""}`.trim() ||
+          "Usuario";
+      } else if (rev.user && typeof rev.user === "object") {
+        authorName =
+          `${rev.user.firstName || ""} ${rev.user.lastName || ""}`.trim() ||
+          rev.user.name ||
+          "Usuario";
+      }
+
+      const avatar =
+        (typeof rev.author === "object" ? rev.author?.picture : undefined) ||
+        rev.user?.picture ||
+        rev.avatar;
+
+      const baseLikes = Number(rev.likes || 0);
+      const baseIsLiked = Boolean(rev.isLiked);
+
+      const localState = localLikesState[realId];
+
+      return {
+        id: realId,
+        author: authorName,
+        avatar: avatar,
+        rating: Number(rev.rating || rev.calificacion || 5),
+        date: rev.date || rev.fecha_creacion || "Reciente",
+        text: rev.comment || rev.text || rev.comentario || "",
+        likes: localState ? localState.count : baseLikes,
+        isLiked: localState ? localState.isLiked : baseIsLiked,
+        asiloId: realAsylumId,
+        asiloName:
+          matchedAsylum?.name || rev.asylumName || rev.asiloName || "Asilo",
+        colorIndex:
+          matchedAsylum?.colorIndex ?? index % BADGE_COLOR_PALETTE.length,
+      };
+    },
+  );
+
+  const filteredReviews = normalizedReviews.filter((rev) => {
+    const matchesSearch =
       rev.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
       rev.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      rev.asiloName?.toLowerCase().includes(searchQuery.toLowerCase());
+      (rev.asiloName &&
+        rev.asiloName.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const matchesMine = onlyMine ? rev.author === "Wilson Segura" : true;
+    const currentUserName = user
+      ? `${user.firstName} ${user.lastName}`.trim()
+      : "";
+    const matchesMine = onlyMine ? rev.author === currentUserName : true;
+
     return matchesSearch && matchesMine;
   });
 
   return (
-    <div className="relative min-h-screen bg-[#F3F3F3] text-[#161616] font-montserrat pl-20 pr-6 pt-0 pb-36">
-      <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4">
+    <div className="relative min-h-screen bg-[#121315] text-white font-montserrat pl-20 pr-6 pt-6 pb-36 selection:bg-[#CCD999] selection:text-black">
+      {/* Glow ambiental de fondo */}
+      <div className="fixed top-0 right-1/4 w-96 h-96 bg-[#CCD999]/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
         <div className="w-full lg:flex-1">
           <HeaderDesign
             title="Sección de Comentarios"
             subtitle="Asilos cercanos"
-            className="w-full lg:pr-32 shadow-md"
+            className="w-full lg:pr-32 shadow-2xl border border-white/10 bg-[#141414]"
           />
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-6">
+        <div className="flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-2">
           <HeaderControls
             logoSrc={logoFamTree}
             placeholder="¿Qué quieres encontrar?"
-            bgClass="bg-white shadow-md"
-            borderClass="border-[#A4A4A4]"
-            placeholderClass="placeholder-zinc-400 text-[#161616]"
-            buttonBgClass="bg-[#161616] hover:bg-[#b0c872]"
-            buttonTextClass="text-white hover:text-[#161616]"
+            bgClass="bg-[#141414] backdrop-blur-xl shadow-2xl"
+            borderClass="border-white/10"
+            placeholderClass="placeholder-zinc-400 text-white"
+            buttonBgClass="bg-[#CCD999] hover:bg-[#b8cb83]"
+            buttonTextClass="text-zinc-950 font-bold"
             searchValue={searchQuery}
             onSearchChange={(e) => setSearchQuery(e.target.value)}
             onSearch={() => {}}
@@ -159,32 +300,32 @@ export default function ResenasPage() {
         </div>
       </header>
 
-      <div className="mt-6 flex justify-end items-center px-2">
-        <button
-          onClick={() => setOnlyMine(!onlyMine)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border shadow-sm cursor-pointer ${
-            onlyMine
-              ? "bg-[#161616] text-white border-[#161616]"
-              : "bg-white text-zinc-700 border-zinc-200/80 hover:bg-zinc-50"
-          }`}
-        >
-          <span>Mis Reseñas</span>
-          <MessageSquareText className="w-4 h-4" />
-        </button>
-      </div>
+      {isAuthenticated && (
+        <div className="mt-6 flex justify-end items-center max-w-7xl mx-auto px-2">
+          <button
+            onClick={() => setOnlyMine(!onlyMine)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border shadow-md cursor-pointer ${
+              onlyMine
+                ? "bg-[#CCD999] text-zinc-950 border-[#CCD999]"
+                : "bg-[#141414] text-zinc-300 border-white/10 hover:bg-white/5 hover:text-white"
+            }`}
+          >
+            <span>Mis Reseñas</span>
+            <MessageSquareText className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
-      <main className="max-w-6xl mx-auto mt-4">
+      <main className="max-w-7xl mx-auto mt-6">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-3">
-            <Loader2 className="w-8 h-8 animate-spin text-zinc-800" />
-            <p className="text-xs font-bold text-zinc-500">Cargando comentarios desde la base de datos...</p>
+            <Loader2 className="w-8 h-8 animate-spin text-[#CCD999]" />
+            <p className="text-xs font-bold text-zinc-400">
+              Cargando comentarios desde la base de datos...
+            </p>
           </div>
         ) : error ? (
-          <StateFeedback
-            type="error"
-            message={error}
-            onRetry={fetchData}
-          />
+          <StateFeedback type="error" message={error} onRetry={refetch} />
         ) : filteredReviews.length === 0 ? (
           <StateFeedback
             type="empty"
@@ -196,7 +337,7 @@ export default function ResenasPage() {
             }
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
             {filteredReviews.map((review, idx) => (
               <ReviewCard
                 key={review.id}
@@ -206,8 +347,10 @@ export default function ResenasPage() {
                 badgePalette={BADGE_COLOR_PALETTE}
                 onToggleLike={handleToggleLike}
                 onBadgeClick={handleBadgeClick}
-                onToggleMenu={(id) => setActiveMenuId((prev) => (prev === id ? null : id))}
-                onReply={() => setActiveMenuId(null)}
+                onToggleMenu={(id) =>
+                  setActiveMenuId((prev) => (prev === id ? null : id))
+                }
+                onEdit={() => setActiveMenuId(null)}
                 onReport={() => setActiveMenuId(null)}
               />
             ))}
@@ -215,11 +358,30 @@ export default function ResenasPage() {
         )}
       </main>
 
-      <ReviewComposer
-        asilos={asilos}
-        badgePalette={BADGE_COLOR_PALETTE}
-        onSubmit={handleCreateReview}
-      />
+      {isAuthenticated ? (
+        <ReviewComposer
+          asilos={asylums as unknown as Asilo[]}
+          badgePalette={BADGE_COLOR_PALETTE}
+          userReviewedAsylumIds={userReviewedAsylumIds}
+          onSubmit={handleCreateReview}
+        />
+      ) : (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-11/12 max-w-xl bg-[#141414]/90 backdrop-blur-xl text-white p-4 rounded-2xl border border-white/10 shadow-2xl flex items-center justify-between gap-4">
+          <div className="text-xs">
+            <p className="font-bold text-white">¿Quieres publicar una reseña?</p>
+            <p className="text-zinc-400">
+              Inicia sesión o regístrate para dejar tu opinión.
+            </p>
+          </div>
+          <Link
+            href="/login?callbackUrl=/review"
+            className="flex items-center gap-2 bg-[#CCD999] text-zinc-950 px-4 py-2 rounded-xl text-xs font-bold shrink-0 hover:bg-[#b8cb83] transition-colors shadow-md"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Iniciar Sesión</span>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

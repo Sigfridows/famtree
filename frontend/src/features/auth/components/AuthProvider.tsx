@@ -6,6 +6,7 @@ import { authApi } from '../api/authApi';
 
 interface AuthContextType {
   user: UserProfile | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<UserProfile>;
   register: (data: RegisterData) => Promise<UserProfile>;
@@ -32,20 +33,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-  let isMounted = true;
+    let isMounted = true;
 
-  const init = async () => {
-    if (isMounted) {
-      await refreshSession();
-    }
-  };
+    const init = async () => {
+      if (isMounted) {
+        await refreshSession();
+      }
+    };
 
-  void init();
+    void init();
 
-  return () => {
-    isMounted = false;
-  };
-}, [refreshSession]);
+    return () => {
+      isMounted = false;
+    };
+  }, [refreshSession]);
 
   const login = async (credentials: LoginCredentials) => {
     const userData = await authApi.login(credentials);
@@ -65,7 +66,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, refreshSession }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: Boolean(user),
+        isLoading,
+        login,
+        register,
+        logout,
+        refreshSession,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
