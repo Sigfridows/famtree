@@ -30,8 +30,8 @@ export function useLoginForm() {
     setIsLoading(true);
 
     try {
-      await login({ email: username.trim(), password });
-      router.push("/catalog");
+      await login({ username: username.trim(), password });
+      router.push("/");
     } catch (err: unknown) {
       if (err instanceof ApiError && err.message) {
         setErrorMessage(err.message);

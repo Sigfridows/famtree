@@ -7,34 +7,32 @@ export interface Asylum {
 }
 
 export interface ReviewItem {
+  id?: string | number;
   codigo_reseña?: number;
-  codigo_asilo?: number;
   asylumId?: string | number;
+  codigo_asilo?: number;
   asylumName?: string;
   
-  calificacion?: number;
   rating?: number;
+  calificacion?: number;
   
+  comment?: string;
   comentario?: string;
   text?: string;
   
-  fecha_creacion?: string;
-  date?: string;
-  
-  id?: string | number;
   author?: string;
   avatar?: string;
   likes?: number;
   isLiked?: boolean;
+  date?: string;
+  fecha_creacion?: string;
 }
 
+// Payload exacto que la API requiere para POST /reviews
 export interface CreateReviewInput {
-  codigo_asilo?: number;
-  asylumId?: string | number;
-  calificacion?: number;
-  rating?: number;
-  comentario?: string;
-  text?: string;
+  asylumId: number | string;
+  rating: number;
+  comment: string;
 }
 
 export interface ReportReviewPayload {
