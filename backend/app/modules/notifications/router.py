@@ -40,12 +40,18 @@ async def read_one(notification_id: Id, user: User, service: Service) -> None:
 
 
 @router.get("/notification-preferences")
-@router.get("/notifications/preferences")
+@router.get(
+    "/notifications/preferences", deprecated=True, description="Use GET /notification-preferences."
+)
 async def preferences(user: User, service: Service) -> Preferences:
     return await service.preferences(user.user_id)
 
 
 @router.patch("/notification-preferences")
-@router.patch("/notifications/preferences")
+@router.patch(
+    "/notifications/preferences",
+    deprecated=True,
+    description="Use PATCH /notification-preferences.",
+)
 async def update_preferences(data: PreferenceUpdate, user: User, service: Service) -> Preferences:
     return await service.update_preferences(user.user_id, data)

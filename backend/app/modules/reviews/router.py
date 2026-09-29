@@ -38,7 +38,12 @@ async def reviews(
     )
 
 
-@router.post("/asylums/{asylum_id}/reviews", status_code=201)
+@router.post(
+    "/asylums/{asylum_id}/reviews",
+    status_code=201,
+    deprecated=True,
+    description="Compatibility alias. Use POST /reviews with asylumId.",
+)
 async def create_for_center(
     asylum_id: Id, data: ReviewInput, user: User, service: Service
 ) -> ReviewView:
@@ -50,7 +55,11 @@ async def create(data: CreateReview, user: User, service: Service) -> ReviewView
     return await service.create(user.user_id, data.asylum_id, data)
 
 
-@router.put("/reviews/{review_id}")
+@router.put(
+    "/reviews/{review_id}",
+    deprecated=True,
+    description="Compatibility alias. Use PATCH /reviews/{review_id} for partial edits.",
+)
 @router.patch("/reviews/{review_id}")
 async def update(review_id: Id, data: ReviewUpdate, user: User, service: Service) -> ReviewView:
     return await service.update(user.user_id, review_id, data)
@@ -61,7 +70,12 @@ async def delete(review_id: Id, user: User, service: Service) -> None:
     await service.delete(user.user_id, review_id)
 
 
-@router.post("/reviews/{review_id}/reports", status_code=201)
+@router.post(
+    "/reviews/{review_id}/reports",
+    status_code=201,
+    deprecated=True,
+    description="Compatibility alias. Use POST /reviews/reports with reviewId.",
+)
 async def report(review_id: Id, data: ReportInput, user: User, service: Service) -> ReportView:
     return await service.report(user.user_id, review_id, data)
 

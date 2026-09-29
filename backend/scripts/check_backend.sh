@@ -25,7 +25,7 @@ export DATABASE_URL="postgresql+asyncpg://famtree:famtree_test@127.0.0.1:${port}
 .venv/bin/alembic check
 .venv/bin/ruff check .
 .venv/bin/ruff format --check .
-.venv/bin/mypy app tests scripts/seed_demo.py scripts/prepare_local.py
+.venv/bin/mypy app tests scripts/seed_demo.py scripts/prepare_local.py scripts/audit_frontend_routes.py
 .venv/bin/pytest --cov=app --cov-report=term-missing --basetemp=.runtime/pytest
 .venv/bin/bandit -q -c pyproject.toml -r app
 # No business rows survive the transactional test fixtures.

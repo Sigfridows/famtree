@@ -538,6 +538,8 @@ async def test_review_likes_persist_are_personal_and_cleanup(workflow: Workflow)
         path = PREFIX + f"/reviews/{review_id}/like"
         listing = PREFIX + f"/asylums/{center}/reviews"
         assert (await guest.post(path)).status_code == 401
+        for method, legacy in [("post", "/asylums"), ("get", "/users/1"), ("put", "/reviews/1")]:
+            assert (await guest.request(method, PREFIX + legacy, json={})).status_code == 401
         assert (
             await reader.post(path, headers={"Origin": "https://evil.invalid"})
         ).status_code == 403
