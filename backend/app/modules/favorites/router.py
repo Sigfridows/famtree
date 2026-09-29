@@ -29,7 +29,12 @@ async def add_favorite(data: FavoriteInput, user: User, service: Service) -> Fav
     return await service.add(user.user_id, data.asylum_id)
 
 
-@router.post("/{asylum_id}", status_code=201)
+@router.post(
+    "/{asylum_id}",
+    status_code=201,
+    deprecated=True,
+    description="Compatibility alias. Use POST /favorites with asylumId.",
+)
 async def add_favorite_by_id(asylum_id: Id, user: User, service: Service) -> FavoriteView:
     return await service.add(user.user_id, asylum_id)
 

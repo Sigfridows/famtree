@@ -33,7 +33,12 @@ async def centers(
 
 
 @router.post("/admin/asylums", status_code=201)
-@router.post("/asylums", status_code=201, include_in_schema=False)
+@router.post(
+    "/asylums",
+    status_code=201,
+    deprecated=True,
+    description="Admin-only compatibility alias. Use POST /admin/asylums.",
+)
 async def create(data: AsylumCreate, service: Service, admin: Admin) -> ManagedAsylum:
     return await service.create(data)
 
@@ -44,7 +49,11 @@ async def detail(asylum_id: Id, service: Service, admin: Admin) -> ManagedAsylum
 
 
 @router.patch("/admin/asylums/{asylum_id}")
-@router.put("/asylums/{asylum_id}", include_in_schema=False)
+@router.put(
+    "/asylums/{asylum_id}",
+    deprecated=True,
+    description="Admin-only compatibility alias. Use PATCH /admin/asylums/{asylum_id}.",
+)
 async def update(
     asylum_id: Id, data: AsylumUpdate, service: Service, admin: Admin
 ) -> ManagedAsylum:

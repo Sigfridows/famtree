@@ -19,7 +19,11 @@ Service = Annotated[AdministrationService, Depends(get_administration)]
 Reviews = Annotated[ReviewService, Depends(get_reviews)]
 
 
-@router.get("/users", include_in_schema=False)
+@router.get(
+    "/users",
+    deprecated=True,
+    description="Legacy offset/limit array. Use GET /admin/users (paginated items with page).",
+)
 async def users(
     admin: Admin,
     directory: Annotated[UserDirectory, Depends(get_users)],
@@ -30,7 +34,11 @@ async def users(
 
 
 @router.get("/admin/users/{user_id}")
-@router.get("/users/{user_id}", include_in_schema=False)
+@router.get(
+    "/users/{user_id}",
+    deprecated=True,
+    description="Admin-only compatibility alias. Use GET /admin/users/{user_id}.",
+)
 async def user(
     user_id: Id, admin: Admin, directory: Annotated[UserDirectory, Depends(get_users)]
 ) -> UserProfile:
