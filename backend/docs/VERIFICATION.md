@@ -1,4 +1,22 @@
-# Verificación de entrega — 2026-09-20
+# Verificación de likes y contratos — 2026-09-29
+
+- Base recibida: `main` en `3dd00db`; pull sin conflictos. Rama `feature/backend-review-likes`.
+- 84 pruebas aprobadas con PostgreSQL; cobertura combinada 94,77 %.
+- Ruff, formato, mypy (incluido auditor de rutas) y Bandit: pasan.
+- Alembic upgrade/check sin drift, downgrade base y upgrade head en PostgreSQL desechable.
+- Likes: sesión, CSRF, rol, bloqueo, reseña oculta/eliminada, centro inactivo, alternancia,
+  persistencia entre sesiones, aislamiento por usuario, recuento público y borrado en cascada.
+- OpenAPI: operaciones principales y aliases obsoletos verificadas; IDs de operación únicos.
+- Auditor estático: 44 llamadas directas; 34 vigentes, 5 obsoletas, 5 sin ruta. Este resultado
+  señala trabajo de integración pendiente; no es un pase de aceptación del frontend.
+- Backend local: `/health` responde ok; `/openapi.json` expone likes; base en `20260929_0008`.
+- No se tocaron archivos de frontend. No se validó navegador, carga concurrente ni correo externo.
+- No se modificaron dependencias; no se repitió pip-audit en esta entrega.
+- Detalles, límites y guía para Marcos: [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md).
+
+## Evidencia histórica de la entrega anterior
+
+### Entrega de 2026-09-20
 
 - Base actualizada: `origin/main` = `dd4283a`; pull sin conflictos, fetch posterior sin divergencia.
 - Cambios limitados a `backend/`; comprobación de rutas staged y secretos locales excluidos.
