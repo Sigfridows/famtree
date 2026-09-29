@@ -1,5 +1,12 @@
 # Backend changelog
 
+## Unreleased — 2026-09-29
+
+- Persist one like per registered user and review; expose totals and viewer state.
+- Keep existing endpoint aliases operational while documenting their canonical replacements.
+- Add a read-only frontend route audit and integration guide for center/system administration.
+- Verify reaction permissions, lifecycle cleanup and migration compatibility with PostgreSQL.
+
 ## 0.2.0 — 2026-09-20
 
 - Add authenticated workflows for users, favorites, reviews, notifications and administrators.
