@@ -1,4 +1,4 @@
-export type ReportReason = "spam" | "inappropriate" | "offensive" | "other";
+export type ReportReason = "SPAM" | "FALSE_INFO" | "OFFENSIVE_LANGUAGE" | "CONFLICT_OF_INTEREST" | "OTHER";
 
 export interface Asylum {
   id: string | number;
@@ -8,6 +8,9 @@ export interface Asylum {
 
 export interface ReviewItem {
   id?: string | number;
+  reviewId?: number;
+  userId?: number;
+  createdAt?: string;
   codigo_reseña?: number;
   asylumId?: string | number;
   codigo_asilo?: number;
@@ -20,7 +23,7 @@ export interface ReviewItem {
   comentario?: string;
   text?: string;
   
-  author?: string;
+  author?: string | {name: string; picture: string | null};
   avatar?: string;
   likes?: number;
   isLiked?: boolean;
@@ -47,3 +50,4 @@ export interface ReviewReport {
   reason: ReportReason;
   detail?: string;
 }
+export interface ReviewReaction { reviewId: number; likes: number; isLiked: boolean; }

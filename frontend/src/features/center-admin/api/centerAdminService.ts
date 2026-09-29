@@ -1,22 +1,16 @@
 import { apiClient } from "@/lib/apiClient";
-import { CenterInfo, UpdateCenterPayload } from "../types/centerAdmin.types";
+import type { CenterInfo, CenterImage, CenterReputation, UpdateCenterPayload } from "../types/centerAdmin.types";
 
 export const centerAdminService = {
-  // Obtener la información del centro administrado por el usuario logueado
-  getMyCenterInfo: async (): Promise<CenterInfo> => {
-    const response = await apiClient.get<CenterInfo>("/center-admin/my-center");
-    return response.data;
-  },
-
-  // Actualizar datos de contacto, precios e información general
-  updateCenterInfo: async (payload: UpdateCenterPayload): Promise<CenterInfo> => {
-    const response = await apiClient.patch<CenterInfo>("/center-admin/my-center", payload);
-    return response.data;
-  },
-
-  // Subir / Eliminar imágenes de la galería
-  uploadGalleryImages: async (formData: FormData): Promise<{ images: string[] }> => {
-    const response = await apiClient.post<{ images: string[] }>("/center-admin/my-center/gallery", formData);
-    return response.data;
-  },
+  getMyCenterInfo: async (): Promise<CenterInfo> => (await apiClient.get<CenterInfo>("/center")).data,
+  updateCenterInfo: async (payload: UpdateCenterPayload): Promise<CenterInfo> =>
+    (await apiClient.patch<CenterInfo>("/center", payload)).data,
+  getImages: async (): Promise<CenterImage[]> => (await apiClient.get<CenterImage[]>("/center/images")).data,
+  uploadGalleryImages: async (formData: FormData): Promise<CenterImage> =>
+    (await apiClient.post<CenterImage>("/center/images", formData)).data,
+  setCover: async (id: number): Promise<CenterImage[]> =>
+    (await apiClient.patch<CenterImage[]>(`/center/images/${id}/cover`)).data,
+  removeImage: async (id: number): Promise<void> => { await apiClient.delete(`/center/images/${id}`); },
+  getReviews: async (page = 1, q = "", rating?: number): Promise<CenterReputation> =>
+    (await apiClient.get<CenterReputation>("/center/reviews", {params: {page, q: q || undefined, rating, sort: "newest"}})).data,
 };

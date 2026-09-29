@@ -68,7 +68,7 @@ describe('useReviews Hook', () => {
 
     vi.mocked(reviewService.getAllReviews).mockResolvedValue(mockReviews);
     vi.mocked(reviewService.getAsylums).mockResolvedValue([]);
-    vi.mocked(reviewService.toggleLikeReview).mockResolvedValue(undefined);
+    vi.mocked(reviewService.toggleLikeReview).mockResolvedValue({reviewId: 1, likes: 3, isLiked: true});
 
     const { result } = renderHook(() => useReviews());
 

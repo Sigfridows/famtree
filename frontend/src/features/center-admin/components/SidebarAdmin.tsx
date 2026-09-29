@@ -1,5 +1,7 @@
 "use client";
 
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -31,6 +33,8 @@ const navItems = [
 ];
 
 export default function SidebarAdmin() {
+  const {logout} = useAuth();
+  const [error, setError] = useState("");
   const pathname = usePathname();
   const router = useRouter();
 
@@ -96,6 +100,7 @@ export default function SidebarAdmin() {
         </div>
       </div>
 
+      {error && <p role="alert">{error}</p>}
       {/* Footer */}
       <div className="p-4 border-t border-emerald-900/40 space-y-2">
         <Link
@@ -108,7 +113,7 @@ export default function SidebarAdmin() {
         </Link>
 
         <button
-          onClick={() => router.push("/login")}
+          onClick={async () => { try { await logout(); router.push("/login"); } catch { setError("No se pudo cerrar sesión. Inténtalo de nuevo."); } }}
           className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-rose-300 hover:bg-rose-950/40 transition-all"
         >
           <LogOut className="w-4 h-4" />

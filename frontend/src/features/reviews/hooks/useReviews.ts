@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { reviewService } from "../api/reviewService";
 import { ReviewItem, CreateReviewInput, Asylum} from "../types/reviews.types";
 
 export function useReviews(asylumId?: number | string | null) {
+  const pending = useRef(new Set<string>());
+  const [pendingLikes, setPendingLikes] = useState<string[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [asylums, setAsylums] = useState<Asylum[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +25,7 @@ export function useReviews(asylumId?: number | string | null) {
         const asylumsList = await reviewService.getAsylums();
         setAsylums(asylumsList);
 
-        const allReviews = await reviewService.getAllReviews();
+        const allReviews = await reviewService.getAllReviews(asylumsList);
         setReviews(allReviews);
       }
     } catch (err: unknown) {
@@ -68,36 +70,23 @@ export function useReviews(asylumId?: number | string | null) {
   };
 
   const handleToggleLike = async (id: string | number) => {
-    const previousReviews = [...reviews];
-
-    setReviews((prev) =>
-      prev.map((item) => {
-        const itemId = item.id || item.codigo_reseña;
-        if (itemId === id) {
-          const currentlyLiked = item.isLiked;
-          const currentLikes = item.likes || 0;
-          return {
-            ...item,
-            isLiked: !currentlyLiked,
-            likes: currentlyLiked
-              ? Math.max(0, currentLikes - 1)
-              : currentLikes + 1,
-          };
-        }
-        return item;
-      }),
-    );
-
+    const key = String(id);
+    if (pending.current.has(key)) return;
+    pending.current.add(key);
+    setPendingLikes([...pending.current]);
     try {
-      await reviewService.toggleLikeReview(id);
-    } catch (err) {
-      console.error("Error al sincronizar el like en la API", err);
-      setReviews(previousReviews);
+      const reaction = await reviewService.toggleLikeReview(id);
+      setReviews(prev => prev.map(item => String(item.reviewId ?? item.id ?? item.codigo_reseña) === key
+        ? {...item, likes: reaction.likes, isLiked: reaction.isLiked} : item));
+    } finally {
+      pending.current.delete(key);
+      setPendingLikes([...pending.current]);
     }
   };
 
   return {
     reviews,
+    pendingLikes,
     asylums,
     loading,
     submitting,

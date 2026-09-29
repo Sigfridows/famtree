@@ -1,3 +1,2 @@
-export default function GalleryPage() {
-  return <div>Galería</div>;
-}
+import CenterGallery from "@/features/center-admin/components/CenterGallery";
+export default CenterGallery;
