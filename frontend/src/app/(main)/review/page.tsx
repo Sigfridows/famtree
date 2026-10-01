@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation"; // 👈 Importar useSearchParams
+import { useState, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -68,9 +68,9 @@ interface RawAsylum {
   name?: string;
 }
 
-export default function ResenasPage() {
+function ResenasContent() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // 👈 Obtener los Query Params de la URL
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const isAuthenticated = Boolean(user);
 
@@ -85,21 +85,18 @@ export default function ResenasPage() {
     pendingLikes,
   } = useReviews();
 
-  // 👈 Construir initialAsilo desde la URL o el catálogo cargado
   const initialAsilo = useMemo(() => {
     const asylumId = searchParams.get("asylumId");
     const asylumName = searchParams.get("asylumName");
 
     if (!asylumId) return null;
 
-    // Buscar coincidencia en la lista de asilos cargados de la API
     const matched = (asylums as unknown as Asilo[])?.find(
       (a) => String(a.id) === String(asylumId)
     );
 
     if (matched) return matched;
 
-    // Si aún no ha cargado el catálogo, construir objeto preliminar desde Query Params
     if (asylumName) {
       return {
         id: asylumId,
@@ -114,7 +111,6 @@ export default function ResenasPage() {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [onlyMine, setOnlyMine] = useState(false);
 
-  // Estado para el modal de Edición / Reporte
   const [action, setAction] = useState<{
     id: string;
     mode: "edit" | "report";
@@ -470,7 +466,7 @@ export default function ResenasPage() {
         <ReviewComposer
           asilos={asylums as unknown as Asilo[]}
           userReviewedAsylumIds={userReviewedAsylumIds}
-          initialAsilo={initialAsilo} // 👈 Pasamos el asilo pre-seleccionado
+          initialAsilo={initialAsilo}
           onSubmit={handleCreateReview}
         />
       ) : (
@@ -491,5 +487,19 @@ export default function ResenasPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ResenasPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen w-full items-center justify-center bg-[#121315]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#CCD999]" />
+        </div>
+      }
+    >
+      <ResenasContent />
+    </Suspense>
   );
 }
