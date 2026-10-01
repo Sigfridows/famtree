@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import logoFamTree from "@/assets/logo-famtree.png";
+import logoFamTree from "@/assets/famtree.png";
 import {
   CheckCircle2,
   Lock,

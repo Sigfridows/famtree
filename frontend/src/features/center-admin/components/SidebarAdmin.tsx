@@ -5,7 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import logoFamTree from "@/assets/logo-famtree.png";
+import logoFamTree from "@/assets/famtree.png";
 import {
   Building2,
   LayoutDashboard,

@@ -8,48 +8,64 @@ interface PageBannerProps {
 
 export default function PageBanner({ title, subtitle, className = '' }: PageBannerProps) {
   return (
-    <div className={`relative w-full h-39 flex-1 bg-[#CCDD99] rounded-b-[10px] rounded-t-none px-6 py-6 sm:px-8 sm:py-7 overflow-hidden flex items-center justify-between min-h-30 shadow-xs ${className}`}>
-      
-      {/* Fondo con trazos de curvas orgánicas */}
+    <div
+      className={`relative w-full min-h-32 sm:min-h-36 flex-1 bg-linear-to-br from-[#CCDD99] via-[#C5D792] to-[#B8CC80] rounded-2xl px-7 py-6 sm:px-10 sm:py-7 overflow-hidden flex items-center justify-between border border-white/20 shadow-xs ${className}`}
+    >
+      {/* 1. Malla de micro-puntos minimalista */}
+      <div 
+        className="absolute inset-0 bg-[radial-gradient(#495622_1px,transparent_1px)] bg-size-[18px_18px] opacity-15 pointer-events-none" 
+      />
+
+      {/* 2. Resplandor de luz suave en la esquina (Ambient Glow) */}
+      <div className="absolute -top-16 -right-16 w-72 h-72 bg-white/30 rounded-full blur-3xl pointer-events-none" />
+
+      {/* 3. Trazos vectoriales ultra finos (Geometric Line Art) */}
       <svg
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-30 mix-blend-multiply"
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-25"
         viewBox="0 0 800 200"
         fill="none"
         preserveAspectRatio="none"
       >
         <path
-          d="M -50,120 Q 150,-60 380,100 T 850,20"
-          stroke="#6B7C37"
-          strokeWidth="18"
-          strokeLinecap="round"
+          d="M 350,-40 C 500,40 620,130 820,160"
+          stroke="#2D3613"
+          strokeWidth="1.2"
+          strokeDasharray="4 4"
         />
         <path
-          d="M 50,220 Q 300,10 650,180 T 900,80"
-          stroke="#889B48"
-          strokeWidth="22"
-          strokeLinecap="round"
+          d="M 420,-40 C 550,50 680,100 820,110"
+          stroke="#2D3613"
+          strokeWidth="1"
         />
+        <circle cx="740" cy="100" r="75" stroke="#2D3613" strokeWidth="0.8" />
+        <circle cx="740" cy="100" r="130" stroke="#2D3613" strokeWidth="0.5" strokeDasharray="3 3" />
       </svg>
 
-      {/* Texto (Título y Subtítulo) */}
-      <div className="relative z-10 space-y-0.5">
-        <h1 className="text-7xl sm:text-5xl font-bold text-zinc-950 tracking-tight">
+      {/* 4. Jerarquía de texto principal */}
+      <div className="relative z-10 space-y-1 max-w-xl">
+        {/* <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-zinc-950/10 border border-zinc-950/10 text-[10px] sm:text-[11px] font-semibold text-zinc-900 tracking-wider uppercase backdrop-blur-xs mb-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-800 animate-pulse" />
+          Explorar Residencias
+        </div> */}
+
+        <h1 className="text-3xl sm:text-4xl md:text-[42px] font-bold text-zinc-950 tracking-tight leading-none">
           {title}
         </h1>
+
         {subtitle && (
-          <p className="text-[20px] sm:text-lg font-medium text-zinc-800">
+          <p className="text-sm sm:text-base font-medium text-zinc-800/80 leading-relaxed">
             {subtitle}
           </p>
         )}
       </div>
 
-      {/* Diseños de rayas en la esquina inferior derecha */}
-      <div className="absolute bottom-3.5 right-6 hidden sm:flex flex-col items-end gap-1.5 pointer-events-none z-10">
-        <div className="w-32 md:w-44 h-2.5 bg-zinc-950 rounded-full" />
-        <div className="w-48 md:w-60 h-2.5 bg-[#5F6E31]/70 rounded-full" />
-        <div className="w-36 md:w-48 h-2.5 bg-[#5F6E31]/35 rounded-full" />
+      {/* 5. Acento sutil y minimalista en la esquina inferior derecha */}
+      <div className="absolute bottom-3 right-6 z-10 hidden sm:flex items-center gap-2 bg-zinc-950/10 backdrop-blur-xs border-[0.8px] border-white px-3 py-1 rounded-lg pointer-events-none">
+        {/* <span className="w-1.5 h-1.5 rounded-full bg-emerald-700" /> */}
+        <span className="text-[11px] font-semibold text-[#161616] tracking-wide">
+          Servicios Verificado
+        </span>
       </div>
-
     </div>
   );
 }

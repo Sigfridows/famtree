@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
-  Bookmark,
+  Heart,
   Share2,
   Clock,
   Mail,
@@ -21,6 +21,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import Compare from "./Compare";
+import { AsylumSummary } from "../types/asylum.types";
+import { useRouter } from "next/navigation";
 
 export interface AsiloDetailData {
   id: string;
@@ -50,6 +52,9 @@ interface AsiloDetailsProps {
   onClose: () => void;
   data?: AsiloDetailData;
   loading?: boolean;
+  isFavorite?: boolean;
+  onFavoriteToggle?: () => void;
+  favorites?: AsylumSummary[];
 }
 
 const FALLBACK_IMAGE =
@@ -60,9 +65,19 @@ export default function AsiloDetails({
   onClose,
   data,
   loading = false,
+  isFavorite = false,
+  onFavoriteToggle,
+  favorites = [],
 }: AsiloDetailsProps) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const router = useRouter();
   const [isCompareOpen, setIsCompareOpen] = useState(false);
+
+  const handleGiveReview = () => {
+    if (!data?.id) return;
+    onClose(); // Cerrar el modal
+    const encodedTitle = encodeURIComponent(data.title);
+    router.push(`/review?asylumId=${data.id}&asylumName=${encodedTitle}`);
+  };
 
   const images = data?.images && data.images.length > 0 ? data.images : [];
 
@@ -286,14 +301,14 @@ export default function AsiloDetails({
                             whileTap={{ scale: 0.8 }}
                             whileHover={{ scale: 1.1 }}
                             transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                            onClick={() => setIsBookmarked(!isBookmarked)}
+                            onClick={onFavoriteToggle}
                             className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                             aria-label="Guardar en favoritos"
                           >
-                            <Bookmark
+                            <Heart
                               className={`w-5 h-5 transition-colors duration-200 ${
-                                isBookmarked
-                                  ? "fill-amber-500 text-amber-500"
+                                isFavorite
+                                  ? "fill-[#CCDD99] text-[#CCDD99]"
                                   : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                               }`}
                             />
@@ -509,6 +524,7 @@ export default function AsiloDetails({
                         </button>
                         <button
                           type="button"
+                          onClick={handleGiveReview}
                           className="flex-1 bg-[#CCDD99] hover:bg-[#b8cb83] text-zinc-950 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-2xs"
                         >
                           Dar Reseña
@@ -548,7 +564,7 @@ export default function AsiloDetails({
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="relative w-full max-w-5xl z-10"
             >
-              <Compare onClose={() => setIsCompareOpen(false)} />
+              <Compare data={data} items={favorites} onClose={() => setIsCompareOpen(false)} />
             </motion.div>
           </div>
         )}

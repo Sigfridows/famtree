@@ -3,7 +3,16 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, ThumbsUp, MoreHorizontal, Edit, AlertCircle, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Star,
+  ThumbsUp,
+  MoreHorizontal,
+  Edit,
+  AlertCircle,
+  Calendar,
+  ChevronDown,
+  ArrowUpRight,
+} from "lucide-react";
 
 export interface Review {
   id: string;
@@ -16,7 +25,6 @@ export interface Review {
   isLiked?: boolean;
   asiloId?: string;
   asiloName?: string;
-  colorIndex?: number;
 }
 
 interface ReviewCardProps {
@@ -24,7 +32,6 @@ interface ReviewCardProps {
   review: Review;
   idx: number;
   activeMenuId: string | null;
-  badgePalette: string[];
   onToggleLike: (id: string) => void;
   onBadgeClick: (asiloId: string, e: React.MouseEvent) => void;
   onToggleMenu: (id: string) => void;
@@ -32,11 +39,24 @@ interface ReviewCardProps {
   onReport?: (id: string) => void;
 }
 
+function formatDate(dateStr: string) {
+  if (!dateStr) return "Reciente";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return new Intl.DateTimeFormat("es-ES", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(d);
+  } catch {
+    return dateStr;
+  }
+}
+
 export default function ReviewCard({
   review,
-  idx,
   activeMenuId,
-  badgePalette,
   onToggleLike,
   likePending = false,
   onBadgeClick,
@@ -45,158 +65,165 @@ export default function ReviewCard({
   onReport,
 }: ReviewCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Consideramos texto largo si supera los ~140 caracteres
   const isLongText = review.text.length > 140;
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
       transition={{
-        opacity: { duration: 0.3, delay: idx * 0.05 },
-        y: { duration: 0.3, delay: idx * 0.05 },
-        layout: { duration: 0.25, ease: "easeInOut" }, // Transición suave sin resorte/rebote
+        duration: 0.22,
+        ease: [0.16, 1, 0.3, 1],
       }}
-      className="relative w-full bg-[#141414] rounded-2xl p-5 shadow-2xl border border-white/10 hover:border-white/20 transition-colors flex flex-col justify-between space-y-4"
+      className="relative w-full bg-[#141517] rounded-2xl p-5 border border-white/5 hover:border-white/10 transition-colors flex flex-col justify-between space-y-4 group"
     >
-      <div className="flex items-start justify-between gap-2">
+      {/* Header: Autor, Fecha y Estrellas Desplegadas */}
+      <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <Image
-            src={review.avatar}
+            src={review.avatar || "/placeholder-avatar.png"}
             alt={review.author}
-            width={40}
-            height={40}
+            width={38}
+            height={38}
             unoptimized
-            className="w-10 h-10 rounded-full object-cover shadow-md border border-white/10"
+            className="w-9 h-9 rounded-full object-cover border border-white/10 bg-zinc-800 shrink-0"
           />
-          <h4 className="font-extrabold text-xs text-white leading-tight">
-            {review.author}
-          </h4>
+          <div>
+            <h4 className="font-semibold text-xs text-zinc-100 leading-tight">
+              {review.author}
+            </h4>
+            <div className="flex items-center gap-1 text-[10px] text-zinc-500 font-normal mt-0.5">
+              <Calendar className="w-3 h-3 text-zinc-600" />
+              <span>{formatDate(review.date)}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="text-right shrink-0 flex flex-col items-end gap-1.5">
-          {/* Badge de Calificación Suavizado */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3 h-3 ${
-                    i < Math.floor(review.rating)
-                      ? "fill-amber-300 text-amber-300"
-                      : "text-zinc-700 fill-zinc-800"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="font-extrabold text-[11px] text-amber-300">
-              {review.rating.toFixed(1)}
-            </span>
+        {/* Estrellas Desplegadas */}
+        <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+          <div className="flex items-center gap-0.5">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`w-3.5 h-3.5 ${
+                  star <= Math.round(review.rating)
+                    ? "fill-amber-400 text-amber-400"
+                    : "fill-zinc-800 text-zinc-700"
+                }`}
+              />
+            ))}
           </div>
-
-          <div className="flex items-center gap-1 text-[10px] text-zinc-400 font-medium">
-            <Calendar className="w-3 h-3 text-zinc-500" />
-            <span>{review.date}</span>
-          </div>
+          <span className="font-bold text-xs text-zinc-200 ml-0.5">
+            {review.rating.toFixed(1)}
+          </span>
         </div>
       </div>
 
-      {/* Bloque de Texto con límite limpio y sin solapamiento */}
-      <div className="space-y-1.5 overflow-hidden">
-        <p
-          className={`text-[11px] text-zinc-300 leading-relaxed font-medium italic transition-all duration-200 ${
-            !isExpanded ? "line-clamp-3" : ""
+      {/* Cuerpo del Comentario con Animación de Expansión */}
+      <motion.div layout className="space-y-1.5 overflow-hidden">
+        <motion.p
+          layout
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          className={`text-xs text-zinc-300 leading-relaxed font-normal ${
+            !isExpanded ? "line-clamp-4" : ""
           }`}
         >
           {review.text}
-        </p>
+        </motion.p>
 
         {isLongText && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-[10px] font-bold text-[#CCD999] hover:text-[#b8cb83] cursor-pointer flex items-center gap-1 transition-colors pt-0.5"
+            className="text-[11px] font-medium text-[#CCD999] hover:text-[#b8cb83] cursor-pointer flex items-center gap-1 transition-colors pt-0.5"
           >
             <span>{isExpanded ? "Ver menos" : "Ver más"}</span>
-            {isExpanded ? (
-              <ChevronUp className="w-3 h-3" />
-            ) : (
+            <motion.div
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.2, ease: "easeIn" }}
+            >
               <ChevronDown className="w-3 h-3" />
-            )}
+            </motion.div>
           </button>
         )}
-      </div>
+      </motion.div>
 
-      <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <motion.button
+      {/* Footer: Like, Badge y Opciones */}
+      <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Botón de Like */}
+          <button
             disabled={likePending}
-            aria-label={review.isLiked ? "Quitar like" : "Dar like"}
-            aria-pressed={review.isLiked}
             onClick={() => onToggleLike(review.id)}
-            whileTap={{ scale: 0.85 }}
-            className="flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/3 hover:bg-white/5 border border-white/5 text-xs cursor-pointer transition-colors"
           >
-            <motion.div
-              animate={{ scale: review.isLiked ? [1, 1.35, 1] : 1 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <ThumbsUp
+              className={`w-3.5 h-3.5 transition-colors ${
+                review.isLiked
+                  ? "fill-[#CCD999] text-[#CCD999]"
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            />
+            <span
+              className={
+                review.isLiked
+                  ? "text-[#CCD999] font-semibold"
+                  : "text-zinc-400 font-normal"
+              }
             >
-              <ThumbsUp
-                className={`w-4 h-4 transition-colors ${
-                  review.isLiked
-                    ? "fill-[#CCD999] text-[#CCD999]"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              />
-            </motion.div>
-            <span className={review.isLiked ? "text-[#CCD999] font-extrabold" : "text-zinc-400"}>
               {review.likes}
             </span>
-          </motion.button>
+          </button>
 
+          {/* Badge Minimalista de Asilo */}
           {review.asiloName && review.asiloId && (
             <button
               onClick={(e) => onBadgeClick(review.asiloId!, e)}
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${
-                badgePalette[review.colorIndex ?? 0]
-              }`}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-white/5 text-[#CCD999] text-[11px] font-medium transition-colors cursor-pointer group/btn"
             >
-              @{review.asiloName}
+              <span>{review.asiloName}</span>
+              <ArrowUpRight className="w-3 h-3 opacity-40 group-hover/btn:opacity-100 transition-opacity" />
             </button>
           )}
         </div>
 
+        {/* Menú de Opciones */}
         <div className="relative">
           <button
             onClick={() => onToggleMenu(review.id)}
-            className="p-1 hover:bg-white/10 rounded-lg text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 hover:bg-white/5 rounded-lg text-zinc-500 hover:text-white transition-colors cursor-pointer"
           >
-            <MoreHorizontal className="w-5 h-5" />
+            <MoreHorizontal className="w-4 h-4" />
           </button>
 
           <AnimatePresence>
             {activeMenuId === review.id && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: -5 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -5 }}
-                className="absolute right-0 bottom-full mb-2 w-32 bg-[#1a1a1a] rounded-xl shadow-2xl border border-white/10 p-1.5 z-30 space-y-1"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.12 }}
+                className="absolute right-0 bottom-full mb-2 w-32 bg-[#1b1d20] rounded-xl shadow-2xl border border-white/10 p-1 z-30 space-y-0.5"
               >
-                {onEdit && <button
-                  onClick={() => onEdit(review.id)}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-bold text-zinc-300 hover:bg-white/10 hover:text-white rounded-lg cursor-pointer"
-                >
-                  <Edit className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Editar</span>
-                </button>}
-                {onReport && <button
-                  onClick={() => onReport(review.id)}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-bold text-zinc-300 hover:bg-white/10 hover:text-white rounded-lg cursor-pointer"
-                >
-                  <AlertCircle className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Reportar</span>
-                </button>}
+                {onEdit && (
+                  <button
+                    onClick={() => onEdit(review.id)}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium text-zinc-300 hover:bg-white/5 hover:text-white rounded-lg cursor-pointer transition-colors"
+                  >
+                    <Edit className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>Editar</span>
+                  </button>
+                )}
+                {onReport && (
+                  <button
+                    onClick={() => onReport(review.id)}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium text-zinc-300 hover:bg-white/5 hover:text-white rounded-lg cursor-pointer transition-colors"
+                  >
+                    <AlertCircle className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>Reportar</span>
+                  </button>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

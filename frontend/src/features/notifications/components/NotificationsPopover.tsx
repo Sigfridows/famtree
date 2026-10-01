@@ -2,19 +2,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Star, Clock, Wrench, CheckCheck, Loader2 } from "lucide-react";
+import { Bell, CheckCheck, Loader2, Inbox } from "lucide-react";
 import { useNotifications } from "../hooks/useNotifications";
-import type {
-  NotificationVariant,
-  NotificationUIItem,
-} from "../types/notification.types";
+import NotificationItem from "./NotificationItem";
+import type { NotificationVariant } from "../types/notification.types";
 
 interface NotificationsPopoverProps {
   variant?: NotificationVariant;
 }
 
 export default function NotificationsPopover({
-  variant = "light",
+  variant = "dark",
 }: NotificationsPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"Hoy" | "Semana" | "Ayer">("Hoy");
@@ -49,92 +47,92 @@ export default function NotificationsPopover({
 
   const styles = {
     light: {
-      card: "bg-white border border-zinc-200/80 shadow-2xl text-zinc-900",
+      card: "bg-white border border-zinc-200 shadow-2xl text-zinc-900",
       title: "text-zinc-900",
-      link: "text-[#22c55e] hover:text-[#16a34a]",
-      tabsBg: "bg-zinc-100/90",
-      activeTab: "bg-white text-zinc-900 shadow-xs font-semibold",
-      inactiveTab: "text-zinc-400 hover:text-zinc-600",
-      itemHover: "hover:bg-zinc-50/80",
+      link: "text-emerald-600 hover:text-emerald-700",
+      tabsBg: "bg-zinc-100 border border-zinc-200/60",
+      activeTab: "bg-white text-zinc-950 font-bold shadow-xs",
+      inactiveTab: "text-zinc-500 hover:text-zinc-800 font-medium",
+      itemHover: "hover:bg-zinc-50/80 hover:border-zinc-200/80",
       textPrimary: "text-zinc-900",
-      textSecondary: "text-zinc-400",
-      divider: "border-zinc-100",
-      iconBg: "bg-zinc-50 border border-zinc-200 text-zinc-700",
+      textSecondary: "text-zinc-500",
+      iconBg: "bg-zinc-100 border-zinc-200/80 text-zinc-700",
     },
     dark: {
-      card: "bg-[#161616] border border-zinc-800 shadow-2xl text-white",
-      title: "text-white",
-      link: "text-[#A8E038] hover:text-[#95ca2f]",
-      tabsBg: "bg-[#242424]",
-      activeTab: "bg-[#181818] text-white font-semibold shadow-inner",
-      inactiveTab: "text-zinc-500 hover:text-zinc-300",
-      itemHover: "hover:bg-white/5",
-      textPrimary: "text-white",
+      card: "bg-zinc-900/95 backdrop-blur-xl border border-white/10 shadow-2xl text-white",
+      title: "text-zinc-100 tracking-tight",
+      link: "text-[#CCDD99] hover:text-[#b8cc80]",
+      tabsBg: "bg-zinc-950/60 border border-white/5",
+      activeTab: "bg-white/10 text-white font-semibold shadow-xs border border-white/10",
+      inactiveTab: "text-zinc-400 hover:text-zinc-200 font-medium",
+      itemHover: "hover:bg-white/5 hover:border-white/10",
+      textPrimary: "text-zinc-100",
       textSecondary: "text-zinc-400",
-      divider: "border-zinc-800/60",
-      iconBg: "bg-[#252B1E] border border-[#3A452B] text-[#A8E038]",
+      iconBg: "bg-zinc-800/80 border-white/10 text-zinc-200",
     },
     glass: {
-      card: "bg-[#121316]/95 backdrop-blur-3xl backdrop-saturate-150 border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.95)] text-white ring-1 ring-white/15 rounded-3xl",
+      card: "bg-zinc-950/90 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-white rounded-2xl",
       title: "text-white font-bold tracking-tight",
-      link: "text-[#CCD999] hover:text-[#b8cb83] font-semibold transition-colors",
-      tabsBg: "bg-black/40 border border-white/10 p-1 rounded-2xl",
+      link: "text-[#CCDD99] hover:text-[#b8cb83] font-semibold transition-colors",
+      tabsBg: "bg-black/50 border border-white/10 p-1 rounded-xl",
       activeTab:
-        "bg-[#CCD999] text-zinc-950 font-bold rounded-xl shadow-md transition-all",
+        "bg-[#CCDD99] text-zinc-950 font-bold rounded-lg shadow-sm transition-all",
       inactiveTab:
         "text-zinc-400 hover:text-zinc-200 transition-colors font-medium",
-      itemHover: "hover:bg-white/10 rounded-2xl transition-colors",
+      itemHover: "hover:bg-white/10 hover:border-white/15 rounded-xl transition-colors",
       textPrimary: "text-zinc-100 font-medium",
-      textSecondary: "text-zinc-400 font-light",
-      divider: "border-white/10",
+      textSecondary: "text-zinc-400 font-normal",
       iconBg:
-        "bg-white/10 border border-white/15 text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]",
+        "bg-white/10 border-white/15 text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]",
     },
   }[variant];
 
-  const renderIcon = (type: NotificationUIItem["type"]) => {
-    switch (type) {
-      case "rating":
-        return <Star className="w-4 h-4" />;
-      case "appointment":
-        return <Clock className="w-4 h-4" />;
-      case "status":
-        return <Wrench className="w-4 h-4" />;
-    }
-  };
-
   return (
-    <div className="relative z-9999 inline-block" ref={containerRef}>
+    <div className="relative z-50 inline-block" ref={containerRef}>
+      {/* Botón de la Campana */}
       <motion.button
-        whileTap={{ scale: 0.9 }}
-        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.94 }}
+        whileHover={{ scale: 1.04 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative p-2.5 rounded-full transition-colors cursor-pointer ${
+        className={`relative p-2.5 rounded-xl transition-all cursor-pointer border ${
           variant === "light"
-            ? "bg-zinc-100 hover:bg-zinc-200 text-zinc-800"
-            : "bg-zinc-800 hover:bg-zinc-700 text-white"
+            ? "bg-white border-zinc-200 hover:bg-zinc-50 text-zinc-800 shadow-xs"
+            : "bg-zinc-900/80 border-white/10 hover:border-white/20 hover:bg-zinc-800/80 text-zinc-200 shadow-xs backdrop-blur-md"
         }`}
         aria-label="Notificaciones"
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-1 w-2.5 h-2.5 bg-[#82C43C] rounded-full ring-2 ring-white" />
+          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#CCDD99] opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-[#CCDD99] border-2 border-zinc-950" />
+          </span>
         )}
       </motion.button>
 
+      {/* Popover desplegable */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className={`absolute right-0 mt-3 w-95 sm:w-105 rounded-[28px] p-6 z-9999 ${styles.card}`}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className={`absolute right-0 mt-3 w-88 sm:w-96 rounded-2xl p-5 z-50 ${styles.card}`}
           >
+            {/* Cabecera */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className={`text-lg font-bold ${styles.title}`}>
-                Notificaciones
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className={`text-sm font-bold ${styles.title}`}>
+                  Notificaciones
+                </h3>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#CCDD99]/20 text-[#CCDD99] border border-[#CCDD99]/30">
+                    {unreadCount} nuevas
+                  </span>
+                )}
+              </div>
+
               {unreadCount > 0 && (
                 <button
                   type="button"
@@ -147,15 +145,16 @@ export default function NotificationsPopover({
               )}
             </div>
 
+            {/* Selector de Pestañas (Filtros) */}
             <div
-              className={`grid grid-cols-3 p-1 rounded-2xl mb-5 ${styles.tabsBg}`}
+              className={`grid grid-cols-3 p-1 rounded-xl mb-4 ${styles.tabsBg}`}
             >
               {(["Hoy", "Semana", "Ayer"] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
-                  className={`py-1.5 text-xs rounded-xl transition-all duration-200 cursor-pointer ${
+                  className={`py-1 text-[11px] rounded-lg transition-all duration-150 cursor-pointer text-center ${
                     activeTab === tab ? styles.activeTab : styles.inactiveTab
                   }`}
                 >
@@ -164,65 +163,32 @@ export default function NotificationsPopover({
               ))}
             </div>
 
-            <div className="space-y-3 max-h-95 overflow-y-auto pr-1">
+            {/* Lista de Notificaciones */}
+            <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1">
               {loading && (
-                <div className="py-8 flex flex-col items-center justify-center text-zinc-400">
-                  <Loader2 className="w-6 h-6 animate-spin mb-2" />
+                <div className="py-10 flex flex-col items-center justify-center text-zinc-400">
+                  <Loader2 className="w-5 h-5 animate-spin mb-2 text-[#CCDD99]" />
                   <span className="text-xs">Cargando notificaciones...</span>
                 </div>
               )}
 
               {!loading && filteredNotifications.length === 0 && (
-                <div className="py-8 text-center text-zinc-400">
+                <div className="py-10 flex flex-col items-center justify-center text-zinc-500">
+                  <Inbox className="w-8 h-8 mb-2 opacity-40" />
                   <p className="text-xs font-medium">
-                    No hay notificaciones en este periodo.
+                    Sin notificaciones en este periodo.
                   </p>
                 </div>
               )}
 
               {!loading &&
-                filteredNotifications.map((item, index) => (
-                  <div key={item.id}>
-                    <div
-                      onClick={() => item.isUnread && markAsRead(item.rawId)}
-                      className={`flex gap-3.5 p-2 rounded-2xl transition-colors cursor-pointer ${styles.itemHover}`}
-                    >
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${styles.iconBg}`}
-                      >
-                        {renderIcon(item.type)}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            {item.isUnread && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#82C43C] shrink-0" />
-                            )}
-                            <h4
-                              className={`text-xs font-bold truncate ${styles.textPrimary}`}
-                            >
-                              {item.title}
-                            </h4>
-                          </div>
-                          <span
-                            className={`text-[11px] font-medium shrink-0 ${styles.textSecondary}`}
-                          >
-                            {item.time}
-                          </span>
-                        </div>
-                        <p
-                          className={`text-[11px] leading-relaxed line-clamp-2 ${styles.textSecondary}`}
-                        >
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    {index < filteredNotifications.length - 1 && (
-                      <div className={`border-b my-1.5 ${styles.divider}`} />
-                    )}
-                  </div>
+                filteredNotifications.map((item) => (
+                  <NotificationItem
+                    key={item.id}
+                    item={item}
+                    styles={styles}
+                    onRead={markAsRead}
+                  />
                 ))}
             </div>
           </motion.div>

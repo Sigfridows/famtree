@@ -71,7 +71,7 @@ def csv_cell(value: object) -> str:
 def render_pdf(table: ReportTable, filters: TableExport, admin_id: int, now: datetime) -> bytes:
     output = io.BytesIO()
     styles = getSampleStyleSheet()
-    logo = Path(__file__).parent / "assets" / "logo-famtree.png"
+    logo = Path(__file__).parent / "assets" / "famtree.png"
     story = [
         Image(str(logo), width=80, height=80, kind="proportional"),
         Paragraph("FamTree", styles["Title"]),
