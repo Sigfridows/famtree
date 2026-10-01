@@ -1,12 +1,12 @@
 'use client';
 
 import { useRef } from "react";
-import { Search, Shield, Heart, BadgeCheck, Sparkles, Star, Activity } from "lucide-react";
+import { Shield, Heart, BadgeCheck, Sparkles, Star, Activity } from "lucide-react";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import logoFamTree from "@/assets/logo-famtree.png";
-import NotificationsPopover from "../../components/shared/Notification";
+import logoFamTree from "@/assets/famtree.png";
 import EmergencyBar from "@/components/shared/EmergencyBar";
+import HeaderControls from "@/components/shared/HeaderControls";
 
 export default function HomePage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -106,29 +106,16 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-black/65 backdrop-contrast-125 z-10 pointer-events-none" />
 
         {/* Header superior */}
-        <header className="relative z-50 flex justify-end items-center gap-6">
-          <NotificationsPopover variant="glass" />
-
-          <div className="w-110 h-11 flex items-center justify-between bg-white/5 backdrop-blur-md px-4 py-2 rounded-xl border border-white/50">
-            <input
-              type="text"
-              placeholder="¿Qué quieres encontrar?"
-              className="bg-transparent border-none outline-none text-sm placeholder-zinc-300 w-full pr-2 font-montserrat"
-            />
-            <button className="bg-[#161616] w-28 h-8 rounded-lg cursor-pointer text-white flex items-center justify-center gap-2 px-3 hover:bg-[#CCD999] hover:text-zinc-950 transition-colors shrink-0">
-              <Search className="w-4 h-4" />
-              <span className="text-xs font-bold font-montserrat">Buscar</span>
-            </button>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <Image
-              src={logoFamTree}
-              alt="Logo FamTree"
-              className="w-21 h-21 object-contain"
-            />
-          </div>
-        </header>
+        <HeaderControls
+            logoSrc={logoFamTree}
+            placeholder="Buscar residencias..."
+            bgClass="bg-[#1A1C1E]/20 backdrop-blur-md"
+            borderClass="border-white/10"
+            placeholderClass="placeholder-zinc-500 text-white/90 font-light"
+            buttonBgClass="bg-[#CCDD99] hover:bg-[#959581]"
+            buttonTextClass="text-zinc-950 font-medium"
+            className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0"
+          />
 
         {/* Hero Central */}
         <motion.main 

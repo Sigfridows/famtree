@@ -44,7 +44,7 @@ const MUNICIPALITIES_BY_PROVINCE: Record<string, string[]> = {
   'San Cristóbal': ['San Cristóbal', 'Bajos de Haina', 'Villa Altagracia'],
 };
 
-export default function FilterModal({ isOpen = true, onClose, onApply, servicesList }: FilterModalProps) {
+export default function FilterModal({ isOpen = false, onClose, onApply, servicesList }: FilterModalProps) {
   const [selectedType, setSelectedType] = useState('casa');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [price, setPrice] = useState(50000);
@@ -77,27 +77,33 @@ export default function FilterModal({ isOpen = true, onClose, onApply, servicesL
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" 
-            onClick={onClose} 
-          />
+          {/* Backdrop totalmente transparente: permite cerrar al hacer clic afuera sin oscurecer */}
+        <div 
+          className="fixed inset-0 z-40 bg-transparent" 
+          onClick={onClose} 
+        />
 
+          {/* Panel de Filtros anclado directamente debajo del botón */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.96, y: -8 }}
+            initial={{ opacity: 0, scale: 0.95, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: -8 }}
-            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute right-0 top-full mt-2 z-50 w-[92vw] md:w-170 bg-[#161616] rounded-3xl shadow-2xl text-white font-montserrat p-5 space-y-4 origin-top-right border border-zinc-800"
+            exit={{ opacity: 0, scale: 0.95, y: -8 }}
+            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute right-0 top-full mt-2 z-50 w-[92vw] sm:w-135 md:w-155 bg-[#161616] rounded-3xl shadow-2xl text-white font-montserrat p-5 space-y-4 border border-zinc-800 origin-top-right"
           >
+            {/* Header */}
             <div className="flex items-center justify-between pb-2.5 border-b border-zinc-800">
-              <h2 className="text-lg font-bold text-white">Filtros</h2>
-              <button onClick={onClose} className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+              <h2 className="text-base sm:text-lg font-bold text-white">Filtros</h2>
+              <button 
+                type="button" 
+                onClick={onClose} 
+                className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Contenido Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -109,8 +115,9 @@ export default function FilterModal({ isOpen = true, onClose, onApply, servicesL
                       return (
                         <button
                           key={type.id}
+                          type="button"
                           onClick={() => setSelectedType(type.id)}
-                          className={`flex flex-col items-center justify-center p-1.5 h-14 rounded-2xl border transition-all text-center ${
+                          className={`flex flex-col items-center justify-center p-1.5 h-14 rounded-2xl border transition-all text-center cursor-pointer ${
                             isSelected
                               ? 'border-[#CCDD99] bg-[#CCDD99]/10 text-[#CCDD99] shadow-sm'
                               : 'border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 text-zinc-400'
@@ -146,6 +153,7 @@ export default function FilterModal({ isOpen = true, onClose, onApply, servicesL
                       <p className="text-[10px] text-zinc-500">Solo asilos verificados</p>
                     </div>
                     <button
+                      type="button"
                       onClick={() => setCertifiedOnly(!certifiedOnly)}
                       className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
                         certifiedOnly ? 'bg-[#CCDD99]' : 'bg-zinc-800'
@@ -160,6 +168,7 @@ export default function FilterModal({ isOpen = true, onClose, onApply, servicesL
                       <p className="text-[10px] text-zinc-500">Solo calificaciones superiores</p>
                     </div>
                     <button
+                      type="button"
                       onClick={() => setMinRatingOnly(!minRatingOnly)}
                       className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
                         minRatingOnly ? 'bg-[#CCDD99]' : 'bg-zinc-800'
@@ -194,7 +203,9 @@ export default function FilterModal({ isOpen = true, onClose, onApply, servicesL
                       const isChecked = selectedServices.includes(service);
                       return (
                         <button
-                          key={service} onClick={() => toggleService(service)}
+                          key={service} 
+                          type="button"
+                          onClick={() => toggleService(service)}
                           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[11px] font-semibold transition-all cursor-pointer ${
                             isChecked
                               ? 'border-[#CCDD99] bg-[#CCDD99]/10 text-[#CCDD99]'
@@ -215,16 +226,19 @@ export default function FilterModal({ isOpen = true, onClose, onApply, servicesL
               </div>
             </div>
 
+            {/* Footer */}
             <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
               <button
+                type="button"
                 onClick={handleReset}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] border border-zinc-700 text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] border border-zinc-700 text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition-colors cursor-pointer"
               >
                 <span>Restablecer</span><RotateCcw className="w-3.5 h-3.5" />
               </button>
               <button
+                type="button"
                 onClick={handleApply}
-                className="flex items-center gap-1.5 px-6 py-2 rounded-[10px] bg-[#CCDD99] text-zinc-950 text-xs font-bold hover:bg-[#b8cb83] transition-colors"
+                className="flex items-center gap-1.5 px-6 py-2 rounded-[10px] bg-[#CCDD99] text-zinc-950 text-xs font-bold hover:bg-[#b8cb83] transition-colors cursor-pointer"
               >
                 <span>Aplicar Filtros</span><Eye className="w-4 h-4" />
               </button>

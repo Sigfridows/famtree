@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
-import { SlidersHorizontal, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Card from "@/features/asylums/components/Card";
 import HeaderDesign from "@/components/shared/HeaderDesign";
 import HeaderControls from "@/components/shared/HeaderControls";
-import logoFamTree from "@/assets/logo-famtree.png";
+import logoFamTree from "@/assets/famtree.png";
 import AsiloDetails, {
   AsiloDetailData,
 } from "@/features/asylums/components/AsiloDetails";
 import { useAsylums } from "@/features/asylums/hooks/useAsylums";
 import { useAsylumDetail } from "@/features/asylums/hooks/useAsylumDetail";
+import { useFavorites } from "@/features/asylums/hooks/useFavorites";
 import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
 import EmptyState from "@/features/asylums/components/EmptyState";
-import FilterModal, { FilterData } from "@/features/asylums/components/Filter";
+import FavoritesDrawer from "@/features/asylums/components/FavoritesDrawer";
+import CatalogSubheader from "@/features/asylums/components/CatalogSubheader";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -34,17 +37,74 @@ const cardVariants: Variants = {
   },
 };
 
-export default function CatalogoPage() {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+// Componente interno para aislar la lectura de SearchParams dentro de Suspense
+function CatalogContent() {
+  const searchParams = useSearchParams();
+  const asiloIdFromUrl = searchParams.get("asiloId");
+
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAsiloId, setSelectedAsiloId] = useState<number | null>(null);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+
+  // Estados de control para la barra superior
+  const [quickFilter, setQuickFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Custom hook para la gestión centralizada y optimista de favoritos
+  const { favorites, isFavorite, toggleFavorite, removeFavoriteById } =
+    useFavorites();
 
   const { data, loading, updateFilters } = useAsylums();
   const { data: asylumDetail, loading: detailLoading } =
     useAsylumDetail(selectedAsiloId);
 
-  const asylums: AsylumSummary[] = data?.items || [];
+  // 1. EFECTO: Captura el parámetro de la URL y abre el modal correspondiente
+  useEffect(() => {
+  if (asiloIdFromUrl) {
+    const parsedId = Number(asiloIdFromUrl);
+    if (!isNaN(parsedId)) {
+      queueMicrotask(() => {
+        setSelectedAsiloId(parsedId);
+      });
+    }
+  }
+}, [asiloIdFromUrl]);
+
+  const rawAsylums: AsylumSummary[] = data?.items || [];
+
+  // 2. HIDRATACIÓN: Enriquece la lista de favoritos con los datos del catálogo si la API devuelve datos parciales
+  const enrichedFavorites = favorites.map((fav) => {
+    const matched = rawAsylums.find((item) => Number(item.id) === Number(fav.id));
+    return matched ? { ...fav, ...matched } : fav;
+  });
+
+  // 3. FALLBACK: Construye el objeto selectedAsylum casteando a AsylumSummary
+  const selectedAsylum: AsylumSummary | undefined =
+    rawAsylums.find((item) => item.id === selectedAsiloId) ||
+    (asylumDetail
+      ? ({
+          id: asylumDetail.id,
+          name: asylumDetail.name,
+          address: asylumDetail.address,
+          rating: asylumDetail.rating ?? 0,
+          cover_url: asylumDetail.cover_url || asylumDetail.images?.[0]?.url || "",
+          status: asylumDetail.status,
+          price_min: asylumDetail.price_min,
+          price_max: asylumDetail.price_max,
+          province_id: asylumDetail.province_id ?? 0,
+          province_name: asylumDetail.province_name ?? "",
+          municipality_id: asylumDetail.municipality_id ?? 0,
+          municipality_name: asylumDetail.municipality_name ?? "",
+        } as AsylumSummary)
+      : undefined);
+
+  // Filtrado rápido cliente
+  const asylums = rawAsylums.filter((asylum) => {
+    if (quickFilter === "open") return asylum.status === "ACTIVE";
+    if (quickFilter === "top_rated") return (asylum.rating ?? 0) >= 4.0;
+    return true;
+  });
 
   const handleSearch = () => {
     updateFilters({ q: searchQuery });
@@ -80,11 +140,28 @@ export default function CatalogoPage() {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-[#121315] text-white font-montserrat pl-20 lg:pl-24 pr-4 sm:pr-8 py-6 relative overflow-hidden">
-      {/* Resplandores ambientales tenues para la estética dark */}
+    <div className="min-h-screen bg-[#121315] text-white font-montserrat pl-20 lg:pl-24 pr-4 sm:pr-8 py-6 relative overflow-x-hidden [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-800/80 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-700">
+      {/* Resplandores ambientales */}
       <div className="absolute top-0 right-0 w-125 h-125 bg-[#CCDD99]/5 rounded-full blur-[160px] pointer-events-none z-0" />
       <div className="absolute top-1/2 left-20 w-100 h-100 bg-[#CCDD99]/5 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-size-[24px_24px] opacity-[0.03] pointer-events-none z-0" />
+
+      {/* Scrollbar minimalista */}
+      <style jsx global>{`
+        ::-webkit-scrollbar {
+          width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #0e0e0e;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #222222;
+          border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #ccd999;
+        }
+      `}</style>
 
       <div className="max-w-7xl mx-auto space-y-6 relative z-10">
         {/* Cabecera y Controles */}
@@ -110,45 +187,34 @@ export default function CatalogoPage() {
           />
         </div>
 
-        {/* Botón de Filtros */}
-        <div className="flex justify-end items-center pt-1">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="flex items-center gap-2 text-xs font-light text-zinc-300 hover:text-white bg-[#1A1C1E]/80 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 hover:border-white/20 shadow-xs transition-all cursor-pointer"
-            >
-              <span>Filtros</span>
-              {activeFiltersCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[#CCDD99] text-[#121315] text-[10px] flex items-center justify-center font-medium">
-                  {activeFiltersCount}
-                </span>
-              )}
-              <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400 stroke-[1.5]" />
-            </button>
+        {/* SUBHEADER COMPONENTE REUTILIZABLE */}
+        <div className="relative z-30">
+          <CatalogSubheader
+            totalResults={asylums.length}
+            savedCount={enrichedFavorites.length}
+            onOpenFavorites={() => setIsFavoritesOpen(true)}
+            activeFilterCount={activeFiltersCount}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            selectedQuickFilter={quickFilter}
+            onQuickFilterChange={setQuickFilter}
+            onApplyFilters={(filters) => {
+              let count = 0;
+              if (filters.maxPrice && filters.maxPrice < 50000) count++;
+              if (filters.services && filters.services.length > 0) count++;
+              if (filters.certifiedOnly) count++;
+              if (filters.minRatingOnly) count++;
+              setActiveFiltersCount(count);
 
-            <FilterModal
-              isOpen={isFilterOpen}
-              onClose={() => setIsFilterOpen(false)}
-              onApply={(filters: FilterData) => {
-                let count = 0;
-                if (filters.maxPrice && filters.maxPrice < 50000) count++;
-                if (filters.services && filters.services.length > 0) count++;
-                if (filters.certifiedOnly) count++;
-                if (filters.minRatingOnly) count++;
-                setActiveFiltersCount(count);
-
-                updateFilters({
-                  q: searchQuery || undefined,
-                  max_price: filters.maxPrice
-                    ? String(filters.maxPrice)
-                    : undefined,
-                  page: 1,
-                });
-                setIsFilterOpen(false);
-              }}
-            />
-          </div>
+              updateFilters({
+                q: searchQuery || undefined,
+                max_price: filters.maxPrice
+                  ? String(filters.maxPrice)
+                  : undefined,
+                page: 1,
+              });
+            }}
+          />
         </div>
 
         {/* Estado de Carga */}
@@ -166,26 +232,37 @@ export default function CatalogoPage() {
           <EmptyState
             title="No se encontraron residencias"
             description="No encontramos residencias que coincidan con los criterios o búsqueda seleccionados."
-            actionLabel={searchQuery ? "Limpiar búsqueda" : undefined}
+            actionLabel={
+              searchQuery || quickFilter !== "all"
+                ? "Restablecer filtros"
+                : undefined
+            }
             onAction={() => {
               setSearchQuery("");
+              setQuickFilter("all");
               updateFilters({ q: "" });
             }}
           />
         )}
 
-        {/* Grid de Tarjetas */}
+        {/* Contenedor de Tarjetas */}
         {!loading && asylums.length > 0 && (
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+            className={`relative z-0 ${
+              viewMode === "grid"
+                ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+                : "flex flex-col gap-4"
+            }`}
           >
             {asylums.map((asylum) => (
               <motion.div key={asylum.id} variants={cardVariants}>
                 <Card
                   asylum={asylum}
+                  isFavorite={isFavorite(asylum.id)}
+                  onFavoriteToggle={() => toggleFavorite(asylum)}
                   onDetailClick={() => setSelectedAsiloId(asylum.id)}
                 />
               </motion.div>
@@ -199,8 +276,38 @@ export default function CatalogoPage() {
           onClose={() => setSelectedAsiloId(null)}
           data={modalData}
           loading={detailLoading}
+          isFavorite={selectedAsiloId ? isFavorite(selectedAsiloId) : false}
+          onFavoriteToggle={() =>
+            selectedAsylum && toggleFavorite(selectedAsylum)
+          }
+          favorites={enrichedFavorites}
+        />
+
+        {/* Drawer Lateral de Favoritos */}
+        <FavoritesDrawer
+          isOpen={isFavoritesOpen}
+          onClose={() => setIsFavoritesOpen(false)}
+          favorites={enrichedFavorites}
+          onRemoveFavorite={removeFavoriteById}
+          onSelectAsylum={(id) => setSelectedAsiloId(id)}
         />
       </div>
     </div>
+  );
+}
+
+// Exportación principal envuelta en Suspense (Requerido por Next.js App Router para searchParams)
+export default function CatalogoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#121315] flex flex-col items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#CCDD99] mb-2" />
+          <p className="text-xs text-zinc-400 font-light">Cargando...</p>
+        </div>
+      }
+    >
+      <CatalogContent />
+    </Suspense>
   );
 }

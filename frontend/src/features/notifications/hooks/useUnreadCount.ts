@@ -1,38 +1,38 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { notificationsService } from "../api/notificationsService";
+import { notificationsApi } from "../api/notificationsService";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export function useUnreadCount() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [count, setCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchUnreadCount = useCallback(async () => {
+    if (!isAuthenticated) {
+      setCount(0);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const unread = await notificationsService.getUnreadCount();
+      const unread = await notificationsApi.getUnreadCount();
       setCount(unread);
     } catch {
       // Manejo silencioso
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
-  let isMounted = true;
-
-  const init = async () => {
-    if (isMounted) {
-      await fetchUnreadCount();
+    if (!isAuthLoading) {
+      queueMicrotask(() => {
+        void fetchUnreadCount();
+      });
     }
-  };
+  }, [fetchUnreadCount, isAuthenticated, isAuthLoading]);
 
-  void init();
-
-  return () => {
-    isMounted = false;
-  };
-}, [fetchUnreadCount]);
-
-  return { count, loading, refetchCount: fetchUnreadCount };
+  return { count, loading: loading || isAuthLoading, refetchCount: fetchUnreadCount };
 }

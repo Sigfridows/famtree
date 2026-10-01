@@ -6,7 +6,7 @@ import SearchBar from "./SearchBar";
 import NotificationsPopover from "./Notification";
 
 interface HeaderControlsProps {
-  // Props de la Búsqueda
+  // Props de Búsqueda
   searchValue?: string;
   onSearchChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearch?: () => void;
@@ -39,12 +39,12 @@ export default function HeaderControls({
   logoSrc,
   logoAlt = "Logo",
   showLogo = true,
-  logoClassName = "w-21 h-21 object-contain",
+  logoClassName = "w-16 h-16 object-contain",
   className = "",
 }: HeaderControlsProps) {
   return (
-    <header className={`relative z-40 flex justify-end items-center gap-6 ${className}`}>
-      <NotificationsPopover variant="light" />
+    <header className={`relative z-40 flex items-center justify-end gap-4 sm:gap-6 ${className}`}>
+      <NotificationsPopover variant="dark" />
       
       <SearchBar
         value={searchValue}
@@ -59,14 +59,14 @@ export default function HeaderControls({
       />
 
       {showLogo && logoSrc && (
-        <div className="flex flex-col items-center shrink-0">
+        <div className="flex flex-col items-center shrink-0 transition-opacity hover:opacity-90">
           <Image
             src={logoSrc}
             alt={logoAlt}
             className={logoClassName}
           />
-          <span className="text-[11px] font-cinzel tracking-[5.5px] font-normal text-[#161616] mt-1">
-            FAMTREE
+          <span className="text-[10px] tracking-[4px] font-normal font-cinzel text-zinc-400 uppercase -mt-0.5">
+            famtree
           </span>
         </div>
       )}

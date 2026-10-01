@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { notificationsApi } from "../api/notificationsService";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { Notification, NotificationUIItem } from "../types/notification.types";
 
 function formatRelativeTime(dateString: string): string {
@@ -32,11 +33,19 @@ function mapEventTypeToUIType(eventType: string): NotificationUIItem["type"] {
 }
 
 export function useNotifications() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchNotifications = useCallback(async () => {
+    if (!isAuthenticated) {
+      setNotifications([]);
+      setUnreadCount(0);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const [list, count] = await Promise.all([
@@ -46,29 +55,23 @@ export function useNotifications() {
       setNotifications(list);
       setUnreadCount(count);
     } catch {
-      // Manejo silencioso en notificaciones de la barra superior
+      // Manejo silencioso en topbar
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
- useEffect(() => {
-  let isMounted = true;
-
-  const init = async () => {
-    if (isMounted) {
-      await fetchNotifications();
+  useEffect(() => {
+    if (!isAuthLoading) {
+      queueMicrotask(() => {
+        void fetchNotifications();
+      });
     }
-  };
-
-  void init();
-
-  return () => {
-    isMounted = false;
-  };
-}, [fetchNotifications]);
+  }, [fetchNotifications, isAuthenticated, isAuthLoading]);
 
   const markAsRead = async (notificationId: number) => {
+    if (!isAuthenticated) return;
+
     setNotifications((prev) =>
       prev.map((n) => (n.notificationId === notificationId ? { ...n, isRead: true } : n))
     );
@@ -82,6 +85,8 @@ export function useNotifications() {
   };
 
   const markAllAsRead = async () => {
+    if (!isAuthenticated) return;
+
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setUnreadCount(0);
 
@@ -107,7 +112,7 @@ export function useNotifications() {
     notifications: uiNotifications,
     rawNotifications: notifications,
     unreadCount,
-    loading,
+    loading: loading || isAuthLoading,
     markAsRead,
     markAllAsRead,
     refetch: fetchNotifications,

@@ -1,20 +1,26 @@
 "use client";
 
-import { reviewService } from "@/features/reviews/api/reviewService";
-import type { ReportReason } from "@/features/reviews/types/reviews.types";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { MessageSquareText, Loader2, LogIn } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  MessageSquareText,
+  Loader2,
+  LogIn,
+  X,
+  AlertCircle,
+} from "lucide-react";
 import HeaderDesign from "@/components/shared/HeaderDesign";
 import HeaderControls from "@/components/shared/HeaderControls";
 import ReviewCard, { Review } from "@/features/reviews/components/ReviewCard";
 import ReviewComposer from "@/features/reviews/components/ReviewComposer";
 import StateFeedback from "@/components/shared/StateFeedback";
 import { Asilo } from "@/features/reviews/components/MentionDropdown";
-import logoFamTree from "@/assets/logo-famtree.png";
+import logoFamTree from "@/assets/famtree.png";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useReviews } from "@/features/reviews/hooks/useReviews";
+import ReviewActionModal from "@/features/reviews/components/ReviewActionModal";
 
 interface RawReviewAuthor {
   name?: string;
@@ -60,41 +66,75 @@ interface RawAsylum {
   id?: string | number;
   codigo_asilo?: string | number;
   name?: string;
-  colorIndex?: number;
 }
 
-// Paleta de Badges optimizada para el tema oscuro (efecto neón translúcido)
-const BADGE_COLOR_PALETTE = [
-  "bg-[#0284c7]/20 text-[#38bdf8] border-[#0284c7]/40 hover:bg-[#0284c7]/30",
-  "bg-[#9333ea]/20 text-[#c084fc] border-[#9333ea]/40 hover:bg-[#9333ea]/30",
-  "bg-[#059669]/20 text-[#34d399] border-[#059669]/40 hover:bg-[#059669]/30",
-  "bg-[#d97706]/20 text-[#fbbf24] border-[#d97706]/40 hover:bg-[#d97706]/30",
-  "bg-[#e11d48]/20 text-[#fb7185] border-[#e11d48]/40 hover:bg-[#e11d48]/30",
-  "bg-[#4f46e5]/20 text-[#818cf8] border-[#4f46e5]/40 hover:bg-[#4f46e5]/30",
-];
-
-export default function ResenasPage() {
+function ResenasContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const isAuthenticated = Boolean(user);
 
-  const { reviews, asylums, loading, error, submitReview, refetch, toggleLike, pendingLikes } =
-    useReviews();
+  const {
+    reviews,
+    asylums,
+    loading,
+    error,
+    submitReview,
+    refetch,
+    toggleLike,
+    pendingLikes,
+  } = useReviews();
+
+  const initialAsilo = useMemo(() => {
+    const asylumId = searchParams.get("asylumId");
+    const asylumName = searchParams.get("asylumName");
+
+    if (!asylumId) return null;
+
+    const matched = (asylums as unknown as Asilo[])?.find(
+      (a) => String(a.id) === String(asylumId)
+    );
+
+    if (matched) return matched;
+
+    if (asylumName) {
+      return {
+        id: asylumId,
+        name: asylumName,
+      } as Asilo;
+    }
+
+    return null;
+  }, [searchParams, asylums]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [onlyMine, setOnlyMine] = useState(false);
 
-  const [action, setAction] = useState<{id: string; mode: "edit" | "report"; comment: string; rating: number} | null>(null);
-  const [reason, setReason] = useState<ReportReason>("SPAM");
-  const [detail, setDetail] = useState("");
-  const [actionBusy, setActionBusy] = useState(false);
+  const [action, setAction] = useState<{
+    id: string;
+    mode: "edit" | "report";
+    comment: string;
+    rating: number;
+  } | null>(null);
+
   const [likeError, setLikeError] = useState<string | null>(null);
+
   const handleToggleLike = async (id: string) => {
-    if (!isAuthenticated) { router.push("/login?callbackUrl=/review"); return; }
+    if (!isAuthenticated) {
+      router.push("/login?callbackUrl=/review");
+      return;
+    }
     setLikeError(null);
-    try { await toggleLike(id); }
-    catch (err) { setLikeError(err instanceof Error ? err.message : "No se pudo guardar el like. Recarga antes de reintentar."); }
+    try {
+      await toggleLike(id);
+    } catch (err) {
+      setLikeError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo guardar el me gusta. Intenta nuevamente."
+      );
+    }
   };
 
   const handleBadgeClick = (asiloId: string, e: React.MouseEvent) => {
@@ -115,21 +155,20 @@ export default function ResenasPage() {
               rev.user?.lastName || rev.author?.lastName || ""
             }`.trim();
 
-      const isMatch =
+      return (
         (user?.userId &&
           (rev.userId === user.userId || rev.user?.userId === user.userId)) ||
-        (currentUserName && revAuthor === currentUserName);
-
-      return isMatch;
+        (currentUserName && revAuthor === currentUserName)
+      );
     })
     .map((rev: RawReview) =>
-      String(rev.asylumId || rev.asiloId || rev.codigo_asilo || ""),
+      String(rev.asylumId || rev.asiloId || rev.codigo_asilo || "")
     );
 
   const handleCreateReview = async (
     text: string,
     rating: number,
-    selectedAsilo: Asilo | null,
+    selectedAsilo: Asilo | null
   ): Promise<{ success: boolean; error?: string }> => {
     if (!isAuthenticated) {
       router.push("/login?callbackUrl=/review");
@@ -175,7 +214,8 @@ export default function ResenasPage() {
       return {
         success: false,
         error:
-          errorObj?.message || "Ocurrió un error al intentar publicar tu reseña.",
+          errorObj?.message ||
+          "Ocurrió un error al intentar publicar tu reseña.",
       };
     }
   };
@@ -183,16 +223,16 @@ export default function ResenasPage() {
   const normalizedReviews: Review[] = (reviews || []).map(
     (rev: RawReview, index: number) => {
       const realId = String(
-        rev.id ?? rev.codigo_reseña ?? rev.reviewId ?? `rev-${index}`,
+        rev.id ?? rev.codigo_reseña ?? rev.reviewId ?? `rev-${index}`
       );
       const realAsylumId = String(
-        rev.asylumId ?? rev.asiloId ?? rev.codigo_asilo ?? "",
+        rev.asylumId ?? rev.asiloId ?? rev.codigo_asilo ?? ""
       );
 
       const matchedAsylum = (asylums || []).find(
         (a: RawAsylum) =>
           String(a.id) === realAsylumId ||
-          String(a.codigo_asilo) === realAsylumId,
+          String(a.codigo_asilo) === realAsylumId
       );
 
       let authorName = "Usuario Anónimo";
@@ -215,27 +255,20 @@ export default function ResenasPage() {
         rev.user?.picture ||
         rev.avatar;
 
-      const baseLikes = Number(rev.likes || 0);
-      const baseIsLiked = Boolean(rev.isLiked);
-
-
-
       return {
         id: realId,
         author: authorName,
-        avatar: avatar,
+        avatar: avatar || "/placeholder-avatar.png",
         rating: Number(rev.rating || rev.calificacion || 5),
         date: rev.date || rev.createdAt || rev.fecha_creacion || "Reciente",
         text: rev.comment || rev.text || rev.comentario || "",
-        likes: baseLikes,
-        isLiked: baseIsLiked,
+        likes: Number(rev.likes || 0),
+        isLiked: Boolean(rev.isLiked),
         asiloId: realAsylumId,
         asiloName:
           matchedAsylum?.name || rev.asylumName || rev.asiloName || "Asilo",
-        colorIndex:
-          matchedAsylum?.colorIndex ?? index % BADGE_COLOR_PALETTE.length,
       };
-    },
+    }
   );
 
   const filteredReviews = normalizedReviews.filter((rev) => {
@@ -245,9 +278,6 @@ export default function ResenasPage() {
       (rev.asiloName &&
         rev.asiloName.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const currentUserName = user
-      ? `${user.firstName} ${user.lastName}`.trim()
-      : "";
     const matchesMine = onlyMine ? rev.author === currentUserName : true;
 
     return matchesSearch && matchesMine;
@@ -255,11 +285,51 @@ export default function ResenasPage() {
 
   return (
     <div className="relative min-h-screen bg-[#121315] text-white font-montserrat pl-20 pr-6 pt-6 pb-36 selection:bg-[#CCD999] selection:text-black">
-      {likeError && <p role="alert" className="text-red-400">{likeError}</p>}
-      {/* Glow ambiental de fondo */}
-      <div className="fixed top-0 right-1/4 w-96 h-96 bg-[#CCD999]/5 rounded-full blur-3xl pointer-events-none -z-10" />
+      {/* Resplandores ambientales de fondo */}
+      <div className="absolute top-0 right-0 w-125 h-125 bg-[#CCDD99]/5 rounded-full blur-[160px] pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-20 w-100 h-100 bg-[#CCDD99]/5 rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-size-[24px_24px] opacity-[0.03] pointer-events-none z-0" />
 
-      <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
+      {/* Scrollbar minimalista */}
+      <style jsx global>{`
+        ::-webkit-scrollbar {
+          width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #0e0e0e;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #222222;
+          border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #ccd999;
+        }
+      `}</style>
+      
+      {/* Alerta flotante si ocurre un error con el Like */}
+      <AnimatePresence>
+        {likeError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="fixed top-5 right-5 z-50 flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2.5 rounded-xl text-xs font-semibold backdrop-blur-xl shadow-xl"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{likeError}</span>
+            <button
+              onClick={() => setLikeError(null)}
+              className="ml-2 hover:text-white"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Encabezado */}
+      <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 max-w-7xl mx-auto relative z-10">
         <div className="w-full lg:flex-1">
           <HeaderDesign
             title="Sección de Comentarios"
@@ -271,12 +341,13 @@ export default function ResenasPage() {
         <div className="flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-2">
           <HeaderControls
             logoSrc={logoFamTree}
-            placeholder="¿Qué quieres encontrar?"
-            bgClass="bg-[#141414] backdrop-blur-xl shadow-2xl"
+            placeholder="Que quieres encontrar?"
+            bgClass="bg-[#1A1C1E]/80 backdrop-blur-md"
             borderClass="border-white/10"
-            placeholderClass="placeholder-zinc-400 text-white"
-            buttonBgClass="bg-[#CCD999] hover:bg-[#b8cb83]"
-            buttonTextClass="text-zinc-950 font-bold"
+            placeholderClass="placeholder-zinc-500 text-white/90 font-light"
+            buttonBgClass="bg-[#CCDD99] hover:bg-[#b8cb83]"
+            buttonTextClass="text-zinc-950 font-medium"
+            className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0"
             searchValue={searchQuery}
             onSearchChange={(e) => setSearchQuery(e.target.value)}
             onSearch={() => {}}
@@ -284,8 +355,9 @@ export default function ResenasPage() {
         </div>
       </header>
 
+      {/* Filtro Mis Reseñas */}
       {isAuthenticated && (
-        <div className="mt-6 flex justify-end items-center max-w-7xl mx-auto px-2">
+        <div className="mt-6 flex justify-end items-center max-w-7xl mx-auto px-2 relative z-10">
           <button
             onClick={() => setOnlyMine(!onlyMine)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border shadow-md cursor-pointer ${
@@ -300,12 +372,13 @@ export default function ResenasPage() {
         </div>
       )}
 
-      <main className="max-w-7xl mx-auto mt-6">
+      {/* Lista de Reseñas */}
+      <main className="max-w-7xl mx-auto mt-6 relative z-10">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-3">
             <Loader2 className="w-8 h-8 animate-spin text-[#CCD999]" />
             <p className="text-xs font-bold text-zinc-400">
-              Cargando comentarios desde la base de datos...
+              Cargando comentarios...
             </p>
           </div>
         ) : error ? (
@@ -317,7 +390,7 @@ export default function ResenasPage() {
             message={
               searchQuery || onlyMine
                 ? "Intenta ajustando los filtros de búsqueda o desactivando el filtro de 'Mis Reseñas'."
-                : "Aún no hay comentarios registrados en la base de datos. ¡Sé el primero en escribir uno!"
+                : "Aún no hay comentarios registrados. ¡Sé el primero en escribir uno!"
             }
           />
         ) : (
@@ -328,42 +401,72 @@ export default function ResenasPage() {
                 review={review}
                 idx={idx}
                 activeMenuId={activeMenuId}
-                badgePalette={BADGE_COLOR_PALETTE}
                 onToggleLike={handleToggleLike}
                 likePending={pendingLikes.includes(review.id)}
                 onBadgeClick={handleBadgeClick}
                 onToggleMenu={(id) =>
                   setActiveMenuId((prev) => (prev === id ? null : id))
                 }
-                onEdit={reviews.some(item => String(item.reviewId ?? item.id) === review.id && String(item.userId) === String(user?.userId)) ? () => {setActiveMenuId(null); setLikeError(null); setAction({id: review.id, mode: "edit", comment: review.text, rating: review.rating});} : undefined}
-                onReport={user?.role === "REGISTERED_USER" && !reviews.some(item => String(item.reviewId ?? item.id) === review.id && String(item.userId) === String(user.userId)) ? () => {setActiveMenuId(null); setLikeError(null); setDetail(""); setAction({id: review.id, mode: "report", comment: "", rating: 1});} : undefined}
+                onEdit={
+                  reviews.some(
+                    (item) =>
+                      String(item.reviewId ?? item.id) === review.id &&
+                      String(item.userId) === String(user?.userId)
+                  )
+                    ? () => {
+                        setActiveMenuId(null);
+                        setLikeError(null);
+                        setAction({
+                          id: review.id,
+                          mode: "edit",
+                          comment: review.text,
+                          rating: review.rating,
+                        });
+                      }
+                    : undefined
+                }
+                onReport={
+                  user?.role === "REGISTERED_USER" &&
+                  !reviews.some(
+                    (item) =>
+                      String(item.reviewId ?? item.id) === review.id &&
+                      String(item.userId) === String(user.userId)
+                  )
+                    ? () => {
+                        setActiveMenuId(null);
+                        setLikeError(null);
+                        setAction({
+                          id: review.id,
+                          mode: "report",
+                          comment: "",
+                          rating: 1,
+                        });
+                      }
+                    : undefined
+                }
               />
             ))}
           </div>
         )}
       </main>
 
-      {action && <div role="dialog" aria-modal="true" aria-label={action.mode === "edit" ? "Editar reseña" : "Reportar reseña"} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
-        <form className="w-full max-w-lg space-y-4 rounded-2xl bg-zinc-900 p-6" onSubmit={async e => {
-          e.preventDefault(); setActionBusy(true); setLikeError(null);
-          try {
-            if (action.mode === "edit") await reviewService.updateReview(action.id, {rating: action.rating, comment: action.comment});
-            else await reviewService.reportReview(Number(action.id), reason, detail || undefined);
-            setAction(null); await refetch();
-          } catch (err) { setLikeError(err instanceof Error ? err.message : "No se pudo guardar"); }
-          finally {setActionBusy(false);}
-        }}>
-          <h2>{action.mode === "edit" ? "Editar reseña" : "Reportar reseña"}</h2>
-          {action.mode === "edit" ? <><label>Calificación<input className="block border p-2" required type="number" min="1" max="5" value={action.rating} onChange={e => setAction({...action, rating: Number(e.target.value)})} /></label><label>Comentario<textarea className="block w-full border p-2" required minLength={10} maxLength={500} value={action.comment} onChange={e => setAction({...action, comment: e.target.value})} /></label></> : <><label>Motivo<select className="block w-full bg-zinc-900 p-2" value={reason} onChange={e => setReason(e.target.value as ReportReason)}>{Object.entries({SPAM: "Spam", OFFENSIVE_LANGUAGE: "Lenguaje ofensivo", FALSE_INFO: "Información falsa", CONFLICT_OF_INTEREST: "Conflicto de interés", OTHER: "Otro"}).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label>Detalle opcional<textarea className="block w-full border p-2" maxLength={250} value={detail} onChange={e => setDetail(e.target.value)} /></label></>}
-          {likeError && <p role="alert">{likeError}</p>}
-          <button disabled={actionBusy} className="mr-6 rounded bg-emerald-800 p-2">Guardar</button><button type="button" disabled={actionBusy} onClick={() => setAction(null)}>Cancelar</button>
-        </form>
-      </div>}
+      {/* Modal Modularizado */}
+      <ReviewActionModal
+        action={action}
+        onClose={() => setAction(null)}
+        onSuccess={async () => {
+          setLikeError(null);
+          await refetch();
+        }}
+        onError={(err) => setLikeError(err)}
+      />
+
+      {/* Redactor de Reseñas / Barra inferior según estado de usuario */}
       {user?.role === "REGISTERED_USER" ? (
         <ReviewComposer
           asilos={asylums as unknown as Asilo[]}
-          badgePalette={BADGE_COLOR_PALETTE}
           userReviewedAsylumIds={userReviewedAsylumIds}
+          initialAsilo={initialAsilo}
           onSubmit={handleCreateReview}
         />
       ) : (
@@ -384,5 +487,19 @@ export default function ResenasPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ResenasPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen w-full items-center justify-center bg-[#121315]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#CCD999]" />
+        </div>
+      }
+    >
+      <ResenasContent />
+    </Suspense>
   );
 }

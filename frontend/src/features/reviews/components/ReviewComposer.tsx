@@ -2,13 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Bold, Italic, Underline, AtSign, AlertCircle, X, Loader2 } from "lucide-react";
+import { Star, Bold, Italic, Underline, AtSign, AlertCircle, X, Loader2, Building2 } from "lucide-react";
 import MentionDropdown, { Asilo } from "./MentionDropdown";
 
 interface ReviewComposerProps {
   asilos: Asilo[];
-  badgePalette: string[];
   userReviewedAsylumIds?: string[];
+  initialAsilo?: Asilo | null; // 👈 Prop para recibir el asilo preseleccionado
   onSubmit: (
     text: string,
     rating: number,
@@ -18,23 +18,36 @@ interface ReviewComposerProps {
 
 export default function ReviewComposer({
   asilos,
-  badgePalette,
   userReviewedAsylumIds = [],
+  initialAsilo = null, // 👈 Valor por defecto
   onSubmit,
 }: ReviewComposerProps) {
   const [commentText, setCommentText] = useState("");
-  const [selectedAsilo, setSelectedAsilo] = useState<Asilo | null>(null);
+  // 👈 Inicializamos el estado con initialAsilo
+  const [selectedAsilo, setSelectedAsilo] = useState<Asilo | null>(initialAsilo);
   const [showMentionDropdown, setShowMentionDropdown] = useState(false);
   const [selectedRating, setSelectedRating] = useState(5);
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mentionDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+  if (initialAsilo) {
+    queueMicrotask(() => {
+      setSelectedAsilo(initialAsilo);
+      if (userReviewedAsylumIds.includes(String(initialAsilo.id))) {
+        setWarningMessage(
+          `Ya has publicado una reseña para "${initialAsilo.name}". Solo se permite 1 reseña por residencia.`
+        );
+      }
+    });
+  }
+}, [initialAsilo, userReviewedAsylumIds]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -122,13 +135,12 @@ export default function ReviewComposer({
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-40">
-      <div className="relative bg-[#141414]/90 backdrop-blur-xl rounded-2xl p-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/10 space-y-3">
+      <div className="relative bg-[#16181b]/90 backdrop-blur-2xl rounded-2xl p-4 shadow-[0_15px_40px_rgba(0,0,0,0.6)] border border-white/10 space-y-3">
         <AnimatePresence>
           {showMentionDropdown && (
             <MentionDropdown
               ref={mentionDropdownRef}
               asilos={asilos}
-              badgePalette={badgePalette}
               onSelectAsilo={handleSelectAsilo}
             />
           )}
@@ -137,10 +149,10 @@ export default function ReviewComposer({
         <AnimatePresence>
           {warningMessage && (
             <motion.div
-              initial={{ opacity: 0, y: -8, height: 0 }}
+              initial={{ opacity: 0, y: -6, height: 0 }}
               animate={{ opacity: 1, y: 0, height: "auto" }}
-              exit={{ opacity: 0, y: -8, height: 0 }}
-              className="flex items-center justify-between gap-2 px-3.5 py-2 bg-amber-950/40 border border-amber-500/30 text-amber-300 rounded-xl text-xs font-semibold"
+              exit={{ opacity: 0, y: -6, height: 0 }}
+              className="flex items-center justify-between gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl text-xs font-medium"
             >
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
@@ -148,7 +160,7 @@ export default function ReviewComposer({
               </div>
               <button
                 onClick={() => setWarningMessage(null)}
-                className="p-1 hover:bg-amber-900/50 rounded-lg text-amber-400 transition-colors cursor-pointer"
+                className="p-1 hover:bg-amber-500/20 rounded-lg text-amber-400 transition-colors cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -158,19 +170,16 @@ export default function ReviewComposer({
 
         {selectedAsilo && (
           <div className="flex items-center gap-2 pb-1">
-            <span className="text-[10px] text-zinc-400 font-bold">Reseñando a:</span>
-            <span
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 ${
-                badgePalette[selectedAsilo.colorIndex]
-              }`}
-            >
-              @{selectedAsilo.name}
+            <span className="text-[10px] text-zinc-400 font-medium">Etiquetado:</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-[#CCD999]/10 text-[#CCD999] border border-[#CCD999]/25 text-[11px] font-semibold">
+              <Building2 className="w-3 h-3 text-[#CCD999]" />
+              <span>{selectedAsilo.name}</span>
               <button
                 onClick={() => {
                   setSelectedAsilo(null);
                   if (warningMessage) setWarningMessage(null);
                 }}
-                className="hover:text-white ml-1 font-bold cursor-pointer"
+                className="hover:text-white ml-1 font-bold cursor-pointer text-zinc-400"
               >
                 ×
               </button>
@@ -187,37 +196,37 @@ export default function ReviewComposer({
           className={`w-full text-xs text-zinc-100 bg-transparent resize-none focus:outline-none placeholder:text-zinc-500 leading-relaxed min-h-8 max-h-32 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-zinc-700 [&::-webkit-scrollbar-thumb]:rounded-full ${
             isBold ? "font-bold" : "font-normal"
           } ${isItalic ? "italic" : ""} ${isUnderline ? "underline" : ""}`}
-          placeholder="Escribe tu comentario... Usa '@' para etiquetar una residencia"
+          placeholder="Escribe tu experiencia... Usa '@' para etiquetar un asilo"
         />
 
-        <div className="flex items-center justify-between pt-2 border-t border-white/10">
-          <div className="flex items-center gap-1.5 text-zinc-400">
+        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+          <div className="flex items-center gap-1 text-zinc-400">
             <button
               onClick={() => setIsBold(!isBold)}
-              className={`p-1.5 rounded-md hover:bg-white/10 hover:text-white cursor-pointer transition-colors ${
+              className={`p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors ${
                 isBold ? "text-zinc-950 bg-[#CCD999]" : ""
               }`}
             >
-              <Bold className="w-4 h-4" />
+              <Bold className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setIsItalic(!isItalic)}
-              className={`p-1.5 rounded-md hover:bg-white/10 hover:text-white cursor-pointer transition-colors ${
+              className={`p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors ${
                 isItalic ? "text-zinc-950 bg-[#CCD999]" : ""
               }`}
             >
-              <Italic className="w-4 h-4" />
+              <Italic className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setIsUnderline(!isUnderline)}
-              className={`p-1.5 rounded-md hover:bg-white/10 hover:text-white cursor-pointer transition-colors ${
+              className={`p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors ${
                 isUnderline ? "text-zinc-950 bg-[#CCD999]" : ""
               }`}
             >
-              <Underline className="w-4 h-4" />
+              <Underline className="w-3.5 h-3.5" />
             </button>
 
-            <div className="flex items-center gap-0.5 ml-3">
+            <div className="flex items-center gap-0.5 ml-3 pl-3 border-l border-white/5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -225,7 +234,7 @@ export default function ReviewComposer({
                   className="cursor-pointer p-0.5"
                 >
                   <Star
-                    className={`w-4 h-4 ${
+                    className={`w-3.5 h-3.5 ${
                       star <= selectedRating
                         ? "fill-amber-400 text-amber-400"
                         : "text-zinc-700"
@@ -236,13 +245,13 @@ export default function ReviewComposer({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setShowMentionDropdown(!showMentionDropdown)}
-              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                 showMentionDropdown
                   ? "text-zinc-950 bg-[#CCD999]"
-                  : "text-zinc-400 hover:text-white hover:bg-white/10"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
               <AtSign className="w-4 h-4" />
@@ -251,7 +260,7 @@ export default function ReviewComposer({
             <button
               onClick={handleSend}
               disabled={isSubmitting}
-              className="bg-[#CCD999] hover:bg-[#b8cb83] text-zinc-950 px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(204,217,153,0.3)] flex items-center gap-2 disabled:opacity-50"
+              className="bg-[#CCD999] hover:bg-[#b8cb83] text-zinc-950 px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(204,217,153,0.25)] flex items-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -259,7 +268,7 @@ export default function ReviewComposer({
                   <span>Enviando...</span>
                 </>
               ) : (
-                <span>Enviar</span>
+                <span>Publicar</span>
               )}
             </button>
           </div>
