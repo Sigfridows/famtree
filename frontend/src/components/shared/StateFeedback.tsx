@@ -20,36 +20,39 @@ export default function StateFeedback({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="w-full flex flex-col items-center justify-center py-20 px-4 text-center my-6"
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="w-full flex flex-col items-center justify-center py-16 px-6 text-center my-6 rounded-2xl bg-zinc-900/40 border border-white/5 backdrop-blur-md"
     >
+      {/* Icon Wrapper con brillo sutil */}
       <div
-        className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-sm border ${
+        className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border shadow-inner transition-colors ${
           isError
-            ? "bg-rose-50 text-rose-600 border-rose-200"
-            : "bg-zinc-100 text-zinc-500 border-zinc-200"
+            ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+            : "bg-zinc-800/60 text-zinc-400 border-white/10"
         }`}
       >
         {isError ? (
-          <AlertTriangle className="w-7 h-7" />
+          <AlertTriangle className="w-5 h-5" />
         ) : (
-          <FolderSearch className="w-7 h-7" />
+          <FolderSearch className="w-5 h-5" />
         )}
       </div>
 
-      <h3 className="font-extrabold text-sm text-zinc-800 mb-1">
-        {title || (isError ? "Error de conexión" : "No hay elementos")}
+      <h3 className="font-semibold text-sm text-zinc-100 mb-1 tracking-tight">
+        {title || (isError ? "Error de conexión" : "No hay elementos encontrados")}
       </h3>
 
-      <p className="text-xs text-zinc-500 max-w-sm leading-relaxed font-medium mb-5">
+      <p className="text-xs text-zinc-400 max-w-sm leading-relaxed font-normal mb-5">
         {message}
       </p>
 
       {isError && onRetry && (
         <button
           onClick={onRetry}
-          className="flex items-center gap-2 bg-[#161616] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-zinc-800 transition-all cursor-pointer shadow-md"
+          type="button"
+          className="inline-flex items-center gap-2 bg-[#CCDD99] text-zinc-950 hover:bg-[#b8cc80] active:scale-95 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-xs"
         >
           <RefreshCcw className="w-3.5 h-3.5" />
           <span>Intentar de nuevo</span>

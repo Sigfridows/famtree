@@ -6,7 +6,7 @@ import { LocateFixed, Plus, Minus, Star, Loader2 } from "lucide-react";
 import type L from "leaflet";
 import HeaderDesign from "@/components/shared/HeaderDesign";
 import HeaderControls from "@/components/shared/HeaderControls";
-import logoFamTree from "@/assets/logo-famtree.png";
+import logoFamTree from "@/assets/famtree.png";
 import AsiloDetails from "@/features/asylums/components/AsiloDetails";
 import { useAsylumDetail } from "@/features/asylums/hooks/useAsylumDetail";
 import { useAsylumMap } from "../hooks/useAsylumMap";
@@ -77,12 +77,13 @@ export default function MapContainer() {
         <div className="pointer-events-auto flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-6">
           <HeaderControls
             logoSrc={logoFamTree}
-            placeholder="¿Qué quieres encontrar?"
-            bgClass="bg-white dark:bg-zinc-900 shadow-md"
-            borderClass="border-[#A4A4A4] dark:border-zinc-700"
-            placeholderClass="placeholder-zinc-400 dark:placeholder-zinc-500 text-[#161616] dark:text-zinc-100"
-            buttonBgClass="bg-[#161616] dark:bg-zinc-100 hover:bg-[#b0c872] dark:hover:bg-[#CCDD99]"
-            buttonTextClass="text-white dark:text-zinc-900 hover:text-[#161616]"
+            placeholder="Que quieres encontrar?"
+            bgClass="bg-[#1A1C1E]/80 backdrop-blur-md"
+            borderClass="border-white/10"
+            placeholderClass="placeholder-zinc-500 text-white/90 font-light"
+            buttonBgClass="bg-[#CCDD99] hover:bg-[#b8cb83]"
+            buttonTextClass="text-zinc-950 font-medium"
+            className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0"
             searchValue={searchQuery}
             onSearchChange={(e) => setSearchQuery(e.target.value)}
             onSearch={handleSearch}

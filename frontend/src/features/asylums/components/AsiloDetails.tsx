@@ -1,5 +1,4 @@
 "use client";
-
 import { getImageUrl } from "@/lib/utils";
 
 import { useState } from "react";
@@ -7,7 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
-  Bookmark,
+  Heart,
   Share2,
   Clock,
   Mail,
@@ -23,8 +22,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import Compare from "./Compare";
-import { useFavorites } from "@/hooks/use-favorites";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import { AsylumSummary } from "../types/asylum.types";
+import { useRouter } from "next/navigation";
 
 export interface AsiloDetailData {
   id: string;
@@ -54,6 +53,9 @@ interface AsiloDetailsProps {
   onClose: () => void;
   data?: AsiloDetailData;
   loading?: boolean;
+  isFavorite?: boolean;
+  onFavoriteToggle?: () => void;
+  favorites?: AsylumSummary[];
 }
 
 const FALLBACK_IMAGE =
@@ -64,13 +66,19 @@ export default function AsiloDetails({
   onClose,
   data,
   loading = false,
+  isFavorite = false,
+  onFavoriteToggle,
+  favorites = [],
 }: AsiloDetailsProps) {
-  const { isFavorite, toggleFavorite, loading: favoritesLoading } = useFavorites();
-  const { user } = useAuth();
-  const [savingFavorite, setSavingFavorite] = useState(false);
-  const [favoriteError, setFavoriteError] = useState("");
-  const isBookmarked = data ? isFavorite(Number(data.id)) : false;
+  const router = useRouter();
   const [isCompareOpen, setIsCompareOpen] = useState(false);
+
+  const handleGiveReview = () => {
+    if (!data?.id) return;
+    onClose(); // Cerrar el modal
+    const encodedTitle = encodeURIComponent(data.title);
+    router.push(`/review?asylumId=${data.id}&asylumName=${encodedTitle}`);
+  };
 
   const images = data?.images && data.images.length > 0 ? data.images.map(getImageUrl) : [];
 
@@ -294,24 +302,15 @@ export default function AsiloDetails({
                             whileTap={{ scale: 0.8 }}
                             whileHover={{ scale: 1.1 }}
                             transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                            disabled={savingFavorite || favoritesLoading}
-                            aria-pressed={isBookmarked}
-                            onClick={async () => {
-                              if (!data || savingFavorite) return;
-                              setFavoriteError("");
-                              if (user?.role !== "REGISTERED_USER") {setFavoriteError("Inicia sesión con una cuenta de usuario para guardar favoritos."); return;}
-                              setSavingFavorite(true);
-                              try {await toggleFavorite(Number(data.id));}
-                              catch {setFavoriteError("No se pudo guardar el favorito. Inténtalo de nuevo.");}
-                              finally {setSavingFavorite(false);}
-                            }}
+                            onClick={onFavoriteToggle}
                             className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                            aria-label={isBookmarked ? "Quitar de favoritos" : "Guardar en favoritos"}
+                            aria-label={isFavorite ? "Quitar de favoritos" : "Guardar en favoritos"}
+                            aria-pressed={isFavorite}
                           >
-                            <Bookmark
+                            <Heart
                               className={`w-5 h-5 transition-colors duration-200 ${
-                                isBookmarked
-                                  ? "fill-amber-500 text-amber-500"
+                                isFavorite
+                                  ? "fill-[#CCDD99] text-[#CCDD99]"
                                   : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                               }`}
                             />
@@ -327,7 +326,6 @@ export default function AsiloDetails({
                         </div>
                       </div>
 
-                      {favoriteError && <p role="alert" className="text-sm text-red-600">{favoriteError}</p>}
                       {/* Título y Dirección */}
                       <div className="space-y-1 shrink-0">
                         <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50 leading-tight">
@@ -528,6 +526,7 @@ export default function AsiloDetails({
                         </button>
                         <button
                           type="button"
+                          onClick={handleGiveReview}
                           className="flex-1 bg-[#CCDD99] hover:bg-[#b8cb83] text-zinc-950 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-2xs"
                         >
                           Dar Reseña
@@ -567,7 +566,7 @@ export default function AsiloDetails({
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="relative w-full max-w-5xl z-10"
             >
-              <Compare onClose={() => setIsCompareOpen(false)} />
+              <Compare data={data} items={favorites} onClose={() => setIsCompareOpen(false)} />
             </motion.div>
           </div>
         )}

@@ -1,47 +1,79 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Rutas exclusivas para invitados. Si hay sesión iniciada, se redirige a "/"
-const authRoutes = ["/login", "/register"];
+// Rutas exclusivas para invitados. Si el usuario ya está autenticado, va a "/"
+const AUTH_ROUTES = ["/login", "/register"];
 
-// Rutas estrictamente PRIVADAS bloqueadas a nivel de servidor.
-// (Dejamos el arreglo vacío o solo con rutas administrativas para que /profile 
-// pueda cargar libremente y mostrar la tarjeta de invitado cuando corresponda).
-const protectedRoutes: string[] = [
-  // Ej: "/admin", "/dashboard"
+// Rutas estrictamente protegidas en el servidor
+const PROTECTED_ROUTES: string[] = [
+  // Ejemplos: "/admin", "/dashboard", "/settings/security"
+];
+
+// Nombres de cookies de sesión soportados
+const SESSION_COOKIE_NAMES = [
+  "session",
+  "session_token",
+  "access_token",
+  "auth_token",
+  "token",
 ];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const response = NextResponse.next();
 
-  // Comprobar la existencia de la cookie de sesión
-  const sessionToken =
-    request.cookies.get("session")?.value ||
-    request.cookies.get("session_token")?.value ||
-    request.cookies.get("access_token")?.value ||
-    request.cookies.get("auth_token")?.value ||
-    request.cookies.get("token")?.value;
+  // ---------------------------------------------------------------------------
+  // 1. APLICAR CABECERAS DE SEGURIDAD (Security Headers)
+  // ---------------------------------------------------------------------------
+  response.headers.set("X-Frame-Options", "DENY"); // Previene Clickjacking
+  response.headers.set("X-Content-Type-Options", "nosniff"); // Previene MIME-sniffing
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(self)"
+  );
 
-  const isAuthenticated = Boolean(sessionToken);
+  // Forzar HTTPS en producción (HSTS)
+  if (process.env.NODE_ENV === "production") {
+    response.headers.set(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains; preload"
+    );
+  }
 
-  // 1. Si un usuario AUTENTICADO intenta ir a /login o /register, lo enviamos al Inicio "/"
-  if (authRoutes.includes(pathname) && isAuthenticated) {
+  // ---------------------------------------------------------------------------
+  // 2. COMPROBACIÓN DE SESIÓN Y AUTENTICACIÓN
+  // ---------------------------------------------------------------------------
+  const isAuthenticated = SESSION_COOKIE_NAMES.some(
+    (cookieName) => Boolean(request.cookies.get(cookieName)?.value)
+  );
+
+  // Redirección si usuario AUTENTICADO intenta acceder a /login o /register
+  if (AUTH_ROUTES.includes(pathname) && isAuthenticated) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // 2. Si un INVITADO intenta entrar a una ruta estrictamente protegida por servidor
-  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !isAuthenticated) {
+  // Redirección si usuario NO AUTENTICADO intenta acceder a rutas protegidas
+  if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route)) && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
+
+    // Sanitización contra vulnerabilidades de Open Redirect
+    const safeCallback = pathname.startsWith("/") && !pathname.startsWith("//") 
+      ? pathname 
+      : "/";
+      
+    loginUrl.searchParams.set("callbackUrl", safeCallback);
     return NextResponse.redirect(loginUrl);
   }
 
-  // 3. Permitir el paso normal para cualquier otra ruta (incluyendo "/", "/catalog", "/profile", etc.)
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    /*
+     * Excluir recursos estáticos, imágenes, favicon y llamadas internas del framework:
+     */
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)",
   ],
 };
