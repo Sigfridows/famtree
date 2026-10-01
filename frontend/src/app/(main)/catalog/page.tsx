@@ -80,7 +80,7 @@ export default function CatalogoPage() {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-[#121315] text-white font-montserrat pl-20 lg:pl-24 pr-4 sm:pr-8 py-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#F3F3F3] text-zinc-900 dark:bg-[#121315] dark:text-white font-montserrat pl-20 lg:pl-24 pr-4 sm:pr-8 py-6 relative overflow-hidden">
       {/* Resplandores ambientales tenues para la estética dark */}
       <div className="absolute top-0 right-0 w-125 h-125 bg-[#CCDD99]/5 rounded-full blur-[160px] pointer-events-none z-0" />
       <div className="absolute top-1/2 left-20 w-100 h-100 bg-[#CCDD99]/5 rounded-full blur-[140px] pointer-events-none z-0" />
@@ -98,9 +98,9 @@ export default function CatalogoPage() {
           <HeaderControls
             logoSrc={logoFamTree}
             placeholder="Buscar residencias..."
-            bgClass="bg-[#1A1C1E]/80 backdrop-blur-md"
-            borderClass="border-white/10"
-            placeholderClass="placeholder-zinc-500 text-white/90 font-light"
+            bgClass="bg-white dark:bg-[#1A1C1E]/80 backdrop-blur-md"
+            borderClass="border-zinc-300 dark:border-white/10"
+            placeholderClass="placeholder-zinc-500 text-zinc-900 dark:text-white/90 font-light"
             buttonBgClass="bg-[#CCDD99] hover:bg-[#b8cb83]"
             buttonTextClass="text-zinc-950 font-medium"
             className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0"
@@ -116,7 +116,7 @@ export default function CatalogoPage() {
             <button
               type="button"
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="flex items-center gap-2 text-xs font-light text-zinc-300 hover:text-white bg-[#1A1C1E]/80 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 hover:border-white/20 shadow-xs transition-all cursor-pointer"
+              className="flex items-center gap-2 text-xs font-light text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white bg-white dark:bg-[#1A1C1E]/80 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 hover:border-white/20 shadow-xs transition-all cursor-pointer"
             >
               <span>Filtros</span>
               {activeFiltersCount > 0 && (

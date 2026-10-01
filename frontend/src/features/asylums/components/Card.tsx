@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { getImageUrl } from "@/lib/utils";
 import { Star, Bed, Bath, Maximize2 } from "lucide-react";
 import type { AsylumSummary } from "../types/asylum.types";
 
@@ -15,7 +16,7 @@ export default function Card({ asylum, onDetailClick, bedrooms = 3, bathrooms = 
 
   const isOpen = status ? status === "ACTIVE" : true;
   const numericRating = rating ?? 0;
-  const imageUrl = cover_url || "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=800&q=80";
+  const imageUrl = getImageUrl(cover_url) || "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=800&q=80";
   const fullAddress = address || `${sector}, ${municipality_name}, ${province_name}`;
   const formattedPrice = price_min === price_max || !price_max
       ? `RD$ ${Number(price_min || 0).toLocaleString()}`
@@ -24,7 +25,7 @@ export default function Card({ asylum, onDetailClick, bedrooms = 3, bathrooms = 
   return (
     <div className="relative group h-96 w-75 rounded-2xl overflow-hidden font-montserrat flex flex-col justify-between p-5 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#CCDD99]/10 bg-zinc-950">
       <div className="absolute inset-0 z-0">
-        <Image src={imageUrl} alt={name} fill className="object-cover transition-transform duration-500 group-hover:scale-105 opacity-80" sizes="(max-width: 768px) 100vw, 25vw" />
+        <Image unoptimized src={imageUrl} alt={name} fill className="object-cover transition-transform duration-500 group-hover:scale-105 opacity-80" sizes="(max-width: 768px) 100vw, 25vw" />
         {/* Degradado más oscuro para el Dark Mode */}
         <div className="absolute inset-0 bg-linear-to-t from-[#0f0f0f] via-[#0f0f0f]/70 to-transparent" />
       </div>

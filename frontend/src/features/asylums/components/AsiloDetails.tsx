@@ -1,5 +1,7 @@
 "use client";
 
+import { getImageUrl } from "@/lib/utils";
+
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,6 +23,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import Compare from "./Compare";
+import { useFavorites } from "@/hooks/use-favorites";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export interface AsiloDetailData {
   id: string;
@@ -61,10 +65,14 @@ export default function AsiloDetails({
   data,
   loading = false,
 }: AsiloDetailsProps) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { isFavorite, toggleFavorite, loading: favoritesLoading } = useFavorites();
+  const { user } = useAuth();
+  const [savingFavorite, setSavingFavorite] = useState(false);
+  const [favoriteError, setFavoriteError] = useState("");
+  const isBookmarked = data ? isFavorite(Number(data.id)) : false;
   const [isCompareOpen, setIsCompareOpen] = useState(false);
 
-  const images = data?.images && data.images.length > 0 ? data.images : [];
+  const images = data?.images && data.images.length > 0 ? data.images.map(getImageUrl) : [];
 
   // RENDERIZADO DINÁMICO DE LA GALERÍA
   const renderGallery = () => {
@@ -286,9 +294,19 @@ export default function AsiloDetails({
                             whileTap={{ scale: 0.8 }}
                             whileHover={{ scale: 1.1 }}
                             transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                            onClick={() => setIsBookmarked(!isBookmarked)}
+                            disabled={savingFavorite || favoritesLoading}
+                            aria-pressed={isBookmarked}
+                            onClick={async () => {
+                              if (!data || savingFavorite) return;
+                              setFavoriteError("");
+                              if (user?.role !== "REGISTERED_USER") {setFavoriteError("Inicia sesión con una cuenta de usuario para guardar favoritos."); return;}
+                              setSavingFavorite(true);
+                              try {await toggleFavorite(Number(data.id));}
+                              catch {setFavoriteError("No se pudo guardar el favorito. Inténtalo de nuevo.");}
+                              finally {setSavingFavorite(false);}
+                            }}
                             className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                            aria-label="Guardar en favoritos"
+                            aria-label={isBookmarked ? "Quitar de favoritos" : "Guardar en favoritos"}
                           >
                             <Bookmark
                               className={`w-5 h-5 transition-colors duration-200 ${
@@ -309,6 +327,7 @@ export default function AsiloDetails({
                         </div>
                       </div>
 
+                      {favoriteError && <p role="alert" className="text-sm text-red-600">{favoriteError}</p>}
                       {/* Título y Dirección */}
                       <div className="space-y-1 shrink-0">
                         <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50 leading-tight">
