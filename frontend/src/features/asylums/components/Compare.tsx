@@ -54,7 +54,7 @@ function mapSummaryToAsiloItem(item: AsylumSummary): AsiloItem {
     id: String(item.id),
     numericId: item.id,
     name: item.name || "Residencia sin nombre",
-    status: item.status === "ACTIVE" ? "Abierto" : "Cerrado",
+    status: item.status === "INACTIVE" ? "Cerrado" : "Abierto",
     rating: typeof item.rating === "number" ? item.rating : 0,
     province: item.province_name || item.municipality_name || "República Dominicana",
     price: priceText,
@@ -322,6 +322,8 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
                         <div className="sm:col-span-6 flex items-center gap-3.5">
                           <input
                             type="checkbox"
+                            aria-label={`Seleccionar ${item.name}`}
+                            onClick={(e) => e.stopPropagation()}
                             checked={isChecked}
                             disabled={isDisabled}
                             onChange={(e) => {

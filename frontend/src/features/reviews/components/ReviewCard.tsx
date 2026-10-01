@@ -191,6 +191,7 @@ export default function ReviewCard({
         {/* Menú de Opciones */}
         <div className="relative">
           <button
+            aria-label={`Opciones de reseña de ${review.author}`}
             onClick={() => onToggleMenu(review.id)}
             className="p-1.5 hover:bg-white/5 rounded-lg text-zinc-500 hover:text-white transition-colors cursor-pointer"
           >
