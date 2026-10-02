@@ -1,4 +1,5 @@
 "use client";
+import { getImageUrl } from "@/lib/utils";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -79,7 +80,7 @@ export default function AsiloDetails({
     router.push(`/review?asylumId=${data.id}&asylumName=${encodedTitle}`);
   };
 
-  const images = data?.images && data.images.length > 0 ? data.images : [];
+  const images = data?.images && data.images.length > 0 ? data.images.map(getImageUrl) : [];
 
   // RENDERIZADO DINÁMICO DE LA GALERÍA
   const renderGallery = () => {
@@ -303,7 +304,8 @@ export default function AsiloDetails({
                             transition={{ type: "spring", stiffness: 400, damping: 17 }}
                             onClick={onFavoriteToggle}
                             className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                            aria-label="Guardar en favoritos"
+                            aria-label={isFavorite ? "Quitar de favoritos" : "Guardar en favoritos"}
+                            aria-pressed={isFavorite}
                           >
                             <Heart
                               className={`w-5 h-5 transition-colors duration-200 ${

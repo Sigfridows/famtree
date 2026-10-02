@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
@@ -19,6 +19,7 @@ export function useFavorites() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [favorites, setFavorites] = useState<AsylumSummary[]>([]);
   const [loading, setLoading] = useState(false);
+  const pending = useRef(new Set<number>());
 
   // 1. Cargar y Normalizar Favoritos
   const fetchFavorites = useCallback(async () => {
@@ -61,7 +62,11 @@ export function useFavorites() {
         })
         .filter((item) => Boolean(item.id && item.id !== 0));
 
-      setFavorites(normalized);
+      const detailed = await Promise.all(normalized.map(async item => {
+        const response = await apiClient.get<AsylumSummary>(`/asylums/${item.id}`);
+        return response.data;
+      }));
+      setFavorites(detailed);
     } catch (error: unknown) {
       const errObj = error as { status?: number; statusCode?: number; response?: { status?: number } };
       if (errObj?.status === 401 || errObj?.statusCode === 401 || errObj?.response?.status === 401) {
@@ -100,6 +105,8 @@ export function useFavorites() {
     }
 
     const targetId = Number(asylum.id);
+    if (pending.current.has(targetId)) return;
+    pending.current.add(targetId);
     const exists = isFavorite(targetId);
 
     // Actualización optimista
@@ -119,7 +126,10 @@ export function useFavorites() {
       }
     } catch {
       console.error("Error al modificar favorito:");
-      fetchFavorites(); // Revertir cambios en la interfaz si falla
+      void fetchFavorites(); // Revertir cambios en la interfaz si falla
+      alert("No se pudo modificar el favorito. Inténtalo de nuevo.");
+    } finally {
+      pending.current.delete(targetId);
     }
   };
 

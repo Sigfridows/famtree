@@ -140,7 +140,7 @@ function CatalogContent() {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-[#121315] text-white font-montserrat pl-20 lg:pl-24 pr-4 sm:pr-8 py-6 relative overflow-x-hidden [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-800/80 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-700">
+    <div className="min-h-screen bg-[#F3F3F3] text-zinc-900 dark:bg-[#121315] dark:text-white font-montserrat pl-20 lg:pl-24 pr-4 sm:pr-8 py-6 relative overflow-x-hidden [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-800/80 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-700">
       {/* Resplandores ambientales */}
       <div className="absolute top-0 right-0 w-125 h-125 bg-[#CCDD99]/5 rounded-full blur-[160px] pointer-events-none z-0" />
       <div className="absolute top-1/2 left-20 w-100 h-100 bg-[#CCDD99]/5 rounded-full blur-[140px] pointer-events-none z-0" />
@@ -175,9 +175,9 @@ function CatalogContent() {
           <HeaderControls
             logoSrc={logoFamTree}
             placeholder="Buscar residencias..."
-            bgClass="bg-[#1A1C1E]/80 backdrop-blur-md"
+            bgClass="bg-white dark:bg-[#1A1C1E]/80 backdrop-blur-md"
             borderClass="border-white/10"
-            placeholderClass="placeholder-zinc-500 text-white/90 font-light"
+            placeholderClass="placeholder-zinc-500 text-zinc-900 dark:text-white/90 font-light"
             buttonBgClass="bg-[#CCDD99] hover:bg-[#b8cb83]"
             buttonTextClass="text-zinc-950 font-medium"
             className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0"

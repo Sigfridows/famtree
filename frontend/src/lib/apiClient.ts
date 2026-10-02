@@ -16,6 +16,7 @@ export class ApiError extends Error {
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   params?: Record<string, unknown> | object;
+  responseType?: "download";
 };
 
 export async function apiRequest<T>(
@@ -45,7 +46,11 @@ export async function apiRequest<T>(
   const headers = new Headers(options.headers);
 
   // Solo agregar Content-Type: application/json si NO es FormData
-  if (options.body !== undefined && !isFormData && !headers.has("content-type")) {
+  if (
+    options.body !== undefined &&
+    !isFormData &&
+    !headers.has("content-type")
+  ) {
     headers.set("content-type", "application/json");
   }
 
@@ -53,10 +58,10 @@ export async function apiRequest<T>(
   const formattedBody = isFormData
     ? (options.body as FormData)
     : options.body === undefined
-    ? undefined
-    : typeof options.body === "string"
-    ? options.body
-    : JSON.stringify(options.body);
+      ? undefined
+      : typeof options.body === "string"
+        ? options.body
+        : JSON.stringify(options.body);
 
   const response = await fetch(`${env.apiBaseUrl}${path}${queryString}`, {
     ...options,
@@ -84,7 +89,31 @@ export async function apiRequest<T>(
   if (response.status === 204) {
     return undefined as T;
   }
+  if (options.responseType === "download") {
+    return {
+      blob: await response.blob(),
+      filename: response.headers
+        .get("content-disposition")
+        ?.match(/filename="?([^";]+)/)?.[1],
+    } as T;
+  }
   return (await response.json()) as T;
+}
+
+export async function downloadApiFile(path: string, body: object) {
+  const { blob, filename } = await apiRequest<{
+    blob: Blob;
+    filename?: string;
+  }>(path, { method: "POST", body, responseType: "download" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download =
+    filename || `Reporte_FamTree.${blob.type.includes("pdf") ? "pdf" : "csv"}`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export const apiClient = {

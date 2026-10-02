@@ -70,6 +70,7 @@ export default function RegisterPage() {
         {hasError && (
           <motion.div
             key="error-banner"
+            role="alert"
             variants={shakeVariants}
             initial="initial"
             animate="animate"
@@ -95,6 +96,8 @@ export default function RegisterPage() {
             className="w-full bg-[#181818] border border-white/10 rounded-md px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#CCDD99] transition-colors"
           />
         </motion.div>
+
+        <p className="text-xs text-zinc-400">Usuario: 3–16 letras y números, sin espacios ni puntos.</p>
 
         {/* Nombre y Apellido */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -219,6 +222,8 @@ export default function RegisterPage() {
             </AnimatePresence>
           </div>
         </motion.div>
+
+        <p className="text-xs text-zinc-400">Contraseña: 8–128 caracteres, con mayúscula, minúscula, número y símbolo.</p>
 
         {/* Botón Principal */}
         <motion.div variants={itemVariants}>

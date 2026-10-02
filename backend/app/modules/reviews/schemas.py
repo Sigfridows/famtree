@@ -38,6 +38,7 @@ class ReviewView(Contract):
     author: dict[str, object] | None = None
     likes: int = 0
     is_liked: bool = False
+    has_reported: bool = False
 
 
 class ReportInput(Contract):

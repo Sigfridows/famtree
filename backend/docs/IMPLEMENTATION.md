@@ -1,5 +1,7 @@
 # Backend FamTree: implementación y verificación
 
+> Informe histórico de la entrega `feature/complete-backend`, no diagnóstico del frontend actual. Para el contraste actualizado de las 45 HUs, ver la [auditoría del 2026-10-01](../../docs/HU_CONGRUENCE_AUDIT_2026-10-01.md). Los hallazgos de interfaz y referencias Git siguientes corresponden a aquella entrega; no deben repetirse como estado vigente.
+
 Todos los archivos de esta entrega están dentro de `backend/`. Base: `dd4283a`, rama
 `feature/complete-backend`. El pull de main y su comprobación posterior no presentaron conflictos.
 El trabajo anterior interrumpido permanece en `stash@{0}`; no se restauraron sus documentos externos.

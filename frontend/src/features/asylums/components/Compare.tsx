@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, Plus, ArrowLeft, CheckSquare, Square, Sparkles, Building2 } from "lucide-react";
 import logoFamTree from "@/assets/famtree.png";
 import EmptyState from "./EmptyState";
+import { compareAsylums } from "@/features/compare/api/compare-asylums";
+import { getImageUrl } from "@/lib/utils";
 import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
 import { AsiloDetailData } from "./AsiloDetails";
 
@@ -20,24 +22,8 @@ export interface AsiloItem {
   numericPrice: number;
   image: string;
   isRecommended?: boolean;
-  features: {
-    atencion24_7: boolean;
-    terapiaFisioterapia: boolean;
-    habitacionesPrivadas: boolean;
-    camarasSeguridad: boolean;
-    menuAdaptado: boolean;
-    horarioLibre: boolean;
-  };
+  features: Record<string, boolean>;
 }
-
-const FEATURE_LABELS: { key: keyof AsiloItem["features"]; label: string }[] = [
-  { key: "atencion24_7", label: "Atención Médica 24/7" },
-  { key: "terapiaFisioterapia", label: "Terapia y Fisioterapia" },
-  { key: "habitacionesPrivadas", label: "Habitaciones Privadas" },
-  { key: "camarasSeguridad", label: "Cámaras y Seguridad" },
-  { key: "menuAdaptado", label: "Menú Nutricional Adaptado" },
-  { key: "horarioLibre", label: "Horario de Visita Libre" },
-];
 
 interface CompareProps {
   items?: AsylumSummary[];
@@ -45,11 +31,6 @@ interface CompareProps {
   onClose?: () => void;
 }
 
-function getDeterministicFeature(asylumId: number, salt: number): boolean {
-  return ((asylumId * 9301 + salt * 49297) % 233280) % 2 === 0;
-}
-
-// CONECTARLO PARA QUE SEA REAL EL CALCULO DE CUALES SERVICIOS SI TIENEN CADA UNO DE LOS ASILO
 function mapSummaryToAsiloItem(item: AsylumSummary): AsiloItem {
   if (!item) {
     return {
@@ -62,14 +43,7 @@ function mapSummaryToAsiloItem(item: AsylumSummary): AsiloItem {
       price: "Consultar",
       numericPrice: 0,
       image: "",
-      features: {
-        atencion24_7: true,
-        terapiaFisioterapia: false,
-        habitacionesPrivadas: false,
-        camarasSeguridad: false,
-        menuAdaptado: false,
-        horarioLibre: false,
-      },
+      features: {},
     };
   }
 
@@ -80,20 +54,13 @@ function mapSummaryToAsiloItem(item: AsylumSummary): AsiloItem {
     id: String(item.id),
     numericId: item.id,
     name: item.name || "Residencia sin nombre",
-    status: item.status === "ACTIVE" ? "Abierto" : "Cerrado",
+    status: item.status === "INACTIVE" ? "Cerrado" : "Abierto",
     rating: typeof item.rating === "number" ? item.rating : 0,
     province: item.province_name || item.municipality_name || "República Dominicana",
     price: priceText,
     numericPrice: priceMin,
-    image: item.cover_url || "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=500&auto=format&fit=crop",
-    features: {
-      atencion24_7: true,
-      terapiaFisioterapia: getDeterministicFeature(item.id || 1, 1),
-      habitacionesPrivadas: getDeterministicFeature(item.id || 1, 2),
-      camarasSeguridad: getDeterministicFeature(item.id || 1, 3),
-      menuAdaptado: getDeterministicFeature(item.id || 1, 4),
-      horarioLibre: getDeterministicFeature(item.id || 1, 5),
-    },
+    image: getImageUrl(item.cover_url) || "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=500&auto=format&fit=crop",
+    features: {},
   };
 }
 
@@ -111,21 +78,30 @@ function mapDetailToAsiloItem(detail: AsiloDetailData): AsiloItem {
     province: detail.address || "República Dominicana",
     price: priceText,
     numericPrice: priceMin,
-    image: detail.images?.[0] || "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=500&auto=format&fit=crop",
-    features: {
-      atencion24_7: true,
-      terapiaFisioterapia: getDeterministicFeature(numericId || 1, 1),
-      habitacionesPrivadas: getDeterministicFeature(numericId || 1, 2),
-      camarasSeguridad: getDeterministicFeature(numericId || 1, 3),
-      menuAdaptado: getDeterministicFeature(numericId || 1, 4),
-      horarioLibre: getDeterministicFeature(numericId || 1, 5),
-    },
+    image: getImageUrl(detail.images?.[0]) || "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=500&auto=format&fit=crop",
+    features: {},
   };
 }
 
 export default function Compare({ data, items = [], onClose }: CompareProps) {
   const [viewMode, setViewMode] = useState<"table" | "comparison">("table");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [comparisonItems, setComparisonItems] = useState<AsiloItem[]>([]);
+  const [featureLabels, setFeatureLabels] = useState<{key: string; label: string}[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function runComparison() {
+    if (busy || selectedIds.length < 2 || selectedIds.length > 4) return;
+    setBusy(true); setError("");
+    try {
+      const result = await compareAsylums(selectedIds.map(Number));
+      const services = new Map(result.items.flatMap(item => item.services.map(service => [String(service.id), service.name] as const)));
+      setFeatureLabels(Array.from(services, ([key, label]) => ({key, label})));
+      setComparisonItems(result.items.map(item => ({...mapSummaryToAsiloItem(item), features: Object.fromEntries(item.services.map(service => [String(service.id), true]))})));
+      setViewMode("comparison");
+    } catch {setError("No se pudo comparar. Inténtalo de nuevo.");}
+    finally {setBusy(false);}
+  }
 
   const formattedItems = useMemo(() => {
     const list = Array.isArray(items) ? items.map(mapSummaryToAsiloItem) : [];
@@ -136,16 +112,6 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
 
     return list;
   }, [items, data]);
-
-  useEffect(() => {
-  queueMicrotask(() => {
-    if (formattedItems.length > 0) {
-      setSelectedIds(formattedItems.slice(0, 4).map((item) => item.id));
-    } else {
-      setSelectedIds([]);
-    }
-  });
-}, [formattedItems]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
@@ -167,7 +133,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
   };
 
   const selectedAsilos = useMemo(() => {
-    return formattedItems
+    return comparisonItems
       .filter((item) => selectedIds.includes(item.id))
       .map((item, _, array) => {
         const isBest = array.every((other) => {
@@ -186,7 +152,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
           isRecommended: isBest && array.length > 1,
         };
       });
-  }, [formattedItems, selectedIds]);
+  }, [comparisonItems, selectedIds]);
 
   // Configuración adaptativa de dimensiones según la cantidad de items comparados
   const layoutConfig = useMemo(() => {
@@ -263,6 +229,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
         </button>
       )}
 
+      {error && <p role="alert" className="p-4 text-red-400">{error}</p>}
       <AnimatePresence mode="wait">
         {viewMode === "table" ? (
           <motion.div
@@ -278,7 +245,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
                   Comparar Favoritos
                 </h1>
                 <p className="text-xs font-semibold text-zinc-800 mt-0.5">
-                  Selecciona hasta 4 residencias para evaluarlas en paralelo
+                  Selecciona entre 2 y 4 residencias para evaluarlas en paralelo
                 </p>
               </div>
 
@@ -303,22 +270,23 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
                   </button>
                 )}
                 <button
-                  onClick={() => selectedIds.length > 0 && setViewMode("comparison")}
-                  disabled={selectedIds.length === 0}
+                  onClick={() => void runComparison()}
+                  disabled={busy || selectedIds.length < 2}
                   type="button"
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs transition-all ${
-                    selectedIds.length > 0
+                    selectedIds.length >= 2 && !busy
                       ? "bg-zinc-950 text-[#CCDD99] hover:bg-zinc-900 shadow-md cursor-pointer"
                       : "bg-zinc-900/40 text-zinc-600 cursor-not-allowed"
                   }`}
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Comparar ({selectedIds.length}/4)</span>
+                  <span>{busy ? "Comparando…" : `Comparar (${selectedIds.length}/4)`}</span>
                 </button>
               </div>
             </div>
 
             <div className="p-4 sm:p-6 md:p-8 overflow-y-auto space-y-3 max-h-[65vh]">
+              {formattedItems.length < 2 ? <p role="status" className="text-sm text-amber-200">Necesitas otra residencia para comparar. Guarda otra en favoritos y vuelve a abrir esta ventana.</p> : selectedIds.length < 2 ? <p role="status" className="text-sm text-zinc-300">Marca las casillas de al menos dos residencias para activar Comparar.</p> : null}
               {formattedItems.length === 0 ? (
                 <EmptyState
                   title="No tienes asilos guardados"
@@ -355,6 +323,8 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
                         <div className="sm:col-span-6 flex items-center gap-3.5">
                           <input
                             type="checkbox"
+                            aria-label={`Seleccionar ${item.name}`}
+                            onClick={(e) => e.stopPropagation()}
                             checked={isChecked}
                             disabled={isDisabled}
                             onChange={(e) => {
@@ -510,7 +480,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
                       </td>
                     ))}
                   </tr>
-                  {FEATURE_LABELS.map(({ key, label }) => (
+                  {featureLabels.map(({ key, label }) => (
                     <tr key={key} className="hover:bg-zinc-900/50 transition-colors">
                       <td className={`${layoutConfig.paddingX} ${layoutConfig.paddingY} font-bold text-zinc-400 ${layoutConfig.textSize} bg-[#161616] border-r border-zinc-800 truncate`}>
                         {label}

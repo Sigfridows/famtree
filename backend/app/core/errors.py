@@ -81,7 +81,7 @@ async def integrity_error_handler(request: Request, exc: IntegrityError) -> JSON
         content=_error_payload(
             request,
             code="data_conflict",
-            message="La operación entra en conflicto con los datos o reglas existentes",
+            message="Ese registro ya existe o la acción ya fue realizada.",
         ),
     )
 

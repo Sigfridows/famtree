@@ -190,6 +190,13 @@ async def test_favorites_reviews_moderation_and_notifications(workflow: Workflow
         ).status_code == 403
         report = await bob.post(PREFIX + f"/reviews/{review_id}/reports", json={"reason": "SPAM"})
         assert report.status_code == 201, report.text
+        duplicate_report = await bob.post(
+            PREFIX + f"/reviews/{review_id}/reports", json={"reason": "FALSE_INFO"}
+        )
+        assert duplicate_report.status_code == 201, duplicate_report.text
+        assert duplicate_report.json()["reportId"] == report.json()["reportId"]
+        visible_reviews = await bob.get(PREFIX + f"/asylums/{center}/reviews")
+        assert visible_reviews.json()[0]["hasReported"] is True
         result = await admin.patch(
             PREFIX + f"/admin/review-reports/{report.json()['reportId']}/moderate",
             json={"status": "REVIEW_REMOVED", "justification": "Reporte verificado de prueba."},

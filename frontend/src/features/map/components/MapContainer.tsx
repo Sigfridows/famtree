@@ -7,12 +7,14 @@ import type L from "leaflet";
 import HeaderDesign from "@/components/shared/HeaderDesign";
 import HeaderControls from "@/components/shared/HeaderControls";
 import logoFamTree from "@/assets/famtree.png";
+import { useFavorites } from "@/features/asylums/hooks/useFavorites";
 import AsiloDetails from "@/features/asylums/components/AsiloDetails";
 import { useAsylumDetail } from "@/features/asylums/hooks/useAsylumDetail";
 import { useAsylumMap } from "../hooks/useAsylumMap";
 import MapLeafletView from "./MapLeafletView";
 
 export default function MapContainer() {
+  const { favorites, isFavorite, toggleFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState("");
   const [activePinId, setActivePinId] = useState<number | null>(null);
   const [selectedDetailId, setSelectedDetailId] = useState<number | null>(null);
@@ -56,7 +58,6 @@ export default function MapContainer() {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#F3F3F3] dark:bg-zinc-950 text-[#161616] dark:text-zinc-100 font-montserrat pl-20 pr-0 pt-0 transition-colors">
       
-      {/* Visualización de Leaflet */}
       <MapLeafletView
         pins={pins}
         activePinId={activePinId}
@@ -209,6 +210,9 @@ export default function MapContainer() {
         isOpen={!!selectedDetailId}
         onClose={() => setSelectedDetailId(null)}
         data={modalData}
+        favorites={favorites}
+        isFavorite={selectedDetailId ? isFavorite(selectedDetailId) : false}
+        onFavoriteToggle={() => { if (asylumDetail) void toggleFavorite(asylumDetail); }}
       />
     </div>
   );

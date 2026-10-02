@@ -15,12 +15,17 @@ import {
 
 interface ForcePasswordChangeModalProps {
   isOpen: boolean;
-  onPasswordChanged: (currentPassword: string, newPassword: string) => Promise<void>;
+  onPasswordChanged: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>;
+  onExit: () => Promise<void>;
 }
 
 export default function ForcePasswordChangeModal({
   isOpen,
   onPasswordChanged,
+  onExit,
 }: ForcePasswordChangeModalProps) {
   const [tempPassword, setTempPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -47,8 +52,15 @@ export default function ForcePasswordChangeModal({
     e.preventDefault();
     setError(null);
 
-    if (!hasMinLength) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
+    if (
+      !hasMinLength ||
+      newPassword.length > 128 ||
+      !hasVariety ||
+      tempPassword === newPassword
+    ) {
+      setError(
+        "Usa una contraseña distinta de la temporal, de 8–128 caracteres, con mayúscula, minúscula, número y símbolo.",
+      );
       return;
     }
 
@@ -260,6 +272,23 @@ export default function ForcePasswordChangeModal({
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
+            <button
+              type="button"
+              disabled={loading}
+              className="mt-4 underline text-slate-700"
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  await onExit();
+                } catch {
+                  setError("No se pudo cerrar sesión. Inténtalo de nuevo.");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
+              Cerrar sesión y salir
+            </button>
           </div>
 
           {/* Nota de advertencia */}

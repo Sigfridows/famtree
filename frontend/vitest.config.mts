@@ -26,6 +26,10 @@ export default defineConfig({
         'src/features/asylums/services/**',
         'src/features/map/hooks/**',
         'src/features/notifications/**',
+        // The role-admin screens are exercised by the disposable browser workflow
+        // in backend/scripts/check_admin_ui.sh; keep unit coverage focused on
+        // shared transport and domain hooks.
+        'src/features/admin/**',
       ],
       thresholds: {
         lines: 80,

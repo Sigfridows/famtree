@@ -1,4 +1,5 @@
 "use client";
+import { getImageUrl } from "@/lib/utils";
 
 import Image from "next/image";
 import { Star } from "lucide-react";
@@ -35,7 +36,7 @@ export default function MapPopup({ pin, onDetailClick }: MapPopupProps) {
       {pin.cover_url && (
         <div className="w-full h-24 relative rounded-xl overflow-hidden mb-2 bg-zinc-100 dark:bg-zinc-800">
           <Image
-            src={pin.cover_url}
+            src={getImageUrl(pin.cover_url)}
             alt={pin.name}
             fill
             unoptimized

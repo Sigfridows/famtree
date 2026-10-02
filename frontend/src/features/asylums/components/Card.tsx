@@ -1,4 +1,5 @@
 "use client";
+import { getImageUrl } from "@/lib/utils";
 
 import Image from "next/image";
 import { Star, Bed, Bath, Maximize2, Heart } from "lucide-react";
@@ -39,7 +40,7 @@ export default function Card({
   const isOpen = status ? status === "ACTIVE" : true;
   const numericRating = rating ?? 0;
   const imageUrl =
-    cover_url ||
+    getImageUrl(cover_url) ||
     "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=800&q=80";
   const fullAddress =
     address || `${sector}, ${municipality_name}, ${province_name}`;
@@ -54,6 +55,7 @@ export default function Card({
     <div className="relative group h-96 w-75 rounded-2xl overflow-hidden font-montserrat flex flex-col justify-between p-5 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#CCDD99]/10 bg-zinc-950">
       <div className="absolute inset-0 z-0">
         <Image
+          unoptimized
           src={imageUrl}
           alt={name}
           fill

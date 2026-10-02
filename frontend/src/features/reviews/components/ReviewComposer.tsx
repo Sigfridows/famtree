@@ -3,7 +3,15 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Bold, Italic, Underline, AtSign, AlertCircle, X, Loader2, Building2 } from "lucide-react";
-import MentionDropdown, { Asilo } from "./MentionDropdown";
+import MentionDropdown, { Asilo, asiloMentionColor } from "./MentionDropdown";
+
+const RATING_SUGGESTIONS: Record<number, string[]> = {
+  1: ["Mala experiencia.", "No cumplió con mis expectativas.", "Necesita mejorar su atención."],
+  2: ["Experiencia regular.", "La atención puede mejorar.", "Encontré varios aspectos por mejorar."],
+  3: ["Experiencia aceptable.", "El servicio fue correcto.", "Tiene puntos buenos y otros por mejorar."],
+  4: ["Muy buena experiencia.", "Recibí una atención de calidad.", "Estoy satisfecho con el servicio."],
+  5: ["Excelente experiencia.", "Recibí una atención excepcional.", "Recomiendo esta residencia."],
+};
 
 interface ReviewComposerProps {
   asilos: Asilo[];
@@ -26,12 +34,13 @@ export default function ReviewComposer({
   // 👈 Inicializamos el estado con initialAsilo
   const [selectedAsilo, setSelectedAsilo] = useState<Asilo | null>(initialAsilo);
   const [showMentionDropdown, setShowMentionDropdown] = useState(false);
-  const [selectedRating, setSelectedRating] = useState(5);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
+  const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mentionDropdownRef = useRef<HTMLDivElement>(null);
@@ -67,6 +76,7 @@ export default function ReviewComposer({
     setCommentText(val);
 
     if (warningMessage) setWarningMessage(null);
+    setSelectedSuggestion(null);
 
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -75,6 +85,20 @@ export default function ReviewComposer({
 
     const lastWord = val.split(" ").pop() || "";
     setShowMentionDropdown(lastWord.startsWith("@"));
+  };
+
+  const handleRatingChange = (rating: number) => {
+    setSelectedRating(rating);
+    if (!commentText.trim() || selectedSuggestion === commentText) {
+      setCommentText(RATING_SUGGESTIONS[rating][0]);
+      setSelectedSuggestion(RATING_SUGGESTIONS[rating][0]);
+    }
+  };
+
+  const handleSuggestion = (suggestion: string) => {
+    setCommentText(suggestion);
+    setSelectedSuggestion(suggestion);
+    setWarningMessage(null);
   };
 
   const handleSelectAsilo = (asilo: Asilo) => {
@@ -97,10 +121,11 @@ export default function ReviewComposer({
   };
 
   const handleSend = async () => {
-    if (!commentText.trim()) {
-      setWarningMessage("Por favor escribe tu reseña antes de publicar.");
+    if (selectedRating === null) {
+      setWarningMessage("Selecciona una calificación con estrellas para continuar.");
       return;
     }
+    const reviewText = commentText.trim() || RATING_SUGGESTIONS[selectedRating][0];
 
     if (!selectedAsilo) {
       setWarningMessage("Debes etiquetar o seleccionar una residencia usando '@' para publicar.");
@@ -116,11 +141,13 @@ export default function ReviewComposer({
     setIsSubmitting(true);
 
     try {
-      const response = await onSubmit(commentText, selectedRating, selectedAsilo);
+      const response = await onSubmit(reviewText, selectedRating, selectedAsilo);
       if (!response.success && response.error) {
         setWarningMessage(response.error);
       } else if (response.success) {
         setCommentText("");
+        setSelectedRating(null);
+        setSelectedSuggestion(null);
         setSelectedAsilo(null);
         if (textareaRef.current) {
           textareaRef.current.style.height = "auto";
@@ -171,8 +198,10 @@ export default function ReviewComposer({
         {selectedAsilo && (
           <div className="flex items-center gap-2 pb-1">
             <span className="text-[10px] text-zinc-400 font-medium">Etiquetado:</span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-[#CCD999]/10 text-[#CCD999] border border-[#CCD999]/25 text-[11px] font-semibold">
-              <Building2 className="w-3 h-3 text-[#CCD999]" />
+            {(() => {
+              const color = asiloMentionColor(selectedAsilo);
+              return <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg ${color.background} ${color.text} border ${color.border} text-[11px] font-semibold`}>
+              <Building2 className={`w-3 h-3 ${color.text}`} />
               <span>{selectedAsilo.name}</span>
               <button
                 onClick={() => {
@@ -183,7 +212,8 @@ export default function ReviewComposer({
               >
                 ×
               </button>
-            </span>
+            </span>;
+            })()}
           </div>
         )}
 
@@ -230,12 +260,12 @@ export default function ReviewComposer({
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
-                  onClick={() => setSelectedRating(star)}
+                  onClick={() => handleRatingChange(star)}
                   className="cursor-pointer p-0.5"
                 >
                   <Star
                     className={`w-3.5 h-3.5 ${
-                      star <= selectedRating
+                      selectedRating !== null && star <= selectedRating
                         ? "fill-amber-400 text-amber-400"
                         : "text-zinc-700"
                     }`}
@@ -244,6 +274,22 @@ export default function ReviewComposer({
               ))}
             </div>
           </div>
+
+          {selectedRating !== null && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t border-white/5 pt-2">
+              <span className="mr-1 text-[10px] text-zinc-500">Opiniones rápidas:</span>
+              {RATING_SUGGESTIONS[selectedRating].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => handleSuggestion(suggestion)}
+                  className={`rounded-lg border px-2 py-1 text-[10px] transition-colors ${selectedSuggestion === suggestion ? "border-[#CCD999]/60 bg-[#CCD999]/15 text-[#CCD999]" : "border-white/10 text-zinc-400 hover:border-[#CCD999]/40 hover:text-[#CCD999]"}`}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             <button

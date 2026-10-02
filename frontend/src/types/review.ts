@@ -21,6 +21,7 @@ export interface Review {
   status: ReviewStatus;
   createdAt: string;
   updatedAt: string | null;
+  hasReported?: boolean;
 }
 
 export interface ReviewReport {

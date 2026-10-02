@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
-import { validatePassword, validatePasswordsMatch } from "@/lib/validations/auth";
+import { validatePassword, validatePasswordsMatch, REGISTER_RULES, registrationErrorMessage } from "@/lib/validations/auth";
 import { ApiError } from "@/lib/apiClient";
 
 export function useRegisterForm() {
@@ -46,8 +46,25 @@ export function useRegisterForm() {
       return;
     }
 
-    if (!passwordValidation.isValid) {
-      setErrorMessage(passwordValidation.message || "La contraseña no cumple con el formato requerido.");
+    if (!/^[A-Za-z0-9]{3,16}$/.test(username.trim())) {
+      setErrorMessage(REGISTER_RULES.username);
+      return;
+    }
+    for (const [field, value] of [["firstName", firstName], ["lastName", lastName]]) {
+      const name = value.trim();
+      if (Array.from(name).length < 2 || Array.from(name).length > 50 || !/^[\p{L} ]+$/u.test(name)) {
+        setErrorMessage(REGISTER_RULES[field]);
+        return;
+      }
+    }
+    if (email.trim().length > 100 || !/^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
+      setErrorMessage(REGISTER_RULES.email);
+      return;
+    }
+    setPasswordTouched(true);
+    const submittedPasswordValidation = validatePassword(password);
+    if (!submittedPasswordValidation.isValid) {
+      setErrorMessage(submittedPasswordValidation.message || "La contraseña no cumple con el formato requerido.");
       return;
     }
 
@@ -70,7 +87,7 @@ export function useRegisterForm() {
       router.push("/catalog");
     } catch (err: unknown) {
       if (err instanceof ApiError && err.message) {
-        setErrorMessage(err.message);
+        setErrorMessage(err.status === 422 ? registrationErrorMessage(err.details) : err.message);
       } else {
         setErrorMessage("Error al registrar la cuenta. Verifique los datos ingresados.");
       }
