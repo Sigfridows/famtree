@@ -98,7 +98,6 @@ export function ProfileForm() {
         firstName,
         lastName,
         phone: phone ? phone.replace(/\D/g, "") : null,
-        profilePicture: avatarUrl || null,
         description: bio || null,
       };
 

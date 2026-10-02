@@ -1,0 +1,268 @@
+"use client";
+import { useEffect, useState } from "react";
+import { adminApi, adminError } from "../api";
+import type { AdminUser, Page } from "../types";
+import {
+  Modal,
+  Notice,
+  Pagination,
+  Status,
+  dateLabel,
+  roleLabel,
+} from "./AdminUI";
+import CreateAdmin from "./CreateAdmin";
+export default function Users() {
+  const [data, setData] = useState<Page<AdminUser> | null>(null);
+  const [query, setQuery] = useState({ q: "", role: "", status: "", page: 1 });
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [refresh, setRefresh] = useState(0);
+  const [target, setTarget] = useState<AdminUser | null>(null);
+  const [reason, setReason] = useState("");
+  const [create, setCreate] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    adminApi
+      .users(query)
+      .then((d) => {
+        if (alive) {
+          setData(d);
+          setError("");
+        }
+      })
+      .catch((e) => {
+        if (alive) setError(adminError(e));
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [query, refresh]);
+  const filter = (values: Partial<typeof query>) => {
+    setLoading(true);
+    setQuery({ ...query, ...values });
+  };
+  return (
+    <>
+      <header className="admin-heading">
+        <div>
+          <h1>Usuarios del sistema</h1>
+          <p className="admin-subtitle">
+            Roles, accesos y cuentas asignadas a cada asilo.
+          </p>
+        </div>
+        <button className="admin-primary" onClick={() => setCreate(true)}>
+          Crear administrador de asilo
+        </button>
+      </header>
+      <Notice error={!target ? error : ""} message={message} />
+      <section className="admin-panel">
+        <form
+          className="admin-filters"
+          onSubmit={(e) => {
+            e.preventDefault();
+            filter({ q: search, page: 1 });
+          }}
+        >
+          <label className="search">
+            Buscar usuario
+            <input aria-label="Buscar usuario"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Nombre, usuario o correo…"
+            />
+          </label>
+          <label>
+            Rol
+            <select
+              aria-label="Rol"
+              value={query.role}
+              onChange={(e) => filter({ role: e.target.value, page: 1 })}
+            >
+              <option value="">Todos</option>
+              {["REGISTERED_USER", "ASYLUM_ADMIN", "SYSTEM_ADMIN"].map(
+                (role) => (
+                  <option key={role} value={role}>
+                    {roleLabel(role)}
+                  </option>
+                ),
+              )}
+            </select>
+          </label>
+          <label>
+            Estado
+            <select
+              aria-label="Estado"
+              value={query.status}
+              onChange={(e) => filter({ status: e.target.value, page: 1 })}
+            >
+              <option value="">Todos</option>
+              <option value="ACTIVE">Activo</option>
+              <option value="BLOCKED">Bloqueado</option>
+            </select>
+          </label>
+          <button className="admin-secondary">Buscar</button>
+        </form>
+        {loading ? (
+          <p role="status">Cargando usuarios…</p>
+        ) : (
+          <div className="admin-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Usuario</th>
+                  <th>Teléfono</th>
+                  <th>Rol / asilo</th>
+                  <th>Registro</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.items.map((user) => (
+                  <tr key={user.userId}>
+                    <td>#{user.userId}</td>
+                    <td>
+                      <strong>
+                        {user.firstName} {user.lastName}
+                      </strong>
+                      <small>
+                        @{user.username} · {user.email}
+                      </small>
+                    </td>
+                    <td>{user.phone || "No registrado"}</td>
+                    <td>
+                      {roleLabel(user.role)}
+                      <small>
+                        {user.assignedAsylumId
+                          ? `Asilo #${user.assignedAsylumId}`
+                          : "Sin asilo asignado"}
+                      </small>
+                    </td>
+                    <td>{dateLabel(user.createdAt)}</td>
+                    <td>
+                      <Status value={user.status} />
+                    </td>
+                    <td>
+                      {user.role === "SYSTEM_ADMIN" ? (
+                        <small>Cuenta protegida</small>
+                      ) : (
+                        <button
+                          className="admin-secondary"
+                          onClick={() => {
+                            setTarget(user);
+                            setReason("");
+                            setError("");
+                          }}
+                        >
+                          {user.status === "BLOCKED"
+                            ? "Desbloquear"
+                            : "Bloquear"}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {data?.total === 0 && (
+              <p className="admin-empty">No hay usuarios que coincidan.</p>
+            )}
+          </div>
+        )}
+        {data && (
+          <Pagination
+            {...data}
+            busy={loading}
+            onChange={(page) => filter({ page })}
+          />
+        )}
+      </section>
+      {create && (
+        <Modal
+          title="Crear administrador de asilo"
+          onClose={() => setCreate(false)}
+        >
+          <CreateAdmin
+            onClose={() => setCreate(false)}
+            onCreated={() => {
+              setLoading(true);
+              setRefresh(refresh + 1);
+            }}
+          />
+        </Modal>
+      )}
+      {target && (
+        <Modal
+          title={`${target.status === "BLOCKED" ? "Desbloquear" : "Bloquear"} @${target.username}`}
+          busy={busy}
+          onClose={() => setTarget(null)}
+        >
+          <form
+            className="admin-form"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setBusy(true);
+              try {
+                if (target.status === "BLOCKED")
+                  await adminApi.unblock(Number(target.userId));
+                else await adminApi.block(Number(target.userId), reason.trim());
+                setTarget(null);
+                setMessage("Estado de la cuenta actualizado.");
+                setLoading(true);
+                setRefresh(refresh + 1);
+              } catch (err) {
+                setError(adminError(err));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <p>
+              {target.status === "BLOCKED"
+                ? "La cuenta podrá volver a iniciar sesión con sus credenciales habituales."
+                : "Se cerrarán sus sesiones y se impedirá el acceso mientras permanezca bloqueada."}
+            </p>
+            {target.status !== "BLOCKED" && (
+              <label>
+                Motivo del bloqueo
+                <textarea aria-label="Motivo del bloqueo"
+                  required
+                  minLength={10}
+                  maxLength={300}
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                />
+              </label>
+            )}
+            <Notice error={error} />
+            <div className="admin-actions">
+              <button
+                className="admin-primary"
+                disabled={
+                  busy ||
+                  (target.status !== "BLOCKED" && reason.trim().length < 10)
+                }
+              >
+                {busy ? "Actualizando…" : "Confirmar"}
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setTarget(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </>
+  );
+}

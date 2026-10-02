@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -60,6 +60,7 @@ interface RawReview {
   asylumName?: string;
   asiloName?: string;
   avatar?: string;
+  hasReported?: boolean;
 }
 
 interface RawAsylum {
@@ -119,6 +120,13 @@ function ResenasContent() {
   } | null>(null);
 
   const [likeError, setLikeError] = useState<string | null>(null);
+  const [reportedReviewIds, setReportedReviewIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const closeOptionsMenu = () => setActiveMenuId(null);
+    document.addEventListener("click", closeOptionsMenu);
+    return () => document.removeEventListener("click", closeOptionsMenu);
+  }, []);
 
   const handleToggleLike = async (id: string) => {
     if (!isAuthenticated) {
@@ -264,6 +272,7 @@ function ResenasContent() {
         text: rev.comment || rev.text || rev.comentario || "",
         likes: Number(rev.likes || 0),
         isLiked: Boolean(rev.isLiked),
+        hasReported: Boolean(rev.hasReported),
         asiloId: realAsylumId,
         asiloName:
           matchedAsylum?.name || rev.asylumName || rev.asiloName || "Asilo",
@@ -427,6 +436,8 @@ function ResenasContent() {
                 }
                 onReport={
                   user?.role === "REGISTERED_USER" &&
+                  !reportedReviewIds.has(review.id) &&
+                  !review.hasReported &&
                   !reviews.some(
                     (item) =>
                       String(item.reviewId ?? item.id) === review.id &&
@@ -444,6 +455,11 @@ function ResenasContent() {
                       }
                     : undefined
                 }
+                reportStatus={
+                  reportedReviewIds.has(review.id) || review.hasReported
+                    ? "reported"
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -454,8 +470,15 @@ function ResenasContent() {
       <ReviewActionModal
         action={action}
         onClose={() => setAction(null)}
-        onSuccess={async () => {
+        onSuccess={async (result) => {
           setLikeError(null);
+          if (result?.reviewId) {
+            setReportedReviewIds((previous) => {
+              const next = new Set(previous);
+              next.add(String(result.reviewId));
+              return next;
+            });
+          }
           await refetch();
         }}
         onError={(err) => setLikeError(err)}

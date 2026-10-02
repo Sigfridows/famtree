@@ -1,0 +1,21 @@
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { expect, it, vi } from "vitest";
+import { AuthProvider } from "@/features/auth/components/AuthProvider";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { apiClient } from "@/lib/apiClient";
+vi.mock("@/lib/apiClient", async importOriginal => ({...await importOriginal<typeof import("@/lib/apiClient")>(), apiClient: {get: vi.fn(), post: vi.fn()}}));
+it("establishes a server session after registration and clears it on logout", async () => {
+  vi.mocked(apiClient.get).mockRejectedValue(new Error("No session"));
+  const user = {username: "Ana123", userId: "100"};
+  vi.mocked(apiClient.post).mockResolvedValue({data: user});
+  const {result} = renderHook(() => useAuth(), {wrapper: AuthProvider});
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+  expect(result.current.isAuthenticated).toBe(false);
+  const data = {username: "Ana123", first_name: "Ana", last_name: "Perez", email: "ana@example.invalid", password: "TestPass9!", confirmPassword: "TestPass9!"};
+  await act(() => result.current.register(data));
+  expect(apiClient.post).toHaveBeenNthCalledWith(1, "/auth/register", data);
+  expect(apiClient.post).toHaveBeenNthCalledWith(2, "/auth/login", {username: data.username, password: data.password});
+  expect(result.current.isAuthenticated).toBe(true);
+  await act(() => result.current.logout());
+  expect(result.current.isAuthenticated).toBe(false);
+});

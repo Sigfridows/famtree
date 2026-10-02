@@ -3,6 +3,7 @@
 import React, { createContext, useEffect, useState, useCallback } from 'react';
 import { UserProfile, LoginCredentials, RegisterData } from '../types';
 import { authApi } from '../api/authApi';
+import { ApiError } from '@/lib/apiClient';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -55,9 +56,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const register = async (data: RegisterData) => {
-    const userData = await authApi.register(data);
-    setUser(userData);
-    return userData;
+    await authApi.register(data);
+    try {
+      return await login({ username: data.username, password: data.password });
+    } catch {
+      throw new ApiError("Tu cuenta ya fue creada. Ve a Inicia Sesión para entrar con tu usuario y contraseña.", 401, "registration_login_failed");
+    }
   };
 
   const logout = async () => {

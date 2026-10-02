@@ -32,7 +32,7 @@ export interface ActionState {
 interface ReviewActionModalProps {
   action: ActionState | null;
   onClose: () => void;
-  onSuccess: () => Promise<void> | void;
+  onSuccess: (result?: Awaited<ReturnType<typeof reviewService.reportReview>>) => Promise<void> | void;
   onError?: (errorMessage: string) => void;
 }
 
@@ -43,6 +43,16 @@ const REPORT_REASONS: Record<ReportReason, string> = {
   CONFLICT_OF_INTEREST: "Conflicto de interés",
   OTHER: "Otro motivo",
 };
+
+function friendlyReviewError(error: unknown): string {
+  const status = typeof error === "object" && error !== null && "status" in error
+    ? Number((error as { status?: number }).status)
+    : undefined;
+  if (status === 403) return "No puedes reportar tu propia reseña.";
+  if (status === 404) return "Esta reseña ya no está disponible.";
+  if (status === 409) return "Esta reseña ya fue reportada por ti.";
+  return "No pudimos completar la solicitud. Intenta nuevamente.";
+}
 
 export default function ReviewActionModal({
   action,
@@ -78,25 +88,23 @@ export default function ReviewActionModal({
 
     setIsBusy(true);
     try {
+      let result: Awaited<ReturnType<typeof reviewService.reportReview>> | undefined;
       if (action.mode === "edit") {
         await reviewService.updateReview(Number(action.id), {
           rating,
           comment,
         });
       } else {
-        await reviewService.reportReview({
+        result = await reviewService.reportReview({
           reviewId: Number(action.id),
           reason,
           detail: detail || undefined,
         });
       }
       onClose();
-      await onSuccess();
+      await onSuccess(result);
     } catch (err) {
-      const errorMsg =
-        err instanceof Error
-          ? err.message
-          : "No se pudo procesar la solicitud.";
+      const errorMsg = friendlyReviewError(err);
       if (onError) onError(errorMsg);
     } finally {
       setIsBusy(false);

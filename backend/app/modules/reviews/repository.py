@@ -50,6 +50,26 @@ class ReviewRepository:
         )
         return {review_id: (count, liked) for review_id, count, liked in rows}
 
+    async def reported_review_ids(self, review_ids: list[int], user_id: int | None) -> set[int]:
+        if not review_ids or user_id is None:
+            return set()
+        rows = await self.session.scalars(
+            select(ReporteResena.codigo_resena).where(
+                ReporteResena.codigo_resena.in_(review_ids),
+                ReporteResena.codigo_denunciante == user_id,
+            )
+        )
+        return set(rows)
+
+    async def report_for_user(self, review_id: int, user_id: int) -> ReporteResena | None:
+        result = await self.session.scalar(
+            select(ReporteResena).where(
+                ReporteResena.codigo_resena == review_id,
+                ReporteResena.codigo_denunciante == user_id,
+            )
+        )
+        return result
+
     async def toggle_like(self, review_id: int, user_id: int) -> None:
         # Caller holds the parent review lock, serializing reactions and deletion.
         existing = await self.session.get(ReviewLike, (review_id, user_id))

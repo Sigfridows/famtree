@@ -1,5 +1,7 @@
 # FT03–FT05: trazabilidad del primer bloque backend
 
+> Documento histórico del primer bloque. Los criterios originales ya están disponibles y se contrastaron con el sistema actual en la [auditoría de las 45 HUs del 2026-10-01](../../docs/HU_CONGRUENCE_AUDIT_2026-10-01.md). Las menciones a criterios no disponibles y UI pendiente describen el momento de esta entrega, no una verificación actual.
+
 Fuente de IDs: mapa de features de Notion; el mapa agrupa HU04–HU08, HU09–HU11 y HU12–HU13.
 No se inventa una correspondencia uno-a-uno entre HU individual y criterios no disponibles aquí.
 La autorización actual comienza lógica de negocio sobre el baseline ya integrado.

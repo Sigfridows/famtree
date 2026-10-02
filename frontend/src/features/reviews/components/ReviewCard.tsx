@@ -23,6 +23,7 @@ export interface Review {
   text: string;
   likes: number;
   isLiked?: boolean;
+  hasReported?: boolean;
   asiloId?: string;
   asiloName?: string;
 }
@@ -37,6 +38,7 @@ interface ReviewCardProps {
   onToggleMenu: (id: string) => void;
   onEdit?: (id: string) => void;
   onReport?: (id: string) => void;
+  reportStatus?: "reported";
 }
 
 function formatDate(dateStr: string) {
@@ -63,6 +65,7 @@ export default function ReviewCard({
   onToggleMenu,
   onEdit,
   onReport,
+  reportStatus,
 }: ReviewCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isLongText = review.text.length > 140;
@@ -192,7 +195,10 @@ export default function ReviewCard({
         <div className="relative">
           <button
             aria-label={`Opciones de reseña de ${review.author}`}
-            onClick={() => onToggleMenu(review.id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleMenu(review.id);
+            }}
             className="p-1.5 hover:bg-white/5 rounded-lg text-zinc-500 hover:text-white transition-colors cursor-pointer"
           >
             <MoreHorizontal className="w-4 h-4" />
@@ -201,6 +207,7 @@ export default function ReviewCard({
           <AnimatePresence>
             {activeMenuId === review.id && (
               <motion.div
+                onClick={(event) => event.stopPropagation()}
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
@@ -216,7 +223,7 @@ export default function ReviewCard({
                     <span>Editar</span>
                   </button>
                 )}
-                {onReport && (
+                {onReport ? (
                   <button
                     onClick={() => onReport(review.id)}
                     className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium text-zinc-300 hover:bg-white/5 hover:text-white rounded-lg cursor-pointer transition-colors"
@@ -224,7 +231,12 @@ export default function ReviewCard({
                     <AlertCircle className="w-3.5 h-3.5 text-zinc-400" />
                     <span>Reportar</span>
                   </button>
-                )}
+                ) : reportStatus === "reported" ? (
+                  <span className="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium text-emerald-300 rounded-lg">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>Ya reportada</span>
+                  </span>
+                ) : null}
               </motion.div>
             )}
           </AnimatePresence>

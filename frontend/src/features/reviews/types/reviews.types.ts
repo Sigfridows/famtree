@@ -27,6 +27,7 @@ export interface ReviewItem {
   avatar?: string;
   likes?: number;
   isLiked?: boolean;
+  hasReported?: boolean;
   date?: string;
   fecha_creacion?: string;
 }

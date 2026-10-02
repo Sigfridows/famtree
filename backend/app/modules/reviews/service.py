@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import func, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.errors import AppError
@@ -78,12 +79,16 @@ class ReviewService:
         reactions = await self.repository.like_counts(
             [row.codigo_resena for row in rows], viewer_id
         )
+        reported = await self.repository.reported_review_ids(
+            [row.codigo_resena for row in rows], viewer_id
+        )
         return [
             review_view(row).model_copy(
                 update={
                     "author": authors[row.codigo_usuario],
                     "likes": reactions.get(row.codigo_resena, (0, False))[0],
                     "is_liked": reactions.get(row.codigo_resena, (0, False))[1],
+                    "has_reported": row.codigo_resena in reported,
                 }
             )
             for row in rows
@@ -161,6 +166,9 @@ class ReviewService:
             raise AppError(
                 code="own_review", message="No puedes reportar tu propia reseña", status_code=403
             )
+        existing = await self.repository.report_for_user(review_id, user_id)
+        if existing is not None:
+            return report_view(existing)
         report = ReporteResena(
             codigo_resena=review_id,
             codigo_denunciante=user_id,
@@ -168,7 +176,14 @@ class ReviewService:
             detalle=data.detail,
         )
         self.repository.session.add(report)
-        await self.repository.session.commit()
+        try:
+            await self.repository.session.commit()
+        except IntegrityError:
+            await self.repository.session.rollback()
+            existing = await self.repository.report_for_user(review_id, user_id)
+            if existing is None:
+                raise
+            return report_view(existing)
         return report_view(report)
 
     async def moderate(

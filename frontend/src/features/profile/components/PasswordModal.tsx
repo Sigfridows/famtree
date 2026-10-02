@@ -48,8 +48,8 @@ export function PasswordModal({
       return;
     }
 
-    if (!newPassword || newPassword.length < 6) {
-      setError("La nueva contraseña debe tener al menos 6 caracteres.");
+    if (newPassword.length < 8 || newPassword.length > 128 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[^A-Za-z0-9]/.test(newPassword) || newPassword === currentPassword) {
+      setError("Usa una contraseña diferente de la actual, de 8–128 caracteres, con mayúscula, minúscula, número y símbolo.");
       return;
     }
 

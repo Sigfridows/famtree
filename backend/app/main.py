@@ -43,6 +43,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["Content-Disposition"],
     )
     register_exception_handlers(app)
     app.include_router(api_router, prefix=app_settings.api_v1_prefix)
