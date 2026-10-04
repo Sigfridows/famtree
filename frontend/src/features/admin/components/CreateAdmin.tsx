@@ -132,11 +132,13 @@ export default function CreateAdmin({
           </label>
           <label>
             Correo
-            <input aria-label="Correo" name="email" required type="email" maxLength={100} />
+            <input aria-label="Correo" name="email" required type="email" maxLength={100} placeholder="admin@asilo.org" />
+            <small>Usa un correo válido para enviar las credenciales.</small>
           </label>
           <label>
             Teléfono
-            <input aria-label="Teléfono" name="phone" required pattern="[0-9]{10}" maxLength={10} />
+            <input aria-label="Teléfono" name="phone" required type="tel" inputMode="numeric" pattern="[0-9]{10}" maxLength={10} placeholder="8095550101" />
+            <small>Escribe 10 dígitos, sin guiones ni espacios.</small>
           </label>
           <label>
             Asilo asignado

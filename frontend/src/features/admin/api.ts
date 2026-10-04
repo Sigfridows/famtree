@@ -37,6 +37,8 @@ export const adminApi = {
     apiRequest<void>(`/admin/users/${id}/unblock`, { method: "PATCH", body: { reason } }),
   updateUser: (id: number, body: object) =>
     apiRequest<AdminUser>(`/admin/users/${id}`, { method: "PATCH", body }),
+  blockHistory: (id: number) =>
+    apiRequest<Record<string, unknown>[]>(`/admin/users/${id}/blocks`),
   createAdmin: (body: object) =>
     apiRequest<{
       user: AdminUser;

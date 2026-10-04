@@ -23,7 +23,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 from app.db.types import SCHEMA, EstadoAsilo, estado_asilo_db
 
-_GALERIA_COMMENT = "Galeria del centro. Entre 1 y 15 imagenes, exactamente una portada (RN06, RN07)"
+_GALERIA_COMMENT = (
+    "Galeria opcional del centro. Hasta 15 imagenes y exactamente una portada "
+    "cuando hay imagenes (RN07)"
+)
 
 
 class Provincia(Base):

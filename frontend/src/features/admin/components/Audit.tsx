@@ -31,9 +31,9 @@ export default function Audit() {
     <>
       <header className="admin-heading">
         <div>
-          <h1>Auditoría de moderación</h1>
+          <h1>Auditoría</h1>
           <p className="admin-subtitle">
-            Historial conservado de decisiones, responsables y justificaciones.
+            Historial conservado de decisiones de moderación, responsables y justificaciones. El historial de bloqueos de cada cuenta aparece al gestionarla.
           </p>
         </div>
       </header>

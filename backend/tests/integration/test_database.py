@@ -70,7 +70,9 @@ async def test_approved_schema_and_catalogs_were_migrated() -> None:
             ).scalars()
 
             assert table_count == 19
-            assert trigger_count == 21
+            # The deferred minimum-image trigger was removed in 0010 so an
+            # asylum can be registered before its optional gallery is uploaded.
+            assert trigger_count == 20
             assert provinces == 32
             assert list(motives) == [
                 "LENGUAJE_OFENSIVO",

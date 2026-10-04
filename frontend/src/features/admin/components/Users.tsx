@@ -11,6 +11,35 @@ import {
   roleLabel,
 } from "./AdminUI";
 import CreateAdmin from "./CreateAdmin";
+
+function History({
+  userId,
+  history,
+  onLoaded,
+}: {
+  userId: number;
+  history: Record<string, unknown>[];
+  onLoaded: (rows: Record<string, unknown>[]) => void;
+}) {
+  useEffect(() => {
+    adminApi.blockHistory(userId).then(onLoaded).catch(() => onLoaded([]));
+  }, [userId, onLoaded]);
+  if (!history.length) return null;
+  return (
+    <section className="rounded-lg bg-slate-50 p-3 text-sm">
+      <h3 className="font-semibold">Historial de seguridad</h3>
+      <ul className="mt-2 space-y-1">
+        {history.slice(0, 5).map((row) => (
+          <li key={String(row.id)}>
+            {row.unblockedAt ? "Desbloqueada" : "Bloqueada"} · {dateLabel(row.unblockedAt || row.blockedAt)}
+            {row.unblockReason ? ` · ${String(row.unblockReason)}` : ` · ${String(row.reason || "Sin motivo")}`}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export default function Users() {
   const [data, setData] = useState<Page<AdminUser> | null>(null);
   const [query, setQuery] = useState({ q: "", role: "", status: "", page: 1 });
@@ -25,6 +54,7 @@ export default function Users() {
   const [create, setCreate] = useState(false);
   const [editTarget, setEditTarget] = useState<AdminUser | null>(null);
   const [editForm, setEditForm] = useState({ firstName: "", lastName: "", email: "", phone: "", description: "" });
+  const [history, setHistory] = useState<Record<string, unknown>[]>([]);
   useEffect(() => {
     let alive = true;
     adminApi
@@ -152,7 +182,7 @@ export default function Users() {
                       <Status value={user.status} />
                     </td>
                     <td><div className="admin-actions">
-                      <button className="admin-secondary" onClick={() => { setEditTarget(user); setEditForm({ firstName: user.firstName, lastName: user.lastName, email: user.email, phone: user.phone || "", description: user.description || "" }); setError(""); }}>Editar datos</button>
+                      <button className="admin-secondary" onClick={() => { setEditTarget(user); setEditForm({ firstName: user.firstName, lastName: user.lastName, email: user.email, phone: user.phone || "", description: user.description || "" }); setHistory([]); setError(""); }}>Editar datos</button>
                       {user.role === "SYSTEM_ADMIN" ? <small>Cuenta protegida</small> : <button className="admin-secondary" onClick={() => { setTarget(user); setReason(""); setError(""); }}>{user.status === "BLOCKED" ? "Desbloquear" : "Bloquear"}</button>}
                     </div></td>
                   </tr>
@@ -192,6 +222,7 @@ export default function Users() {
           busy={busy}
           onClose={() => setTarget(null)}
         >
+          <History userId={Number(target.userId)} history={history} onLoaded={setHistory} />
           <form
             className="admin-form"
             onSubmit={async (e) => {

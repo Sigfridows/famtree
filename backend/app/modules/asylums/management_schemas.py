@@ -37,7 +37,8 @@ class AsylumCreate(Contract):
     website: Web | None = None
     service_ids: list[Id] = Field(min_length=1, max_length=30)
     senior_type_ids: list[Id] = Field(min_length=1, max_length=30)
-    images: list[ImageInput] = Field(min_length=1, max_length=15)
+    # La galería puede completarse después de registrar el asilo.
+    images: list[ImageInput] = Field(default_factory=list, max_length=15)
 
     @model_validator(mode="after")
     def validate_ranges(self) -> Self:
