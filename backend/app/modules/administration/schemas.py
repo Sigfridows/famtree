@@ -2,11 +2,21 @@ from pydantic import Field
 
 from app.core.contracts import Contract, Id
 from app.modules.auth.schemas import Email, Username
-from app.modules.users.schemas import Name, Phone, UserProfile
+from app.modules.users.schemas import Name, Phone, ProfileUpdate, UserProfile
 
 
 class BlockUser(Contract):
     reason: str = Field(min_length=10, max_length=300)
+
+
+class UnblockUser(Contract):
+    reason: str = Field(min_length=10, max_length=300)
+
+
+class AdminUserUpdate(ProfileUpdate):
+    email: str | None = Field(
+        default=None, max_length=100, pattern=r"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$"
+    )
 
 
 class CreateCenterAdmin(Contract):

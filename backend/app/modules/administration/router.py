@@ -5,7 +5,13 @@ from fastapi import APIRouter, Depends, Query, Response
 from app.api.dependencies import get_administration, get_notifications, get_reviews, get_users
 from app.core.contracts import Id
 from app.core.pagination import AdminQuery
-from app.modules.administration.schemas import BlockUser, CreateCenterAdmin, TemporaryAccount
+from app.modules.administration.schemas import (
+    AdminUserUpdate,
+    BlockUser,
+    CreateCenterAdmin,
+    TemporaryAccount,
+    UnblockUser,
+)
 from app.modules.administration.service import AdministrationService
 from app.modules.auth.dependencies import system_admin
 from app.modules.notifications import NotificationService
@@ -52,9 +58,25 @@ async def block(user_id: Id, data: BlockUser, admin: Admin, service: Service) ->
 
 
 @router.patch("/admin/users/{user_id}/unblock", status_code=204)
-async def unblock(user_id: Id, admin: Admin, service: Service) -> Response:
-    await service.unblock(user_id, admin.user_id)
+async def unblock(
+    user_id: Id, admin: Admin, service: Service, data: UnblockUser | None = None
+) -> Response:
+    await service.unblock(
+        user_id,
+        admin.user_id,
+        data.reason if data else "Desbloqueo autorizado por el administrador.",
+    )
     return Response(status_code=204)
+
+
+@router.patch("/admin/users/{user_id}")
+async def update_user(
+    user_id: Id,
+    data: AdminUserUpdate,
+    admin: Admin,
+    directory: Annotated[UserDirectory, Depends(get_users)],
+) -> UserProfile:
+    return await directory.update_admin_profile(user_id, data)
 
 
 @router.post("/admin/asylum-admins", status_code=201)

@@ -45,7 +45,7 @@ const MUNICIPALITIES_BY_PROVINCE: Record<string, string[]> = {
 };
 
 export default function FilterModal({ isOpen = false, onClose, onApply, servicesList }: FilterModalProps) {
-  const [selectedType, setSelectedType] = useState('casa');
+  const [selectedType, setSelectedType] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [price, setPrice] = useState(50000);
   const [province, setProvince] = useState('Santo Domingo');
@@ -63,13 +63,13 @@ export default function FilterModal({ isOpen = false, onClose, onApply, services
   };
 
   const handleReset = () => {
-    setSelectedType('casa'); setSelectedServices([]); setPrice(50000);
+    setSelectedType(''); setSelectedServices([]); setPrice(50000);
     setProvince('Santo Domingo'); setMunicipality('Pedro Brand');
     setCertifiedOnly(false); setMinRatingOnly(false);
   };
 
   const handleApply = () => {
-    onApply?.({ type: selectedType, services: selectedServices, maxPrice: price, province, municipality, certifiedOnly, minRatingOnly });
+    onApply?.({ type: selectedType || undefined, services: selectedServices, maxPrice: price, province, municipality, certifiedOnly, minRatingOnly });
     onClose?.();
   };
 
@@ -108,7 +108,14 @@ export default function FilterModal({ isOpen = false, onClose, onApply, services
               <div className="space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-xs font-semibold text-zinc-400">Tipo de Propiedad</h3>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedType('')}
+                      className={`flex flex-col items-center justify-center p-1.5 h-14 rounded-2xl border transition-all text-center cursor-pointer ${!selectedType ? 'border-[#CCDD99] bg-[#CCDD99]/10 text-[#CCDD99] shadow-sm' : 'border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 text-zinc-400'}`}
+                    >
+                      <span className="text-[10px] font-semibold">Todos</span>
+                    </button>
                     {PROPERTY_TYPES.map((type) => {
                       const Icon = type.icon;
                       const isSelected = selectedType === type.id;
@@ -240,7 +247,7 @@ export default function FilterModal({ isOpen = false, onClose, onApply, services
                 onClick={handleApply}
                 className="flex items-center gap-1.5 px-6 py-2 rounded-[10px] bg-[#CCDD99] text-zinc-950 text-xs font-bold hover:bg-[#b8cb83] transition-colors cursor-pointer"
               >
-                <span>Aplicar Filtros</span><Eye className="w-4 h-4" />
+                <span>Aplicar selección</span><Eye className="w-4 h-4" />
               </button>
             </div>
           </motion.div>

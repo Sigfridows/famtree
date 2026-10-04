@@ -81,6 +81,7 @@ export default function CenterEditor() {
           try {
             const {
               description,
+              propertyType,
               phone,
               email,
               minPrice,
@@ -94,6 +95,7 @@ export default function CenterEditor() {
             } = center;
             const updated = await centerAdminService.updateCenterInfo({
               description,
+              propertyType,
               phone,
               email,
               minPrice,
@@ -120,6 +122,12 @@ export default function CenterEditor() {
           className="grid gap-5 rounded-2xl bg-white p-6 shadow-sm md:grid-cols-2"
         >
           <legend className="font-semibold">Información y contacto</legend>
+          <label>
+            Tipo de propiedad
+            <select aria-label="Tipo de propiedad" className={input} required value={center.propertyType} onChange={(e) => change("propertyType", e.target.value)}>
+              <option value="CASA">Casa</option><option value="APARTAMENTO">Apartamento</option><option value="VILLA">Villa</option><option value="GERIATRICO">Geriátrico</option>
+            </select>
+          </label>
           <label>
             Teléfono
             <input aria-label="Teléfono"

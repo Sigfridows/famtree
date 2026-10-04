@@ -4,7 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
 import { AUTH_ERRORS } from "@/lib/validations/auth";
-import { ApiError } from "@/lib/apiClient";
+import { ApiError, friendlyError } from "@/lib/apiClient";
 
 export function useLoginForm() {
   const { login } = useAuth();
@@ -41,7 +41,7 @@ export function useLoginForm() {
     } catch (err: unknown) {
       setPassword("");
       if (err instanceof ApiError && err.message) {
-        setErrorMessage(err.message);
+        setErrorMessage(friendlyError(err, AUTH_ERRORS.INVALID_CREDENTIALS));
       } else {
         setErrorMessage(AUTH_ERRORS.INVALID_CREDENTIALS);
       }

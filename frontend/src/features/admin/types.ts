@@ -3,6 +3,7 @@ import type { UserProfile } from "@/features/auth/types";
 
 export type AdminUser = UserProfile;
 export interface AdminCenter extends CenterInfo {
+  propertyType: "CASA" | "APARTAMENTO" | "VILLA" | "GERIATRICO";
   municipalityId: number;
   sector: string;
   latitude: number;

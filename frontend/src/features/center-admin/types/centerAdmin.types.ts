@@ -1,6 +1,7 @@
 export interface CenterInfo {
   asylumId: number;
   name: string;
+  propertyType: "CASA" | "APARTAMENTO" | "VILLA" | "GERIATRICO";
   address: string;
   phone: string;
   email: string;
@@ -16,7 +17,7 @@ export interface CenterInfo {
   seniorTypeIds: number[];
 }
 export type UpdateCenterPayload = Partial<Pick<CenterInfo,
-  "phone" | "email" | "minPrice" | "maxPrice" | "totalCapacity" | "description" |
+  "propertyType" | "phone" | "email" | "minPrice" | "maxPrice" | "totalCapacity" | "description" |
   "entryRequirements" | "certifications" | "website" | "serviceIds" | "seniorTypeIds"
 >>;
 export interface CenterImage { imageId: number; url: string; isCover: boolean; }

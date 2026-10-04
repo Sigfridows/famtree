@@ -29,4 +29,7 @@ class ProfileUpdate(Contract):
     first_name: Name | None = None
     last_name: Name | None = None
     phone: Phone | None = None
+    email: str | None = Field(
+        default=None, max_length=100, pattern=r"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$"
+    )
     description: str | None = Field(default=None, max_length=250)

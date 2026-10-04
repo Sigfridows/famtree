@@ -28,6 +28,7 @@ from app.modules.users import UserDirectory
 FIELDS = {
     "municipality_id": "codigo_municipio",
     "name": "nombre_asilo",
+    "property_type": "tipo_propiedad",
     "description": "descripcion_asilo",
     "sector": "sector_asilo",
     "address": "direccion_asilo",

@@ -46,6 +46,7 @@ class SqlAlchemyAsylumReader:
         statement = select(
             Asilo.codigo_asilo.label("id"),
             Asilo.nombre_asilo.label("name"),
+            Asilo.tipo_propiedad.label("property_type"),
             Provincia.codigo_provincia.label("province_id"),
             Provincia.nombre_provincia.label("province_name"),
             Municipio.codigo_municipio.label("municipality_id"),
@@ -107,6 +108,8 @@ class SqlAlchemyAsylumReader:
             conditions.append(Provincia.codigo_provincia == query.province_id)
         if query.municipality_id is not None:
             conditions.append(Asilo.codigo_municipio == query.municipality_id)
+        if query.property_type is not None:
+            conditions.append(Asilo.tipo_propiedad == query.property_type)
         # Overlapping intervals: a center offers at least one price inside the selected budget.
         if query.min_price is not None:
             conditions.append(Asilo.precio_maximo >= query.min_price)

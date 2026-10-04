@@ -19,6 +19,7 @@ export default function CenterForm({
   const [province, setProvince] = useState(initial?.provinceId || 0);
   const [form, setForm] = useState({
     name: initial?.name || "",
+    propertyType: initial?.propertyType || "CASA",
     municipalityId: initial?.municipalityId || 0,
     sector: initial?.sector || "",
     address: initial?.address || "",
@@ -111,6 +112,15 @@ export default function CenterForm({
               value={form.name}
               onChange={(e) => field("name", e.target.value)}
             />
+          </label>
+          <label>
+            Tipo de propiedad
+            <select aria-label="Tipo de propiedad" required value={form.propertyType} onChange={(e) => field("propertyType", e.target.value)}>
+              <option value="CASA">Casa</option>
+              <option value="APARTAMENTO">Apartamento</option>
+              <option value="VILLA">Villa</option>
+              <option value="GERIATRICO">Geriátrico</option>
+            </select>
           </label>
           <label>
             Provincia

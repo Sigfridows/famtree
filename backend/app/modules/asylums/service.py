@@ -34,7 +34,9 @@ class AsylumService:
     async def map(self, query: SearchQuery) -> MapPage:
         items, total = await self.reader.search(query, page_size=MAP_PAGE_SIZE)
         return MapPage(
-            items=[MapPin.model_validate(item.model_dump()) for item in items],
+            items=[
+                MapPin.model_validate(item.model_dump(exclude={"property_type"})) for item in items
+            ],
             pagination=pagination(query.page, MAP_PAGE_SIZE, total),
             filters=query,
         )

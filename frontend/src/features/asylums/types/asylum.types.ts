@@ -5,6 +5,7 @@
 
 // --- Estados y Enums ---
 export type AsylumStatus = "ACTIVE" | "INACTIVE";
+export type PropertyType = "CASA" | "APARTAMENTO" | "VILLA" | "GERIATRICO";
 
 export type SortOrder =
   | "name_asc"
@@ -39,6 +40,7 @@ export type AsylumFilters = {
   max_price?: string;
   services?: number[];
   care_types?: number[];
+  property_type?: PropertyType;
   certified_only?: boolean;
   rating_min?: number;
   sort?: SortOrder;
@@ -53,6 +55,7 @@ export type AppliedFilters = {
   max_price: string | null;
   services: number[];
   care_types: number[];
+  property_type: PropertyType | null;
   certified_only: boolean;
   rating_min: number | null;
   sort: SortOrder;
@@ -73,6 +76,7 @@ export type AsylumImage = {
 export type AsylumSummary = {
   id: number;
   name: string;
+  property_type?: PropertyType;
   province_id: number;
   province_name: string;
   municipality_id: number;

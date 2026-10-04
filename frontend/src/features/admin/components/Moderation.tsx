@@ -228,17 +228,16 @@ export default function Moderation() {
                     onChange={(e) => setDecision(e.target.value)}
                   >
                     <option value="DISCARDED">
-                      Descartar reporte y conservar reseña
+                      Rechazar reporte y conservar reseña
                     </option>
                     <option value="REVIEW_REMOVED">
-                      Eliminar reseña reportada
+                      Aceptar reporte y retirar reseña
                     </option>
                   </select>
                 </label>
                 {decision === "REVIEW_REMOVED" && (
                   <p className="admin-error">
-                    La reseña dejará de ser pública y se recalculará la
-                    calificación del asilo.
+                    Al aceptar el reporte, la reseña dejará de ser pública y se recalculará la calificación del asilo.
                   </p>
                 )}
                 <label>
@@ -257,7 +256,7 @@ export default function Moderation() {
                     className="admin-primary"
                     disabled={busy || justification.trim().length < 10}
                   >
-                    {busy ? "Guardando…" : "Confirmar resolución"}
+                    {busy ? "Guardando…" : decision === "REVIEW_REMOVED" ? "Aceptar reporte" : "Rechazar reporte"}
                   </button>
                   <button
                     type="button"

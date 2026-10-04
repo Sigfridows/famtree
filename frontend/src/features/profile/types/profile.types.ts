@@ -23,4 +23,5 @@ export interface UpdateProfilePayload {
   phone?: string | null;
   profilePicture?: string | null;
   description?: string | null;
+  email?: string;
 }

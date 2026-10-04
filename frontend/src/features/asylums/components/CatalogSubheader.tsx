@@ -22,6 +22,9 @@ interface CatalogSubheaderProps {
   selectedQuickFilter?: string;
   onQuickFilterChange?: (filterId: string) => void;
   servicesList?: string[];
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  onSearch?: () => void;
 }
 
 const QUICK_FILTERS = [
@@ -41,6 +44,9 @@ export default function CatalogSubheader({
   selectedQuickFilter = "all",
   onQuickFilterChange,
   servicesList,
+  searchValue = "",
+  onSearchChange,
+  onSearch,
 }: CatalogSubheaderProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -50,6 +56,10 @@ export default function CatalogSubheader({
         
         {/* LADO IZQUIERDO: Contador y Filtros Rápidos */}
         <div className="flex flex-wrap items-center gap-3">
+          <form className="flex items-center gap-2" onSubmit={(event) => { event.preventDefault(); onSearch?.(); }}>
+            <label className="sr-only" htmlFor="catalog-search">Buscar residencias</label>
+            <input id="catalog-search" value={searchValue} onChange={(event) => onSearchChange?.(event.target.value)} placeholder="Buscar residencias…" className="w-44 sm:w-60 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder:text-zinc-500 focus:border-[#CCDD99] focus:outline-none" />
+          </form>
           <div className="flex items-center gap-2 pr-3 border-r border-white/10">
             <span className="text-xs sm:text-sm font-bold text-white tracking-wide">
               {totalResults}

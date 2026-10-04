@@ -9,6 +9,8 @@ import { PreferencesSection } from "../components/PreferencesSection";
 import { ContactSection } from "../components/ContactSection";
 import { PasswordModal } from "../components/PasswordModal";
 import { profileService } from "../api/profileService";
+import { notificationsService } from "@/features/notifications/api/notificationsService";
+import { ApiError, friendlyError } from "@/lib/apiClient";
 import { User, UpdateProfilePayload } from "../types/profile.types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { Loader2, UserX, LogIn, UserPlus, LogOut, Check } from "lucide-react";
@@ -35,6 +37,7 @@ export function ProfileForm() {
   const [notifications, setNotifications] = useState<boolean>(false);
   const [offers, setOffers] = useState<boolean>(false);
   const [createdAt, setCreatedAt] = useState<string>("");
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
@@ -57,6 +60,16 @@ export function ProfileForm() {
         setPhone(user.phone ? formatPhoneNumber(user.phone) : "");
         setEmail(user.email ?? "");
         setBio(user.description ?? "");
+        setEmail(user.email ?? "");
+        try {
+          const preferences = await notificationsService.getPreferences();
+          setNotifications(preferences.availabilityAlert || preferences.moderationAlert);
+          setOffers(preferences.updateAlert);
+        } catch {
+          // System and center administrators do not have a preference row.
+          setNotifications(false);
+          setOffers(false);
+        }
 
         setCreatedAt(
           user.createdAt
@@ -83,7 +96,7 @@ export function ProfileForm() {
       setAvatarUrl(res.url);
     } catch (error) {
       console.error("Error al subir el avatar:", error);
-      alert("No se pudo subir la imagen de perfil.");
+      setFeedback({ type: "error", message: "No se pudo subir la imagen. Comprueba el archivo e inténtalo de nuevo." });
     } finally {
       setIsUploadingAvatar(false);
     }
@@ -94,18 +107,27 @@ export function ProfileForm() {
     try {
       setSaving(true);
 
+      if (!/^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
+        setFeedback({ type: "error", message: "Escribe un correo electrónico válido." });
+        return;
+      }
+      if (phone && phone.replace(/\D/g, "").length !== 10) {
+        setFeedback({ type: "error", message: "El teléfono debe tener 10 dígitos." });
+        return;
+      }
       const payload: UpdateProfilePayload = {
         firstName,
         lastName,
         phone: phone ? phone.replace(/\D/g, "") : null,
         description: bio || null,
+        email: email.trim(),
       };
 
       await profileService.updateProfile(payload);
-      alert("¡Perfil actualizado con éxito!");
+      setFeedback({ type: "success", message: "Tus datos se guardaron correctamente." });
     } catch (error) {
       console.error("Error al guardar los cambios:", error);
-      alert("No se pudieron guardar los cambios.");
+      setFeedback({ type: "error", message: error instanceof ApiError ? friendlyError(error) : "No se pudieron guardar los cambios." });
     } finally {
       setSaving(false);
     }
@@ -118,7 +140,7 @@ export function ProfileForm() {
       router.push("/login");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
-      alert("Ocurrió un error al intentar cerrar sesión.");
+      setFeedback({ type: "error", message: "No se pudo cerrar la sesión. Inténtalo de nuevo." });
     } finally {
       setIsLoggingOut(false);
     }
@@ -192,8 +214,19 @@ export function ProfileForm() {
             notifications={notifications}
             offers={offers}
             onOpenPasswordModal={() => setIsPasswordModalOpen(true)}
-            onNotificationsToggle={() => setNotifications(!notifications)}
-            onOffersToggle={() => setOffers(!offers)}
+            saving={saving}
+            onNotificationsToggle={() => void (async () => {
+              const next = !notifications;
+              try { setSaving(true); await notificationsService.updatePreferences({ availabilityAlert: next, moderationAlert: next }); setNotifications(next); setFeedback({ type: "success", message: "Preferencias de notificaciones actualizadas." }); }
+              catch { setFeedback({ type: "error", message: "No se pudieron guardar las preferencias." }); }
+              finally { setSaving(false); }
+            })()}
+            onOffersToggle={() => void (async () => {
+              const next = !offers;
+              try { setSaving(true); await notificationsService.updatePreferences({ updateAlert: next }); setOffers(next); setFeedback({ type: "success", message: "Preferencias de ofertas actualizadas." }); }
+              catch { setFeedback({ type: "error", message: "No se pudieron guardar las preferencias." }); }
+              finally { setSaving(false); }
+            })()}
           />
         </div>
 
@@ -213,6 +246,7 @@ export function ProfileForm() {
             onBioChange={setBio}
           />
 
+        {feedback && <div role={feedback.type === "error" ? "alert" : "status"} className={`rounded-xl border px-4 py-3 text-xs font-semibold ${feedback.type === "error" ? "border-rose-500/30 bg-rose-500/10 text-rose-200" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"}`}>{feedback.message}</div>}
           <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
@@ -248,7 +282,7 @@ export function ProfileForm() {
       <PasswordModal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
-        onSuccess={() => alert("Contraseña actualizada correctamente")}
+        onSuccess={() => setFeedback({ type: "success", message: "La contraseña se actualizó correctamente." })}
       />
     </>
   );
