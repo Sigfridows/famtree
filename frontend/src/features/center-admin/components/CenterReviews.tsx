@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { centerAdminService } from "../api/centerAdminService";
 import type { CenterReputation } from "../types/centerAdmin.types";
 import { Bars } from "@/features/admin/components/AdminUI";
+import { friendlyError } from "@/lib/apiClient";
 export default function CenterReviews() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -23,7 +24,7 @@ export default function CenterReviews() {
         }
       })
       .catch((err) => {
-        if (alive) setError(err.message);
+        if (alive) setError(friendlyError(err));
       })
       .finally(() => {
         if (alive) setLoading(false);
@@ -68,7 +69,6 @@ export default function CenterReviews() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Nombre o comentario"
         />
-        <button>Buscar</button>
         <select
           aria-label="Calificación"
           value={rating ?? ""}

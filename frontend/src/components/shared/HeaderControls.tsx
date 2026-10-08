@@ -21,6 +21,7 @@ interface HeaderControlsProps {
   logoSrc?: StaticImageData | string;
   logoAlt?: string;
   showLogo?: boolean;
+  showSearch?: boolean;
   logoClassName?: string;
 
   className?: string;
@@ -39,6 +40,7 @@ export default function HeaderControls({
   logoSrc,
   logoAlt = "Logo",
   showLogo = true,
+  showSearch = false,
   logoClassName = "w-16 h-16 object-contain",
   className = "",
 }: HeaderControlsProps) {
@@ -46,17 +48,17 @@ export default function HeaderControls({
     <header className={`relative z-40 flex items-center justify-end gap-4 sm:gap-6 ${className}`}>
       <NotificationsPopover variant="dark" />
       
-      <SearchBar
-        value={searchValue}
-        onChange={onSearchChange}
-        onSearch={onSearch}
-        placeholder={placeholder}
-        placeholderClass={placeholderClass}
-        bgClass={bgClass}
-        borderClass={borderClass}
-        buttonBgClass={buttonBgClass}
-        buttonTextClass={buttonTextClass}
-      />
+      {showSearch && <SearchBar
+          value={searchValue}
+          onChange={onSearchChange}
+          onSearch={onSearch}
+          placeholder={placeholder}
+          placeholderClass={placeholderClass}
+          bgClass={bgClass}
+          borderClass={borderClass}
+          buttonBgClass={buttonBgClass}
+          buttonTextClass={buttonTextClass}
+        />}
 
       {showLogo && logoSrc && (
         <div className="flex flex-col items-center shrink-0 transition-opacity hover:opacity-90">

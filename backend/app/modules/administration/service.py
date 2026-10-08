@@ -49,7 +49,7 @@ class AdministrationService:
         await self.auth.revoke_user(user_id)
         await self.session.commit()
 
-    async def unblock(self, user_id: int, admin_id: int) -> None:
+    async def unblock(self, user_id: int, admin_id: int, reason: str) -> None:
         user = await self.users.get(user_id)
         await self.auth.guard(user.username)
         existing = await self.session.scalar(
@@ -62,6 +62,7 @@ class AdministrationService:
         if existing is not None:
             existing.codigo_admin_desbloqueo = admin_id
             existing.fecha_desbloqueo = datetime.now(UTC)
+            existing.motivo_desbloqueo = reason
         await self.session.commit()
 
     async def create_admin(self, data: CreateCenterAdmin) -> TemporaryAccount:
@@ -92,6 +93,7 @@ class AdministrationService:
             {
                 "id": row.codigo_bloqueo,
                 "reason": row.motivo,
+                "unblockReason": row.motivo_desbloqueo,
                 "blockedBy": row.codigo_admin_bloqueo,
                 "blockedAt": row.fecha_bloqueo,
                 "unblockedBy": row.codigo_admin_desbloqueo,

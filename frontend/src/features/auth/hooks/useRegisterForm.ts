@@ -4,7 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
 import { validatePassword, validatePasswordsMatch, REGISTER_RULES, registrationErrorMessage } from "@/lib/validations/auth";
-import { ApiError } from "@/lib/apiClient";
+import { ApiError, friendlyError } from "@/lib/apiClient";
 
 export function useRegisterForm() {
   const { register } = useAuth();
@@ -87,7 +87,7 @@ export function useRegisterForm() {
       router.push("/catalog");
     } catch (err: unknown) {
       if (err instanceof ApiError && err.message) {
-        setErrorMessage(err.status === 422 ? registrationErrorMessage(err.details) : err.message);
+        setErrorMessage(err.status === 422 ? registrationErrorMessage(err.details) : friendlyError(err, "No se pudo crear la cuenta. Revisa tus datos e inténtalo de nuevo."));
       } else {
         setErrorMessage("Error al registrar la cuenta. Verifique los datos ingresados.");
       }

@@ -38,6 +38,9 @@ class SearchQuery(BaseModel):
     max_price: Price | None = None
     services: list[PublicId] = Field(default_factory=list, max_length=30)
     care_types: list[PublicId] = Field(default_factory=list, max_length=30)
+    property_type: str | None = Field(
+        default=None, pattern=r"^(CASA|APARTAMENTO|VILLA|GERIATRICO)$"
+    )
     certified_only: bool = False
     rating_min: float | None = Field(default=None, ge=1, le=5, allow_inf_nan=False)
     sort: SortOrder = SortOrder.NAME_ASC
@@ -100,6 +103,7 @@ class Catalogs(BaseModel):
 class AsylumSummary(BaseModel):
     id: int
     name: str
+    property_type: str
     province_id: int
     province_name: str
     municipality_id: int

@@ -107,7 +107,10 @@ class UserDirectory:
             "phone": "telefono",
             "description": "descripcion",
         }
-        for field, value in data.model_dump(exclude_unset=True).items():
+        values = data.model_dump(exclude_unset=True)
+        if "email" in values:
+            user.email = str(values.pop("email")).lower()
+        for field, value in values.items():
             if value is None and field in {"first_name", "last_name"}:
                 raise AppError(
                     code="invalid_profile",
@@ -115,6 +118,26 @@ class UserDirectory:
                     status_code=422,
                 )
             setattr(user, mapping[field], value)
+        await self.repository.session.commit()
+        return profile(user)
+
+    async def update_admin_profile(self, user_id: int, data: ProfileUpdate) -> UserProfile:
+        """Update editable identity/contact fields from the system-admin panel."""
+        user = await self.repository.get(user_id, lock=True)
+        if user is None:
+            raise AppError(code="user_not_found", message="Usuario no disponible", status_code=404)
+        values = data.model_dump(exclude_unset=True)
+        if "email" in values:
+            user.email = str(values.pop("email")).lower()
+        mapping = {
+            "first_name": "nombre_usuario",
+            "last_name": "apellido_usuario",
+            "phone": "telefono",
+            "description": "descripcion",
+        }
+        for field, value in values.items():
+            if field in mapping:
+                setattr(user, mapping[field], value)
         await self.repository.session.commit()
         return profile(user)
 

@@ -1,4 +1,5 @@
 import SideBar from "@/components/shared/SideBar";
+import FeedbackToast from "@/components/shared/FeedbackToast";
 
 export default function MainLayout({
   children,
@@ -11,6 +12,7 @@ export default function MainLayout({
       <main className="w-full min-h-screen flex-1">
         {children}
       </main>
+      <FeedbackToast />
     </div>
   );
 }

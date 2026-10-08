@@ -23,7 +23,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 from app.db.types import SCHEMA, EstadoAsilo, estado_asilo_db
 
-_GALERIA_COMMENT = "Galeria del centro. Entre 1 y 15 imagenes, exactamente una portada (RN06, RN07)"
+_GALERIA_COMMENT = (
+    "Galeria opcional del centro. Hasta 15 imagenes y exactamente una portada "
+    "cuando hay imagenes (RN07)"
+)
 
 
 class Provincia(Base):
@@ -122,6 +125,10 @@ class Asilo(Base):
         CheckConstraint("capacidad_total > 0", name="ck_asilos_capacidad"),
         CheckConstraint("precio_minimo > 0", name="ck_asilos_precio_min"),
         CheckConstraint("precio_maximo >= precio_minimo", name="ck_asilos_precio_rango"),
+        CheckConstraint(
+            "tipo_propiedad IN ('CASA', 'APARTAMENTO', 'VILLA', 'GERIATRICO')",
+            name="ck_asilos_tipo_propiedad",
+        ),
         CheckConstraint("latitud BETWEEN 17.0 AND 20.5", name="ck_asilos_latitud"),
         CheckConstraint("longitud BETWEEN -72.5 AND -68.0", name="ck_asilos_longitud"),
         CheckConstraint("telefono_asilo ~ '^[0-9]{10}$'", name="ck_asilos_telefono"),
@@ -142,6 +149,7 @@ class Asilo(Base):
         ),
         Index("ix_asilos_coordenadas", "latitud", "longitud"),
         Index("ix_asilos_precio", "precio_minimo", "precio_maximo"),
+        Index("ix_asilos_tipo_propiedad", "tipo_propiedad"),
         Index(
             "ix_asilos_nombre_normalizado",
             text(
@@ -166,6 +174,7 @@ class Asilo(Base):
         nullable=False,
     )
     nombre_asilo: Mapped[str] = mapped_column(String(100), nullable=False)
+    tipo_propiedad: Mapped[str] = mapped_column(String(20), nullable=False, server_default="CASA")
     descripcion_asilo: Mapped[str] = mapped_column(Text, nullable=False)
     sector_asilo: Mapped[str] = mapped_column(String(100), nullable=False)
     direccion_asilo: Mapped[str] = mapped_column(String(200), nullable=False)

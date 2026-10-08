@@ -19,6 +19,7 @@ export default function CenterForm({
   const [province, setProvince] = useState(initial?.provinceId || 0);
   const [form, setForm] = useState({
     name: initial?.name || "",
+    propertyType: initial?.propertyType || "CASA",
     municipalityId: initial?.municipalityId || 0,
     sector: initial?.sector || "",
     address: initial?.address || "",
@@ -70,14 +71,13 @@ export default function CenterForm({
           .filter(Boolean);
         if (
           !initial &&
-          (urls.length < 1 ||
-            urls.length > 15 ||
+          (urls.length > 15 ||
             urls.some(
               (url) => !/^https?:\/\/\S+$/.test(url) || url.length > 255,
             ))
         ) {
           setError(
-            "Agrega entre 1 y 15 enlaces de imagen válidos (https://), uno por línea, de hasta 255 caracteres.",
+            "Revisa los enlaces de imagen: usa hasta 15 URLs válidas (https://), una por línea, de hasta 255 caracteres.",
           );
           return;
         }
@@ -111,6 +111,15 @@ export default function CenterForm({
               value={form.name}
               onChange={(e) => field("name", e.target.value)}
             />
+          </label>
+          <label>
+            Tipo de propiedad
+            <select aria-label="Tipo de propiedad" required value={form.propertyType} onChange={(e) => field("propertyType", e.target.value)}>
+              <option value="CASA">Casa</option>
+              <option value="APARTAMENTO">Apartamento</option>
+              <option value="VILLA">Villa</option>
+              <option value="GERIATRICO">Geriátrico</option>
+            </select>
           </label>
           <label>
             Provincia
@@ -168,10 +177,13 @@ export default function CenterForm({
             />
           </label>
           <label>
-            Latitud
+            Latitud de ubicación (RD)
             <input aria-label="Latitud"
               required
               type="number"
+              inputMode="decimal"
+              placeholder="18.4861"
+              aria-describedby="location-help"
               min={17}
               max={20.5}
               step="0.000001"
@@ -180,10 +192,13 @@ export default function CenterForm({
             />
           </label>
           <label>
-            Longitud
+            Longitud de ubicación (RD)
             <input aria-label="Longitud"
               required
               type="number"
+              inputMode="decimal"
+              placeholder="-69.9312"
+              aria-describedby="location-help"
               min={-72.5}
               max={-68}
               step="0.000001"
@@ -191,6 +206,9 @@ export default function CenterForm({
               onChange={(e) => field("longitude", Number(e.target.value))}
             />
           </label>
+          <p id="location-help" className="text-sm text-slate-500">
+            Usa coordenadas decimales dentro de República Dominicana. Latitud: 17 a 20.5; longitud: -72.5 a -68.
+          </p>
         </div>
       </fieldset>
       <fieldset disabled={busy || !catalogs}>
@@ -283,8 +301,8 @@ export default function CenterForm({
             />
           </label>
           <label>
-            Sitio web
-            <input aria-label="Sitio web"
+            Sitio web (opcional)
+            <input aria-label="Sitio web (opcional)"
               type="url"
               maxLength={255}
               value={form.website}
@@ -325,17 +343,16 @@ export default function CenterForm({
         ))}
       {!initial && (
         <label>
-          Imágenes: un enlace público por línea (1–15)
-          <textarea aria-label="Imágenes: un enlace público por línea (1–15)"
-            required
+          Imágenes (opcional): un enlace público por línea (hasta 15)
+          <textarea aria-label="Imágenes opcionales: un enlace público por línea"
             rows={3}
             value={images}
             onChange={(e) => setImages(e.target.value)}
             placeholder="https://ejemplo.com/portada.jpg"
           />
           <small>
-            La primera imagen será la portada. Usa imágenes autorizadas y
-            accesibles.
+            Puedes registrarlas después desde la galería. Si agregas varias,
+            la primera será la portada. Usa imágenes autorizadas y accesibles.
           </small>
         </label>
       )}

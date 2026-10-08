@@ -1,4 +1,4 @@
-import { apiRequest, ApiError, downloadApiFile } from "@/lib/apiClient";
+import { apiRequest, ApiError, downloadApiFile, friendlyError } from "@/lib/apiClient";
 import type {
   AdminCenter,
   AdminUser,
@@ -33,8 +33,12 @@ export const adminApi = {
       method: "PATCH",
       body: { reason },
     }),
-  unblock: (id: number) =>
-    apiRequest<void>(`/admin/users/${id}/unblock`, { method: "PATCH" }),
+  unblock: (id: number, reason: string) =>
+    apiRequest<void>(`/admin/users/${id}/unblock`, { method: "PATCH", body: { reason } }),
+  updateUser: (id: number, body: object) =>
+    apiRequest<AdminUser>(`/admin/users/${id}`, { method: "PATCH", body }),
+  blockHistory: (id: number) =>
+    apiRequest<Record<string, unknown>[]>(`/admin/users/${id}/blocks`),
   createAdmin: (body: object) =>
     apiRequest<{
       user: AdminUser;
@@ -63,13 +67,12 @@ export function adminError(error: unknown): string {
       return "Tu sesión terminó. Inicia sesión de nuevo.";
     if (error.status === 403)
       return "Tu cuenta no tiene permiso para esta acción. Comprueba tu sesión y rol.";
-    if (error.status === 422)
-      return "Revisa los campos: formatos, longitudes, selección de servicios y rangos de fechas o precios.";
+    if (error.status === 422) return "Revisa los campos marcados y vuelve a intentarlo.";
     if (error.status === 409)
       return "Los datos cambiaron o ya existe un registro con esos datos. Actualiza la lista y revisa tu selección.";
     if (error.status >= 500)
       return "No pudimos completar la operación. Inténtalo de nuevo en unos momentos.";
-    return error.message;
+    return friendlyError(error);
   }
   return "No se pudo conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.";
 }

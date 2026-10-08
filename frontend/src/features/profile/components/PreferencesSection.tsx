@@ -6,6 +6,7 @@ interface PreferencesSectionProps {
   onOpenPasswordModal: () => void;
   onNotificationsToggle: () => void;
   onOffersToggle: () => void;
+  saving?: boolean;
 }
 
 export function PreferencesSection({
@@ -14,6 +15,7 @@ export function PreferencesSection({
   onOpenPasswordModal,
   onNotificationsToggle,
   onOffersToggle,
+  saving = false,
 }: PreferencesSectionProps) {
   return (
     <section className="bg-[#141414] rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl space-y-6 text-white font-montserrat">
@@ -48,6 +50,9 @@ export function PreferencesSection({
         <button
           type="button"
           onClick={onNotificationsToggle}
+          disabled={saving}
+          aria-pressed={notifications}
+          aria-label="Gestionar notificaciones"
           className={`w-12 h-6 rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
             notifications ? "bg-[#CCD999]" : "bg-zinc-800 border border-white/5"
           }`}
@@ -71,6 +76,9 @@ export function PreferencesSection({
         <button
           type="button"
           onClick={onOffersToggle}
+          disabled={saving}
+          aria-pressed={offers}
+          aria-label="Gestionar ofertas"
           className={`w-12 h-6 rounded-full p-1 transition-colors cursor-pointer shrink-0 ${
             offers ? "bg-[#CCD999]" : "bg-zinc-800 border border-white/5"
           }`}

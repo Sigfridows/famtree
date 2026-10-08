@@ -21,6 +21,7 @@ class ImageInput(Contract):
 class AsylumCreate(Contract):
     municipality_id: Id
     name: str = Field(min_length=5, max_length=100)
+    property_type: str = Field(default="CASA", pattern=r"^(CASA|APARTAMENTO|VILLA|GERIATRICO)$")
     description: str = Field(min_length=20, max_length=1000)
     sector: str = Field(min_length=1, max_length=100)
     address: str = Field(min_length=1, max_length=200)
@@ -36,7 +37,8 @@ class AsylumCreate(Contract):
     website: Web | None = None
     service_ids: list[Id] = Field(min_length=1, max_length=30)
     senior_type_ids: list[Id] = Field(min_length=1, max_length=30)
-    images: list[ImageInput] = Field(min_length=1, max_length=15)
+    # La galería puede completarse después de registrar el asilo.
+    images: list[ImageInput] = Field(default_factory=list, max_length=15)
 
     @model_validator(mode="after")
     def validate_ranges(self) -> Self:
@@ -50,6 +52,9 @@ class AsylumCreate(Contract):
 
 
 class CenterUpdate(Contract):
+    property_type: str | None = Field(
+        default=None, pattern=r"^(CASA|APARTAMENTO|VILLA|GERIATRICO)$"
+    )
     description: str | None = Field(default=None, min_length=20, max_length=1000)
     total_capacity: int | None = Field(default=None, gt=0, le=100000)
     min_price: Money | None = None
@@ -66,6 +71,9 @@ class CenterUpdate(Contract):
 class AsylumUpdate(CenterUpdate):
     municipality_id: Id | None = None
     name: str | None = Field(default=None, min_length=5, max_length=100)
+    property_type: str | None = Field(
+        default=None, pattern=r"^(CASA|APARTAMENTO|VILLA|GERIATRICO)$"
+    )
     sector: str | None = Field(default=None, min_length=1, max_length=100)
     address: str | None = Field(default=None, min_length=1, max_length=200)
     latitude: Decimal | None = Field(default=None, ge=17, le=20.5, max_digits=9, decimal_places=6)
@@ -78,6 +86,7 @@ class ManagedAsylum(Contract):
     asylum_id: int
     municipality_id: int
     name: str
+    property_type: str
     description: str
     sector: str
     address: str

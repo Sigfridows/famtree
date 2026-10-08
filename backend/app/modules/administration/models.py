@@ -77,6 +77,7 @@ class BloqueoUsuario(Base):
         ),
     )
     motivo: Mapped[str] = mapped_column(String(300), nullable=False)
+    motivo_desbloqueo: Mapped[str | None] = mapped_column(String(300))
     fecha_bloqueo: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

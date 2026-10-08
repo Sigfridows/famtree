@@ -14,7 +14,7 @@ import AsiloDetails, {
 import { useAsylums } from "@/features/asylums/hooks/useAsylums";
 import { useAsylumDetail } from "@/features/asylums/hooks/useAsylumDetail";
 import { useFavorites } from "@/features/asylums/hooks/useFavorites";
-import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
+import type { AsylumFilters, AsylumSummary } from "@/features/asylums/types/asylum.types";
 import EmptyState from "@/features/asylums/components/EmptyState";
 import FavoritesDrawer from "@/features/asylums/components/FavoritesDrawer";
 import CatalogSubheader from "@/features/asylums/components/CatalogSubheader";
@@ -106,10 +106,6 @@ function CatalogContent() {
     return true;
   });
 
-  const handleSearch = () => {
-    updateFilters({ q: searchQuery });
-  };
-
   const modalData: AsiloDetailData | undefined = asylumDetail
     ? {
         id: String(asylumDetail.id),
@@ -172,19 +168,7 @@ function CatalogContent() {
             className="w-full lg:flex-1 lg:pr-28"
           />
 
-          <HeaderControls
-            logoSrc={logoFamTree}
-            placeholder="Buscar residencias..."
-            bgClass="bg-white dark:bg-[#1A1C1E]/80 backdrop-blur-md"
-            borderClass="border-white/10"
-            placeholderClass="placeholder-zinc-500 text-zinc-900 dark:text-white/90 font-light"
-            buttonBgClass="bg-[#CCDD99] hover:bg-[#b8cb83]"
-            buttonTextClass="text-zinc-950 font-medium"
-            className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0"
-            searchValue={searchQuery}
-            onSearchChange={(e) => setSearchQuery(e.target.value)}
-            onSearch={handleSearch}
-          />
+          <HeaderControls showSearch={false} logoSrc={logoFamTree} className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0" />
         </div>
 
         {/* SUBHEADER COMPONENTE REUTILIZABLE */}
@@ -198,15 +182,20 @@ function CatalogContent() {
             onViewModeChange={setViewMode}
             selectedQuickFilter={quickFilter}
             onQuickFilterChange={setQuickFilter}
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearch={() => updateFilters({ q: searchQuery || undefined })}
             onApplyFilters={(filters) => {
               let count = 0;
               if (filters.maxPrice && filters.maxPrice < 50000) count++;
+              if (filters.type) count++;
               if (filters.services && filters.services.length > 0) count++;
               if (filters.certifiedOnly) count++;
               if (filters.minRatingOnly) count++;
               setActiveFiltersCount(count);
 
-              updateFilters({
+                updateFilters({
+                  property_type: filters.type ? filters.type.toUpperCase() as AsylumFilters["property_type"] : undefined,
                 q: searchQuery || undefined,
                 max_price: filters.maxPrice
                   ? String(filters.maxPrice)

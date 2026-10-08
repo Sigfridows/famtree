@@ -12,12 +12,12 @@ export function Notice({
   return (
     <>
       {error && (
-        <p role="alert" className="admin-error">
+        <p role="alert" aria-live="assertive" className="admin-error">
           {error}
         </p>
       )}
       {message && (
-        <p role="status" className="admin-success">
+        <p role="status" aria-live="polite" className="admin-success">
           {message}
         </p>
       )}

@@ -13,6 +13,27 @@ export class ApiError extends Error {
   }
 }
 
+const FRIENDLY_MESSAGES: Record<string, string> = {
+  validation_error: "Revisa los campos marcados y vuelve a intentarlo.",
+  data_conflict: "Esta acción ya fue realizada o los datos cambiaron. Actualiza la pantalla e inténtalo de nuevo.",
+  account_blocked: "Esta cuenta está bloqueada. Contacta con el administrador.",
+  protected_account: "Esta cuenta está protegida y no puede modificarse.",
+  permission_denied: "No tienes permiso para realizar esta acción.",
+  duplicate_report: "Ya reportaste esta reseña.",
+  invalid_preferences: "Selecciona una opción válida para tus preferencias.",
+};
+
+export function friendlyError(error: unknown, fallback = "No pudimos completar la acción. Inténtalo de nuevo."): string {
+  if (!(error instanceof ApiError)) return fallback;
+  if (error.code && FRIENDLY_MESSAGES[error.code]) return FRIENDLY_MESSAGES[error.code];
+  if (error.status === 401) return "Tu sesión terminó. Inicia sesión de nuevo.";
+  if (error.status === 403) return "No tienes permiso para realizar esta acción.";
+  if (error.status === 422) return "Revisa los campos marcados y vuelve a intentarlo.";
+  if (error.status === 409) return "Esta acción ya fue realizada o los datos cambiaron. Actualiza la pantalla e inténtalo de nuevo.";
+  if (error.status >= 500) return "El servidor no pudo completar la acción. Inténtalo en unos momentos.";
+  return error.message || fallback;
+}
+
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   params?: Record<string, unknown> | object;

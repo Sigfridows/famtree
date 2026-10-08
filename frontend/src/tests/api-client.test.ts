@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { apiClient, apiRequest } from "@/lib/apiClient";
+import { ApiError, apiClient, apiRequest, friendlyError } from "@/lib/apiClient";
 
 describe("apiRequest and apiClient", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -114,5 +114,14 @@ describe("apiRequest and apiClient", () => {
     await expect(apiClient.patch("/test/1", { foo: "qux" })).resolves.toEqual({ data: { mocked: true } });
     await expect(apiClient.delete("/test/1")).resolves.toEqual({ data: { mocked: true } });
     expect(fetchMock).toHaveBeenCalledTimes(5);
+  });
+
+  it("turns transport failures into messages for people", () => {
+    expect(friendlyError(new ApiError("technical", 422, "validation_error"))).toContain("campos");
+    expect(friendlyError(new ApiError("technical", 409, "data_conflict"))).toContain("acción");
+    expect(friendlyError(new ApiError("technical", 403, "permission_denied"))).toContain("permiso");
+    expect(friendlyError(new ApiError("technical", 401))).toContain("sesión");
+    expect(friendlyError(new ApiError("technical", 500))).toContain("servidor");
+    expect(friendlyError(new Error("offline"), "Sin conexión")).toBe("Sin conexión");
   });
 });
