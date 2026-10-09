@@ -68,7 +68,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         <Link href="/system-admin" className="admin-brand">
           <span style={{ display: "flex", alignItems: "center" }}>
             <img
-              src={famtreeLogo.src}
+              src={typeof famtreeLogo === "string" ? famtreeLogo : famtreeLogo.src}
               alt="FamTree Logo"
               style={{ width: "52px", height: "52px", objectFit: "contain" }}
             />
