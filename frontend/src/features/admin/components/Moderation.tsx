@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { adminApi, adminError } from "../api";
 import type { Page, ReportCase } from "../types";
 import { Modal, Notice, Pagination, Status, dateLabel } from "./AdminUI";
+
 export const reasons: Record<string, string> = {
   OFFENSIVE_LANGUAGE: "Lenguaje ofensivo",
   FALSE_INFO: "Información falsa",
@@ -10,6 +11,7 @@ export const reasons: Record<string, string> = {
   CONFLICT_OF_INTEREST: "Conflicto de interés",
   OTHER: "Otro motivo",
 };
+
 export default function Moderation() {
   const [data, setData] = useState<Page<ReportCase> | null>(null);
   const [query, setQuery] = useState({
@@ -27,6 +29,7 @@ export default function Moderation() {
   const [target, setTarget] = useState<ReportCase | null>(null);
   const [decision, setDecision] = useState("DISCARDED");
   const [justification, setJustification] = useState("");
+
   useEffect(() => {
     let alive = true;
     adminApi
@@ -47,10 +50,12 @@ export default function Moderation() {
       alive = false;
     };
   }, [query, refresh]);
+
   const filter = (values: Partial<typeof query>) => {
     setLoading(true);
     setQuery({ ...query, ...values });
   };
+
   return (
     <>
       <header className="admin-heading">
@@ -61,7 +66,9 @@ export default function Moderation() {
           </p>
         </div>
       </header>
+
       <Notice error={!target ? error : ""} message={message} />
+
       <section className="admin-panel">
         <form
           className="admin-filters"
@@ -72,7 +79,8 @@ export default function Moderation() {
         >
           <label className="search">
             Buscar
-            <input aria-label="Buscar"
+            <input
+              aria-label="Buscar"
               placeholder="Asilo o autor de reseña…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -108,6 +116,7 @@ export default function Moderation() {
           </label>
           <button className="admin-secondary">Buscar</button>
         </form>
+
         {loading ? (
           <p role="status">Cargando reportes…</p>
         ) : (
@@ -164,6 +173,7 @@ export default function Moderation() {
             )}
           </div>
         )}
+
         {data && (
           <Pagination
             {...data}
@@ -172,6 +182,7 @@ export default function Moderation() {
           />
         )}
       </section>
+
       {target && (
         <Modal
           title={`Reporte #${target.report_id}`}
@@ -179,21 +190,24 @@ export default function Moderation() {
           onClose={() => setTarget(null)}
         >
           <div className="admin-form">
-            <p>
+            <p className="admin-subtitle">
               <strong>{target.asylum_name}</strong> · {target.author_name} ·{" "}
               {target.rating}/5
             </p>
-            <blockquote className="admin-panel">{target.comment}</blockquote>
+            <blockquote className="admin-panel" style={{ margin: 0 }}>
+              {target.comment}
+            </blockquote>
             <p>
               Reportado por {target.reporter_name}:{" "}
-              {reasons[target.reason] || target.reason}
+              <strong>{reasons[target.reason] || target.reason}</strong>
             </p>
             <p>{target.detail || "Sin detalles adicionales."}</p>
+
             {target.status !== "PENDING" ? (
               <>
                 <Status value={target.status} />
                 <p>{target.justification}</p>
-                <p>Resuelto: {dateLabel(target.resolved_at)}</p>
+                <p><small>Resuelto: {dateLabel(target.resolved_at)}</small></p>
               </>
             ) : (
               <form
@@ -228,21 +242,23 @@ export default function Moderation() {
                     onChange={(e) => setDecision(e.target.value)}
                   >
                     <option value="DISCARDED">
-                      Rechazar reporte y conservar reseña
+                      Descartar reporte y conservar reseña
                     </option>
                     <option value="REVIEW_REMOVED">
-                      Aceptar reporte y retirar reseña
+                      Eliminar reseña reportada
                     </option>
                   </select>
                 </label>
                 {decision === "REVIEW_REMOVED" && (
                   <p className="admin-error">
-                    Al aceptar el reporte, la reseña dejará de ser pública y se recalculará la calificación del asilo.
+                    La reseña dejará de ser pública y se recalculará la
+                    calificación del asilo.
                   </p>
                 )}
                 <label>
                   Justificación (10–300 caracteres)
-                  <textarea aria-label="Justificación (10–300 caracteres)"
+                  <textarea
+                    aria-label="Justificación"
                     required
                     minLength={10}
                     maxLength={300}
@@ -256,7 +272,7 @@ export default function Moderation() {
                     className="admin-primary"
                     disabled={busy || justification.trim().length < 10}
                   >
-                    {busy ? "Guardando…" : decision === "REVIEW_REMOVED" ? "Aceptar reporte" : "Rechazar reporte"}
+                    {busy ? "Guardando…" : "Confirmar resolución"}
                   </button>
                   <button
                     type="button"

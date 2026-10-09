@@ -19,7 +19,6 @@ export default function CenterForm({
   const [province, setProvince] = useState(initial?.provinceId || 0);
   const [form, setForm] = useState({
     name: initial?.name || "",
-    propertyType: initial?.propertyType || "CASA",
     municipalityId: initial?.municipalityId || 0,
     sector: initial?.sector || "",
     address: initial?.address || "",
@@ -38,6 +37,7 @@ export default function CenterForm({
     seniorTypeIds: initial?.seniorTypeIds || [],
   });
   const [images, setImages] = useState("");
+
   useEffect(() => {
     let alive = true;
     adminApi
@@ -52,9 +52,11 @@ export default function CenterForm({
       alive = false;
     };
   }, []);
+
   function field(key: keyof typeof form, value: string | number | number[]) {
     setForm((previous) => ({ ...previous, [key]: value }));
   }
+
   return (
     <form
       className="admin-form"
@@ -71,13 +73,14 @@ export default function CenterForm({
           .filter(Boolean);
         if (
           !initial &&
-          (urls.length > 15 ||
+          (urls.length < 1 ||
+            urls.length > 15 ||
             urls.some(
               (url) => !/^https?:\/\/\S+$/.test(url) || url.length > 255,
             ))
         ) {
           setError(
-            "Revisa los enlaces de imagen: usa hasta 15 URLs válidas (https://), una por línea, de hasta 255 caracteres.",
+            "Agrega entre 1 y 15 enlaces de imagen válidos (https://), uno por línea, de hasta 255 caracteres.",
           );
           return;
         }
@@ -99,27 +102,20 @@ export default function CenterForm({
     >
       <Notice error={error} />
       {!catalogs && <p role="status">Cargando catálogos…</p>}
+      
       <fieldset disabled={busy || !catalogs}>
         <legend>Identidad y ubicación</legend>
         <div className="admin-grid">
           <label>
             Nombre del asilo
-            <input aria-label="Nombre del asilo"
+            <input
+              aria-label="Nombre del asilo"
               required
               minLength={5}
               maxLength={100}
               value={form.name}
               onChange={(e) => field("name", e.target.value)}
             />
-          </label>
-          <label>
-            Tipo de propiedad
-            <select aria-label="Tipo de propiedad" required value={form.propertyType} onChange={(e) => field("propertyType", e.target.value)}>
-              <option value="CASA">Casa</option>
-              <option value="APARTAMENTO">Apartamento</option>
-              <option value="VILLA">Villa</option>
-              <option value="GERIATRICO">Geriátrico</option>
-            </select>
           </label>
           <label>
             Provincia
@@ -160,7 +156,8 @@ export default function CenterForm({
           </label>
           <label>
             Sector
-            <input aria-label="Sector"
+            <input
+              aria-label="Sector"
               required
               maxLength={100}
               value={form.sector}
@@ -169,7 +166,8 @@ export default function CenterForm({
           </label>
           <label>
             Dirección
-            <input aria-label="Dirección"
+            <input
+              aria-label="Dirección"
               required
               maxLength={200}
               value={form.address}
@@ -177,13 +175,11 @@ export default function CenterForm({
             />
           </label>
           <label>
-            Latitud de ubicación (RD)
-            <input aria-label="Latitud"
+            Latitud
+            <input
+              aria-label="Latitud"
               required
               type="number"
-              inputMode="decimal"
-              placeholder="18.4861"
-              aria-describedby="location-help"
               min={17}
               max={20.5}
               step="0.000001"
@@ -192,13 +188,11 @@ export default function CenterForm({
             />
           </label>
           <label>
-            Longitud de ubicación (RD)
-            <input aria-label="Longitud"
+            Longitud
+            <input
+              aria-label="Longitud"
               required
               type="number"
-              inputMode="decimal"
-              placeholder="-69.9312"
-              aria-describedby="location-help"
               min={-72.5}
               max={-68}
               step="0.000001"
@@ -206,17 +200,16 @@ export default function CenterForm({
               onChange={(e) => field("longitude", Number(e.target.value))}
             />
           </label>
-          <p id="location-help" className="text-sm text-slate-500">
-            Usa coordenadas decimales dentro de República Dominicana. Latitud: 17 a 20.5; longitud: -72.5 a -68.
-          </p>
         </div>
       </fieldset>
+
       <fieldset disabled={busy || !catalogs}>
         <legend>Atención y contacto</legend>
         <div className="admin-grid">
           <label>
             Descripción
-            <textarea aria-label="Descripción"
+            <textarea
+              aria-label="Descripción"
               required
               minLength={20}
               maxLength={1000}
@@ -227,7 +220,8 @@ export default function CenterForm({
           </label>
           <label>
             Requisitos de ingreso
-            <textarea aria-label="Requisitos de ingreso"
+            <textarea
+              aria-label="Requisitos de ingreso"
               required
               minLength={10}
               maxLength={500}
@@ -238,7 +232,8 @@ export default function CenterForm({
           </label>
           <label>
             Capacidad total
-            <input aria-label="Capacidad total"
+            <input
+              aria-label="Capacidad total"
               required
               type="number"
               min={1}
@@ -250,7 +245,8 @@ export default function CenterForm({
           </label>
           <label>
             Certificaciones
-            <textarea aria-label="Certificaciones"
+            <textarea
+              aria-label="Certificaciones"
               maxLength={250}
               value={form.certifications}
               onChange={(e) => field("certifications", e.target.value)}
@@ -258,7 +254,8 @@ export default function CenterForm({
           </label>
           <label>
             Precio mínimo mensual (RD$)
-            <input aria-label="Precio mínimo mensual (RD$)"
+            <input
+              aria-label="Precio mínimo mensual (RD$)"
               required
               type="number"
               min="0.01"
@@ -270,7 +267,8 @@ export default function CenterForm({
           </label>
           <label>
             Precio máximo mensual (RD$)
-            <input aria-label="Precio máximo mensual (RD$)"
+            <input
+              aria-label="Precio máximo mensual (RD$)"
               required
               type="number"
               min={form.minPrice || "0.01"}
@@ -282,7 +280,8 @@ export default function CenterForm({
           </label>
           <label>
             Teléfono (10 dígitos)
-            <input aria-label="Teléfono (10 dígitos)"
+            <input
+              aria-label="Teléfono (10 dígitos)"
               required
               pattern="[0-9]{10}"
               maxLength={10}
@@ -292,7 +291,8 @@ export default function CenterForm({
           </label>
           <label>
             Correo institucional
-            <input aria-label="Correo institucional"
+            <input
+              aria-label="Correo institucional"
               required
               type="email"
               maxLength={100}
@@ -301,8 +301,9 @@ export default function CenterForm({
             />
           </label>
           <label>
-            Sitio web (opcional)
-            <input aria-label="Sitio web (opcional)"
+            Sitio web
+            <input
+              aria-label="Sitio web"
               type="url"
               maxLength={255}
               value={form.website}
@@ -311,6 +312,7 @@ export default function CenterForm({
           </label>
         </div>
       </fieldset>
+
       {catalogs &&
         (
           [
@@ -323,7 +325,8 @@ export default function CenterForm({
             <div className="admin-checks">
               {options.map((o) => (
                 <label key={o.id}>
-                  <input aria-label=""
+                  <input
+                    aria-label={o.name}
                     type="checkbox"
                     checked={form[key].includes(o.id)}
                     onChange={(e) =>
@@ -341,21 +344,25 @@ export default function CenterForm({
             </div>
           </fieldset>
         ))}
+
       {!initial && (
         <label>
-          Imágenes (opcional): un enlace público por línea (hasta 15)
-          <textarea aria-label="Imágenes opcionales: un enlace público por línea"
+          Imágenes: un enlace público por línea (1–15)
+          <textarea
+            aria-label="Imágenes: un enlace público por línea (1–15)"
+            required
             rows={3}
             value={images}
             onChange={(e) => setImages(e.target.value)}
             placeholder="https://ejemplo.com/portada.jpg"
           />
           <small>
-            Puedes registrarlas después desde la galería. Si agregas varias,
-            la primera será la portada. Usa imágenes autorizadas y accesibles.
+            La primera imagen será la portada. Usa imágenes autorizadas y
+            accesibles.
           </small>
         </label>
       )}
+
       <div className="admin-actions">
         <button
           type="submit"

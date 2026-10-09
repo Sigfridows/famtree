@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { adminApi, adminError } from "../api";
 import type { AdminCenter } from "../types";
 import { Notice } from "./AdminUI";
+
 export default function CreateAdmin({
   onCreated,
   onClose,
@@ -21,6 +22,7 @@ export default function CreateAdmin({
     delivered: boolean;
     temporaryPassword: string;
   } | null>(null);
+
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -44,16 +46,18 @@ export default function CreateAdmin({
       alive = false;
     };
   }, []);
+
   if (result)
     return (
-      <>
+      <div className="admin-form">
         <Notice
           message={`Cuenta @${result.username} creada. ${result.delivered ? "Las instrucciones se enviaron al correo indicado." : "El correo no pudo entregarse. Contacta al responsable del servidor de correo antes de crear otra cuenta."}`}
         />
         {!result.delivered && (
-          <label className="admin-form">
+          <label>
             Contraseña temporal (entrega privada al administrador)
-            <input aria-label="Contraseña temporal (entrega privada al administrador)"
+            <input
+              aria-label="Contraseña temporal"
               readOnly
               value={result.temporaryPassword}
               onFocus={(e) => e.target.select()}
@@ -64,16 +68,18 @@ export default function CreateAdmin({
             </small>
           </label>
         )}
-        <p>
+        <p className="admin-subtitle">
           La contraseña debe cambiarse en el primer inicio de sesión. En
           desarrollo, el correo se consulta en el buzón local de Mailpit.
         </p>
         <button className="admin-primary" onClick={onClose}>
           Cerrar
         </button>
-      </>
+      </div>
     );
+
   const selected = centers.find((c) => c.asylumId === Number(assigned));
+
   return (
     <form
       className="admin-form"
@@ -122,7 +128,8 @@ export default function CreateAdmin({
           </label>
           <label>
             Usuario
-            <input aria-label="Usuario"
+            <input
+              aria-label="Usuario"
               name="username"
               required
               minLength={3}
@@ -132,13 +139,11 @@ export default function CreateAdmin({
           </label>
           <label>
             Correo
-            <input aria-label="Correo" name="email" required type="email" maxLength={100} placeholder="admin@asilo.org" />
-            <small>Usa un correo válido para enviar las credenciales.</small>
+            <input aria-label="Correo" name="email" required type="email" maxLength={100} />
           </label>
           <label>
             Teléfono
-            <input aria-label="Teléfono" name="phone" required type="tel" inputMode="numeric" pattern="[0-9]{10}" maxLength={10} placeholder="8095550101" />
-            <small>Escribe 10 dígitos, sin guiones ni espacios.</small>
+            <input aria-label="Teléfono" name="phone" required pattern="[0-9]{10}" maxLength={10} />
           </label>
           <label>
             Asilo asignado
@@ -164,22 +169,27 @@ export default function CreateAdmin({
           </label>
         </div>
       </fieldset>
+
       {selected?.administrator && (
-        <label className="admin-error">
-          <input aria-label=""
+        <label className="admin-error" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+          <input
+            aria-label="Confirmar reemplazo"
             type="checkbox"
             required
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
+            style={{ width: "auto" }}
           />
           Confirmo que se reemplazará a {selected.administrator.name} y se
           revocará su acceso al centro.
         </label>
       )}
+
       <p className="admin-subtitle">
         Se generará una contraseña temporal y se enviará al correo indicado. El
         acceso será con el nombre de usuario.
       </p>
+
       <div className="admin-actions">
         <button
           className="admin-primary"

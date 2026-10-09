@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
-import { emitFeedback } from "@/components/shared/FeedbackToast";
 
 interface FavoriteBackendItem {
   id?: number;
@@ -63,11 +62,25 @@ export function useFavorites() {
         })
         .filter((item) => Boolean(item.id && item.id !== 0));
 
-      const detailed = await Promise.all(normalized.map(async item => {
-        const response = await apiClient.get<AsylumSummary>(`/asylums/${item.id}`);
-        return response.data;
-      }));
-      setFavorites(detailed);
+      // Mapeo individual con try/catch para ignorar asilos eliminados/desactivados (404)
+      const detailedResults = await Promise.all(
+        normalized.map(async (item) => {
+          try {
+            const response = await apiClient.get<AsylumSummary>(`/asylums/${item.id}`);
+            return response.data;
+          } catch (error) {
+            console.warn(`El asilo ID ${item.id} no está disponible o fue desactivado:`, error);
+            return null; // Retorna null si el asilo no se encuentra o dio error
+          }
+        })
+      );
+
+      // Filtrar los nulos para que solo queden los favoritos activos
+      const activeFavorites = detailedResults.filter(
+        (item): item is AsylumSummary => item !== null
+      );
+
+      setFavorites(activeFavorites);
     } catch (error: unknown) {
       const errObj = error as { status?: number; statusCode?: number; response?: { status?: number } };
       if (errObj?.status === 401 || errObj?.statusCode === 401 || errObj?.response?.status === 401) {
@@ -101,7 +114,7 @@ export function useFavorites() {
     if (!asylum || !asylum.id) return;
 
     if (!isAuthenticated) {
-      emitFeedback({ tone: "info", message: "Inicia sesión para guardar residencias en tus favoritos." });
+      alert("Debes iniciar sesión para guardar residencias en tus favoritos.");
       return;
     }
 
@@ -125,11 +138,10 @@ export function useFavorites() {
           asylumId: targetId,
         });
       }
-      emitFeedback({ tone: "success", message: exists ? "Residencia retirada de favoritos." : "Residencia guardada en favoritos." });
     } catch {
       console.error("Error al modificar favorito:");
       void fetchFavorites(); // Revertir cambios en la interfaz si falla
-      emitFeedback({ tone: "error", message: "No se pudo actualizar favoritos. Inténtalo de nuevo." });
+      alert("No se pudo modificar el favorito. Inténtalo de nuevo.");
     } finally {
       pending.current.delete(targetId);
     }

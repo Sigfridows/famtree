@@ -1,11 +1,12 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Search, Eye, Edit3, Power } from "lucide-react";
 import { adminApi, adminError } from "../api";
 import type { AdminCenter, Catalogs, Page } from "../types";
 import { Modal, Notice, Pagination, Status } from "./AdminUI";
 import CenterForm from "./CenterForm";
+import CenterDetailsModal from "./CenterDetailsModal";
 
 export default function Centers() {
   const [data, setData] = useState<Page<AdminCenter> | null>(null);
@@ -24,6 +25,8 @@ export default function Centers() {
   const [refresh, setRefresh] = useState(0);
   const [editor, setEditor] = useState<AdminCenter | "new" | null>(null);
   const [confirm, setConfirm] = useState<AdminCenter | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
+
   useEffect(() => {
     let alive = true;
     adminApi
@@ -38,6 +41,7 @@ export default function Centers() {
       alive = false;
     };
   }, []);
+
   useEffect(() => {
     let alive = true;
     adminApi
@@ -58,10 +62,12 @@ export default function Centers() {
       alive = false;
     };
   }, [query, refresh]);
+
   const filter = (values: Partial<typeof query>) => {
     setLoading(true);
     setQuery({ ...query, ...values });
   };
+
   return (
     <>
       <header className="admin-heading">
@@ -78,11 +84,16 @@ export default function Centers() {
             setEditor("new");
           }}
         >
-          <Plus size={18} />
+          <Plus size={16} />
           Registrar asilo
         </button>
       </header>
-      <Notice error={!editor && !confirm ? error : ""} message={message} />
+
+      <Notice
+        error={!editor && !confirm && !viewingId ? error : ""}
+        message={message}
+      />
+
       <section className="admin-panel">
         <form
           className="admin-filters"
@@ -91,13 +102,18 @@ export default function Centers() {
             filter({ q: search, page: 1 });
           }}
         >
-          <label className="search">
+          <label className="search" style={{ flex: 2 }}>
             Buscar asilo
-            <input aria-label="Buscar asilo"
-              placeholder="Nombre o ubicación…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <Search size={16} style={{ position: "absolute", left: "12px", color: "var(--slate-400)" }} />
+              <input
+                aria-label="Buscar asilo"
+                placeholder="Nombre o ubicación…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ paddingLeft: "36px" }}
+              />
+            </div>
           </label>
           <label>
             Estado
@@ -128,61 +144,94 @@ export default function Centers() {
           </label>
           <button className="admin-secondary">Buscar</button>
         </form>
+
         {loading ? (
-          <p role="status">Cargando asilos…</p>
+          <p role="status" style={{ padding: "30px 0", textAlign: "center", color: "var(--slate-500)" }}>
+            Cargando asilos…
+          </p>
         ) : (
           <div className="admin-table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th style={{ width: "70px" }}>ID</th>
                   <th>Asilo</th>
                   <th>Precio mensual</th>
                   <th>Administrador asignado</th>
                   <th>Estado</th>
-                  <th>Acciones</th>
+                  <th style={{ textAlign: "right" }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {data?.items.map((c) => (
                   <tr key={c.asylumId}>
-                    <td>#{c.asylumId}</td>
-                    <td>
-                      <strong>{c.name}</strong>
-                      <small>
-                        {c.municipalityName}, {c.provinceName}
-                      </small>
+                    <td style={{ color: "var(--slate-400)", fontWeight: 500 }}>
+                      #{c.asylumId}
                     </td>
                     <td>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                        <strong style={{ color: "var(--slate-900)", fontWeight: 600 }}>
+                          {c.name}
+                        </strong>
+                        <span style={{ fontSize: "11px", color: "var(--slate-500)" }}>
+                          {c.municipalityName}, {c.provinceName}
+                        </span>
+                      </div>
+                    </td>
+                    <td style={{ fontWeight: 500, color: "var(--slate-700)" }}>
                       RD$ {Number(c.minPrice).toLocaleString("es-DO")} –{" "}
                       {Number(c.maxPrice).toLocaleString("es-DO")}
                     </td>
-                    <td>{c.administrator?.name || "Sin asignar"}</td>
+                    <td>
+                      {c.administrator?.name ? (
+                        <span>{c.administrator.name}</span>
+                      ) : (
+                        <span style={{ color: "var(--slate-400)", fontStyle: "italic" }}>
+                          Sin asignar
+                        </span>
+                      )}
+                    </td>
                     <td>
                       <Status value={c.status} />
                     </td>
-                    <td>
-                      <div className="admin-actions">
+                    <td style={{ textAlign: "right" }}>
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
                         <button
+                          title="Ver detalle"
+                          className="admin-secondary"
+                          style={{ padding: "6px 10px", fontSize: "12px" }}
+                          onClick={() => {
+                            setError("");
+                            setViewingId(c.asylumId);
+                          }}
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          title="Editar"
+                          className="admin-secondary"
+                          style={{ padding: "6px 10px", fontSize: "12px" }}
                           onClick={() => {
                             setError("");
                             setEditor(c);
                           }}
                         >
-                          Editar
+                          <Edit3 size={14} />
                         </button>
-                        {c.status === "ACTIVE" && (
-                          <Link href={`/catalog?asiloId=${c.asylumId}`}>
-                            Ver detalle
-                          </Link>
-                        )}
                         <button
+                          title={c.status === "ACTIVE" ? "Desactivar" : "Activar"}
+                          className="admin-secondary"
+                          style={{ 
+                            padding: "6px 10px", 
+                            fontSize: "12px",
+                            color: c.status === "ACTIVE" ? "#dc2626" : "inherit" 
+                          }}
                           onClick={() => {
                             setError("");
                             setConfirm(c);
                           }}
                         >
-                          {c.status === "ACTIVE" ? "Desactivar" : "Activar"}
+                          <Power size={14} />
                         </button>
                       </div>
                     </td>
@@ -191,13 +240,14 @@ export default function Centers() {
               </tbody>
             </table>
             {data?.total === 0 && (
-              <p className="admin-empty">
+              <p className="admin-empty" style={{ padding: "40px", textAlign: "center" }}>
                 No hay asilos que coincidan. Cambia los filtros o registra uno
                 nuevo.
               </p>
             )}
           </div>
         )}
+
         {data && (
           <Pagination
             {...data}
@@ -206,6 +256,16 @@ export default function Centers() {
           />
         )}
       </section>
+
+      {/* Modal de Detalle */}
+      {viewingId !== null && (
+        <CenterDetailsModal
+          asylumId={viewingId}
+          onClose={() => setViewingId(null)}
+        />
+      )}
+
+      {/* Modal de Edición / Creación */}
       {editor && (
         <Modal
           title={editor === "new" ? "Registrar asilo" : `Editar ${editor.name}`}
@@ -223,6 +283,8 @@ export default function Centers() {
           />
         </Modal>
       )}
+
+      {/* Modal de Confirmación de Estado */}
       {confirm && (
         <Modal
           title={`${confirm.status === "ACTIVE" ? "Desactivar" : "Activar"} asilo`}
@@ -247,7 +309,7 @@ export default function Centers() {
                 try {
                   await adminApi.setCenterStatus(
                     confirm.asylumId,
-                    confirm.status !== "ACTIVE",
+                    confirm.status !== "ACTIVE"
                   );
                   setConfirm(null);
                   setMessage("Estado actualizado.");
