@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense, useEffect } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -121,12 +121,6 @@ function ResenasContent() {
 
   const [likeError, setLikeError] = useState<string | null>(null);
   const [reportedReviewIds, setReportedReviewIds] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    const closeOptionsMenu = () => setActiveMenuId(null);
-    document.addEventListener("click", closeOptionsMenu);
-    return () => document.removeEventListener("click", closeOptionsMenu);
-  }, []);
 
   const handleToggleLike = async (id: string) => {
     if (!isAuthenticated) {
@@ -293,7 +287,9 @@ function ResenasContent() {
   });
 
   return (
-    <div className="relative min-h-screen bg-[#121315] text-white font-montserrat pl-20 pr-6 pt-6 pb-36 selection:bg-[#CCD999] selection:text-black">
+    <div 
+    onClick={() => setActiveMenuId(null)}
+    className="relative min-h-screen bg-[#121315] text-white font-montserrat pl-20 pr-6 pt-6 pb-36 selection:bg-[#CCD999] selection:text-black">
       {/* Resplandores ambientales de fondo */}
       <div className="absolute top-0 right-0 w-125 h-125 bg-[#CCDD99]/5 rounded-full blur-[160px] pointer-events-none z-0" />
       <div className="absolute top-1/2 left-20 w-100 h-100 bg-[#CCDD99]/5 rounded-full blur-[140px] pointer-events-none z-0" />
@@ -338,7 +334,7 @@ function ResenasContent() {
       </AnimatePresence>
 
       {/* Encabezado */}
-      <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 max-w-7xl mx-auto relative z-10">
+      <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 max-w-7xl mx-auto relative z-20">
         <div className="w-full lg:flex-1">
           <HeaderDesign
             title="Sección de Comentarios"

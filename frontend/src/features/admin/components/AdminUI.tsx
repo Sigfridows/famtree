@@ -1,6 +1,20 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
 export function Notice({
   error,
@@ -12,18 +26,19 @@ export function Notice({
   return (
     <>
       {error && (
-        <p role="alert" aria-live="assertive" className="admin-error">
+        <p role="alert" className="admin-error">
           {error}
         </p>
       )}
       {message && (
-        <p role="status" aria-live="polite" className="admin-success">
+        <p role="status" className="admin-success">
           {message}
         </p>
       )}
     </>
   );
 }
+
 export function Pagination({
   page,
   total,
@@ -59,6 +74,7 @@ export function Pagination({
     </nav>
   );
 }
+
 export function Modal({
   title,
   children,
@@ -80,6 +96,7 @@ export function Modal({
       previous?.focus();
     };
   }, []);
+
   return (
     <dialog
       ref={ref}
@@ -110,6 +127,7 @@ export function Modal({
     </dialog>
   );
 }
+
 export function Status({ value }: { value: string }) {
   const labels: Record<string, string> = {
     ACTIVE: "Activo",
@@ -123,37 +141,210 @@ export function Status({ value }: { value: string }) {
   };
   return (
     <span
-      className={`admin-status ${value === "ACTIVE" || value === "PUBLISHED" ? "positive" : ""}`}
+      className={`admin-status ${
+        value === "ACTIVE" || value === "PUBLISHED" ? "positive" : ""
+      }`}
     >
       <i />
       {labels[value] || value}
     </span>
   );
 }
-export function Bars({
-  title,
-  values,
-}: {
+
+/* --- Componente Bars interactivo con Recharts --- */
+const PALETTE = [
+  "#657d39", // FamTree Olive
+  "#13261b", // Dark Forest
+  "#d97706", // Amber
+  "#eab308", // Yellow
+  "#2563eb", // Blue
+  "#059669", // Emerald
+  "#7c3aed", // Purple
+];
+
+interface ChartProps {
   title: string;
   values: Record<string, number>;
-}) {
-  const max = Math.max(1, ...Object.values(values));
+  type?: "column" | "area" | "pie";
+}
+
+export function Bars({ title, values, type = "column" }: ChartProps) {
+  const [chartType, setChartType] = useState<"column" | "area" | "pie">(type);
+
+  const data = Object.entries(values).map(([name, value]) => ({
+    name,
+    value,
+  }));
+
+  const total = data.reduce((acc, curr) => acc + curr.value, 0);
+
   return (
-    <section className="admin-panel">
-      <h2>{title}</h2>
-      {Object.keys(values).length === 0 && <p>Sin datos para este período.</p>}
-      {Object.entries(values).map(([label, value]) => (
-        <div className="admin-bar" key={label}>
-          <div>
-            <span>{label}</span>
-            <strong>{value}</strong>
-          </div>
-          <meter min={0} max={max} value={value} aria-label={label} />
+    <section
+      className="admin-panel"
+      style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}
+      >
+        <div>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "15px",
+              fontWeight: 600,
+              color: "var(--slate-900)",
+            }}
+          >
+            {title}
+          </h2>
+          <span style={{ fontSize: "12px", color: "var(--slate-500)" }}>
+            Total: <strong>{total}</strong>
+          </span>
         </div>
-      ))}
+
+        {/* Switcher interactivo de vistas */}
+        <div
+          style={{
+            display: "flex",
+            gap: "2px",
+            backgroundColor: "var(--slate-100)",
+            padding: "3px",
+            borderRadius: "8px",
+          }}
+        >
+          {(
+            [
+              ["column", "Columnas"],
+              ["area", "Área"],
+              ["pie", "Donut"],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setChartType(key)}
+              style={{
+                padding: "3px 8px",
+                fontSize: "11px",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: 500,
+                backgroundColor:
+                  chartType === key ? "#ffffff" : "transparent",
+                color:
+                  chartType === key
+                    ? "var(--slate-900)"
+                    : "var(--slate-500)",
+                boxShadow:
+                  chartType === key ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
+                transition: "all 0.15s ease",
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {data.length === 0 ? (
+        <p className="admin-empty" style={{ padding: "20px 0", fontSize: "13px" }}>
+          Sin datos para mostrar en este período.
+        </p>
+      ) : (
+        <div style={{ width: "100%", height: 220, marginTop: "8px" }}>
+          <ResponsiveContainer width="100%" height="100%">
+            {chartType === "column" ? (
+              <BarChart
+                data={data}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1e293b",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "#fff",
+                    fontSize: "12px",
+                  }}
+                  itemStyle={{ color: "#fff" }}
+                />
+                <Bar dataKey="value" fill="var(--famtree-olive, #657d39)" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            ) : chartType === "area" ? (
+              <AreaChart
+                data={data}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--famtree-olive, #657d39)" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="var(--famtree-olive, #657d39)" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1e293b",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "#fff",
+                    fontSize: "12px",
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--famtree-olive, #657d39)"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#colorValue)"
+                />
+              </AreaChart>
+            ) : (
+              <PieChart>
+                <Pie
+                  data={data}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {data.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={PALETTE[index % PALETTE.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1e293b",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "#fff",
+                    fontSize: "12px",
+                  }}
+                />
+              </PieChart>
+            )}
+          </ResponsiveContainer>
+        </div>
+      )}
     </section>
   );
 }
+
 export const dateLabel = (value: unknown) =>
   value
     ? new Date(String(value)).toLocaleDateString("es-DO", {
@@ -162,6 +353,7 @@ export const dateLabel = (value: unknown) =>
         year: "numeric",
       })
     : "—";
+
 export const roleLabel = (role: string) =>
   ({
     SYSTEM_ADMIN: "Administrador del sistema",

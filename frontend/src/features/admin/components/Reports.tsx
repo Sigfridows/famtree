@@ -26,6 +26,7 @@ const labels: Record<string, string> = {
   author: "Autor",
   reports: "Reportes",
 };
+
 function cell(value: unknown) {
   if (value === null || value === undefined) return "—";
   if (typeof value === "object") return JSON.stringify(value);
@@ -33,6 +34,7 @@ function cell(value: unknown) {
     return new Date(value).toLocaleDateString("es-DO");
   return String(value);
 }
+
 export default function Reports() {
   const [filters, setFilters] = useState({
     reportType: "centers",
@@ -48,6 +50,7 @@ export default function Reports() {
   const [format, setFormat] = useState("pdf");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
   useEffect(() => {
     let alive = true;
     adminApi
@@ -62,6 +65,7 @@ export default function Reports() {
       alive = false;
     };
   }, []);
+
   useEffect(() => {
     if (!applied) return;
     let alive = true;
@@ -86,6 +90,7 @@ export default function Reports() {
       alive = false;
     };
   }, [applied, page]);
+
   const states =
     filters.reportType === "centers"
       ? [
@@ -101,6 +106,7 @@ export default function Reports() {
             ["PUBLISHED", "Publicada"],
             ["HIDDEN", "Oculta"],
           ];
+
   return (
     <>
       <header className="admin-heading">
@@ -111,7 +117,9 @@ export default function Reports() {
           </p>
         </div>
       </header>
+
       <Notice error={error} />
+
       <section className="admin-panel">
         <form
           className="admin-filters"
@@ -143,7 +151,8 @@ export default function Reports() {
           </label>
           <label>
             Desde
-            <input aria-label="Desde"
+            <input
+              aria-label="Desde"
               type="date"
               max={filters.endDate || undefined}
               value={filters.startDate}
@@ -154,7 +163,8 @@ export default function Reports() {
           </label>
           <label>
             Hasta
-            <input aria-label="Hasta"
+            <input
+              aria-label="Hasta"
               type="date"
               min={filters.startDate || undefined}
               value={filters.endDate}
@@ -203,7 +213,9 @@ export default function Reports() {
             Consultar datos
           </button>
         </form>
+
         {busy && <p role="status">Procesando reporte…</p>}
+
         {data && applied && (
           <>
             <p className="admin-subtitle">
@@ -216,6 +228,7 @@ export default function Reports() {
               · {applied.startDate || "Inicio del historial"} —{" "}
               {applied.endDate || "Hoy"} · Total: {data.total}
             </p>
+
             <div className="admin-table-wrap">
               <table>
                 <thead>
@@ -244,6 +257,7 @@ export default function Reports() {
                 </p>
               )}
             </div>
+
             <Pagination
               {...data}
               busy={busy}
@@ -252,7 +266,8 @@ export default function Reports() {
                 setPage(value);
               }}
             />
-            <div className="admin-filters">
+
+            <div className="admin-filters" style={{ marginTop: "20px" }}>
               <label>
                 Formato de descarga
                 <select
@@ -298,6 +313,7 @@ export default function Reports() {
             )}
           </>
         )}
+
         {!data && !busy && (
           <p className="admin-empty">
             Elige un reporte y pulsa «Consultar datos».
