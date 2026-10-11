@@ -15,6 +15,13 @@ import { adminApi, adminError } from "../api";
 import type { Metrics, Catalogs } from "../types";
 import { Bars, Notice } from "./AdminUI";
 
+function localDateInput(value: Date): string {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function Dashboard() {
   const [data, setData] = useState<Metrics | null>(null);
   const [catalogs, setCatalogs] = useState<Catalogs | null>(null);
@@ -126,8 +133,8 @@ export default function Dashboard() {
               const start = new Date();
               start.setDate(start.getDate() - Number(days) + 1);
               const dates = {
-                startDate: start.toLocaleDateString("en-CA"),
-                endDate: end.toLocaleDateString("en-CA"),
+                startDate: localDateInput(start),
+                endDate: localDateInput(end),
               };
               setRange(dates);
               setQuery(dates);
@@ -140,6 +147,11 @@ export default function Dashboard() {
       </div>
 
       <Notice error={error} />
+      <p className="admin-subtitle" aria-live="polite">
+        Período aplicado: {query.startDate || "Todo el historial"}
+        {query.endDate ? ` — ${query.endDate}` : ""}. Los indicadores de asilos y usuarios
+        cuentan registros creados dentro del período; el estado mostrado es el actual.
+      </p>
       {busy && <p role="status">Consultando estadísticas…</p>}
 
       {data && (
@@ -147,18 +159,29 @@ export default function Dashboard() {
           <div className="admin-stats">
             <Link href="/system-admin/asylums" className="admin-stat">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>Asilos activos</span>
+                <span>
+                  {query.startDate || query.endDate
+                    ? "Asilos registrados en el período y activos"
+                    : "Asilos activos actuales"}
+                </span>
                 <Building2 size={18} style={{ color: "var(--famtree-olive)" }} />
               </div>
               <strong>{data.activeCenters}</strong>
               <small>
-                {data.inactiveCenters} inactivos · {data.centers} en total
+                {data.inactiveCenters} inactivos · {data.centers}{" "}
+                {query.startDate || query.endDate
+                  ? "registrados en el período"
+                  : "registrados en total"}
               </small>
             </Link>
 
             <Link href="/system-admin/users" className="admin-stat">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>Usuarios registrados</span>
+                <span>
+                  {query.startDate || query.endDate
+                    ? "Usuarios registrados en el período"
+                    : "Usuarios registrados"}
+                </span>
                 <Users size={18} style={{ color: "var(--famtree-olive)" }} />
               </div>
               <strong>{data.registeredUsers}</strong>

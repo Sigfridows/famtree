@@ -177,6 +177,7 @@ export function Bars({ title, values, type = "column" }: ChartProps) {
   }));
 
   const total = data.reduce((acc, curr) => acc + curr.value, 0);
+  const hasData = data.some((item) => item.value > 0);
 
   return (
     <section
@@ -253,9 +254,9 @@ export function Bars({ title, values, type = "column" }: ChartProps) {
         </div>
       </div>
 
-      {data.length === 0 ? (
+      {!hasData ? (
         <p className="admin-empty" style={{ padding: "20px 0", fontSize: "13px" }}>
-          Sin datos para mostrar en este período.
+          No hay datos para este período. Prueba «Todo el historial» o selecciona otro rango.
         </p>
       ) : (
         <div style={{ width: "100%", height: 220, marginTop: "8px" }}>
