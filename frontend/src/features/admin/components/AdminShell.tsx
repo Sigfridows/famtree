@@ -110,7 +110,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             onClick={async () => {
               try {
                 await logout();
-                router.replace("/catalog");
+                router.replace("/login");
               } catch (e) {
                 setError(adminError(e));
               }

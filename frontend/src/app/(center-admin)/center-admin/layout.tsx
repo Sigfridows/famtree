@@ -39,7 +39,7 @@ export default function CenterAdminLayout({
         isOpen={user.requiresPasswordChange}
         onExit={async () => {
           await logout();
-          router.replace("/catalog");
+          router.replace("/login");
         }}
         onPasswordChanged={async (currentPassword, newPassword) => {
           await profileService.changePassword({
