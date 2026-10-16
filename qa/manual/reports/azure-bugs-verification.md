@@ -167,3 +167,24 @@ Reproducir: `FAMTREE_CASES=770,771 node qa/manual/verify-azure-bugs.mjs` desde l
 Se repitieron los 58 casos activos y se revisaron visualmente las nuevas capturas. Todas tienen 1440 × 1000 píxeles y muestran el área visible del navegador tras esperar la carga y las transiciones. Se ocultó únicamente el indicador de desarrollo de Next.js, sin modificar los datos ni los controles de la aplicación. AZ-773 espera a la tabla comparativa; AZ-828 muestra el PDF abierto en el visor real de Chromium.
 
 En la carpeta local, `GALERIA.html` permite buscar y abrir las imágenes originales. `CAPTURAS/` contiene las copias para adjuntar en Azure, y `revision-capturas.json` registra fecha, dimensiones y hash de cada imagen. Los estados de Azure no se modificaron.
+
+## Correspondencia con el bug
+
+Se contrastaron los 58 casos activos con la descripción y los criterios originales. La galería y `CORRESPONDENCIA.md` indican qué demuestra cada captura y qué no puede demostrarse solo con una imagen. Se incluyen 13 capturas complementarias.
+
+Correcciones de esta revisión:
+
+- AZ-776 / BUG05: el título ahora dice Comparar residencias; se seleccionan dos centros y se cotejan Peravia y Puerto Plata con la API. La columna está en la selección previa a comparar, no en la tabla final de servicios.
+- AZ-773: captura adicional con cuatro centros seleccionados, quinto deshabilitado y tabla final de dos centros.
+- AZ-782/783: mismo centro desde mapa y catálogo en imágenes separadas.
+- AZ-789: cinco capturas de las cinco opciones de orden y registro de resultados.
+- AZ-790: umbral de cuatro estrellas aplicado antes de obtener la captura.
+- AZ-800: texto ficticio visible en los tres campos para demostrar contraste. No son credenciales.
+- AZ-805: cambio de Azua a Santiago limpia el municipio y muestra las opciones dependientes. AZ-806: guardado desde la interfaz y recarga de la combinación Santiago / Santiago de los Caballeros.
+- AZ-809: borrador y Cancelar en una captura adicional; valores restaurados en la principal.
+- AZ-819/820/821: se prueba EDICIÓN con datos poblados. AZ-820 solo invalida el correo; AZ-821 solo desmarca los grupos exigidos.
+- AZ-826: filtro Santiago y columna Provincia Santiago visibles.
+- AZ-830: avisos separados de bloqueo y desbloqueo en imágenes distintas; cuenta restaurada a Activo.
+- AZ-831: publicación de reseña y fecha de reporte separadas en el modal.
+
+Validación posterior: TypeScript y ESLint aprobados, 38 pruebas de frontend aprobadas; 58 comprobaciones focalizadas de navegador conservadas sin fallos registrados. La galería contiene 58 casos y su búsqueda por 776 devuelve únicamente el caso de Provincia. No se cambiaron estados de Azure ni se hizo push.
