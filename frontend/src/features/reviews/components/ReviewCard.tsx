@@ -72,6 +72,7 @@ export default function ReviewCard({
   const hasAvatar = Boolean(review.avatar && review.avatar !== "/placeholder-avatar.png" && failedAvatar !== review.avatar);
   const initials = review.author.trim().split(/\s+/).slice(0, 2).map((part) => Array.from(part)[0]).join("").toUpperCase() || "U";
   const isLongText = review.text.length > 140;
+  const hasMenuActions = Boolean(onEdit || onReport || reportStatus === "reported");
 
   return (
     <motion.div
@@ -162,6 +163,8 @@ export default function ReviewCard({
           {/* Botón de Like */}
           <button
             disabled={likePending}
+            aria-label={`Me gusta la reseña de ${review.author}`}
+            aria-pressed={Boolean(review.isLiked)}
             onClick={() => onToggleLike(review.id)}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/3 hover:bg-white/5 border border-white/5 text-xs cursor-pointer transition-colors"
           >
@@ -195,8 +198,8 @@ export default function ReviewCard({
           )}
         </div>
 
-        {/* Menú de Opciones */}
-        <div className="relative">
+        {/* Menú de Opciones: nunca mostrar un desplegable sin acciones. */}
+        {hasMenuActions && <div className="relative">
           <button
             aria-label={`Opciones de reseña de ${review.author}`}
             onClick={(event) => {
@@ -244,7 +247,7 @@ export default function ReviewCard({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </div>}
       </div>
     </motion.div>
   );

@@ -21,6 +21,7 @@ import logoFamTree from "@/assets/famtree.png";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useReviews } from "@/features/reviews/hooks/useReviews";
 import ReviewActionModal from "@/features/reviews/components/ReviewActionModal";
+import { requestAuthentication } from "@/components/shared/AuthenticationPrompt";
 
 interface RawReviewAuthor {
   name?: string;
@@ -126,7 +127,7 @@ function ResenasContent() {
 
   const handleToggleLike = async (id: string) => {
     if (!isAuthenticated) {
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/review?${searchParams.toString()}`)}`);
+      requestAuthentication("Inicia sesión para dar me gusta a esta reseña.");
       return;
     }
     setLikeError(null);
@@ -337,7 +338,7 @@ function ResenasContent() {
 
       {searchParams.get('asylumId') && !loading && <section aria-label="Resumen de calificaciones" className="mx-auto mb-4 max-w-7xl rounded-2xl border border-white/10 bg-zinc-900 p-4 text-sm">
         <h2 className="text-base font-bold">Calificaciones de {centerTitle}</h2>
-        <p>{filteredReviews.length ? `${(filteredReviews.reduce((sum, review) => sum + review.rating, 0) / filteredReviews.length).toFixed(1)} de 5 · ${filteredReviews.length} reseñas` : (normalizedReviews.length ? 'No hay reseñas con los filtros actuales.' : 'Este centro todavía no tiene reseñas.')}</p>
+        <p>{filteredReviews.length >= 3 ? `${(filteredReviews.reduce((sum, review) => sum + review.rating, 0) / filteredReviews.length).toFixed(1)} de 5 · ${filteredReviews.length} reseñas` : filteredReviews.length ? `${filteredReviews.length} ${filteredReviews.length === 1 ? 'reseña' : 'reseñas'} · Se necesitan al menos 3 reseñas para mostrar el promedio.` : (normalizedReviews.length ? 'No hay reseñas con los filtros actuales.' : 'Este centro todavía no tiene reseñas.')}</p>
         {[5,4,3,2,1].map(stars => <div key={stars} className="flex items-center gap-3 py-1"><span>{stars} estrellas</span><meter min={0} max={Math.max(1, filteredReviews.length)} value={filteredReviews.filter(review => Math.round(review.rating) === stars).length} /><span>{filteredReviews.filter(review => Math.round(review.rating) === stars).length}</span></div>)}
       </section>}
       {/* Encabezado */}
@@ -420,7 +421,7 @@ function ResenasContent() {
                   setActiveMenuId((prev) => (prev === id ? null : id))
                 }
                 onEdit={
-                  reviews.some(
+                  isAuthenticated && reviews.some(
                     (item) =>
                       String(item.reviewId ?? item.id) === review.id &&
                       String(item.userId) === String(user?.userId)
@@ -438,7 +439,10 @@ function ResenasContent() {
                     : undefined
                 }
                 onReport={
-                  user?.role === "REGISTERED_USER" &&
+                  !isAuthenticated ? () => {
+                    setActiveMenuId(null);
+                    requestAuthentication("Inicia sesión para reportar esta reseña.");
+                  } : user?.role === "REGISTERED_USER" &&
                   !reportedReviewIds.has(review.id) &&
                   !review.hasReported &&
                   !reviews.some(
