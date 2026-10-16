@@ -1,7 +1,8 @@
 "use client";
+import { requestAuthentication } from "@/components/shared/AuthenticationPrompt";
 
 import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import Card from "@/features/asylums/components/Card";
@@ -41,7 +42,6 @@ const cardVariants: Variants = {
 // Componente interno para aislar la lectura de SearchParams dentro de Suspense
 function CatalogContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { isAuthenticated } = useAuth();
   const asiloIdFromUrl = searchParams.get("asiloId");
 
@@ -152,7 +152,7 @@ function CatalogContent() {
           <CatalogSubheader
             totalResults={asylums.length}
             savedCount={enrichedFavorites.length}
-            onOpenFavorites={() => isAuthenticated ? setIsFavoritesOpen(true) : router.push("/login")}
+            onOpenFavorites={() => isAuthenticated ? setIsFavoritesOpen(true) : requestAuthentication("Inicia sesión para consultar tus residencias guardadas.")}
             activeFilterCount={activeFiltersCount}
             viewMode={viewMode}
             onViewModeChange={setViewMode}

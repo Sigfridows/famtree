@@ -3,6 +3,7 @@ import { Cinzel, Montserrat, Nunito, Poppins, Roboto_Mono } from "next/font/goog
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import './globals.css';
 import FeedbackToast from '@/components/shared/FeedbackToast';
+import AuthenticationPrompt from '@/components/shared/AuthenticationPrompt';
 
 const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel" });
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" });
@@ -33,6 +34,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <FeedbackToast />
+          <AuthenticationPrompt />
         </AuthProvider>
       </body>
     </html>
