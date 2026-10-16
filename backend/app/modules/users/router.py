@@ -35,3 +35,12 @@ async def picture(
         raise
     await images.delete(old)
     return result
+
+
+@router.delete("/me/picture")
+async def remove_picture(
+    user: User, users: Users, images: Annotated[ImageStore, Depends(get_images)]
+) -> UserProfile:
+    result, old = await users.set_picture(user.user_id, None)
+    await images.delete(old)
+    return result

@@ -47,6 +47,8 @@ export const profileService = {
     };
   },
 
+  removeAvatar: async (): Promise<void> => { await apiClient.delete("/users/me/picture"); },
+
   // Cambiar contraseña
   changePassword: async (payload: ChangePasswordPayload): Promise<void> => {
     await apiClient.post("/auth/change-password", payload);
