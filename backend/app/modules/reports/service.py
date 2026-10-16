@@ -17,7 +17,7 @@ from reportlab.platypus import (  # type: ignore[import-untyped]
 )
 
 from app.core.errors import AppError
-from app.modules.reports.presentation import LABELS, value_label
+from app.modules.reports.presentation import LABELS, VALUES, value_label
 from app.modules.reports.repository import ReportRepository
 from app.modules.reports.schemas import (
     ReportFilter,
@@ -36,7 +36,8 @@ class ReportService:
         return await self.repository.metrics(filters)
 
     async def table(self, filters: TableFilter) -> ReportTable:
-        return await self.repository.table(filters)
+        table = await self.repository.table(filters)
+        return table.model_copy(update={"column_labels": LABELS, "value_labels": VALUES})
 
     async def export(self, filters: TableExport, admin_id: int) -> tuple[bytes, str, str]:
         table = await self.repository.table(filters, export=True)
@@ -76,6 +77,8 @@ def render_pdf(table: ReportTable, filters: TableExport, admin_id: int, now: dat
     report_name = {"centers": "centros", "users": "usuarios", "reviews": "reseñas"}[
         filters.report_type
     ]
+    province_label = table.rows[0].get("province", "Todas") if filters.province_id else "Todas"
+    status_label = value_label("status", filters.status) if filters.status else "Todos"
     story = [
         Image(str(logo), width=80, height=80, kind="proportional"),
         Paragraph("FamTree", styles["Title"]),
@@ -86,7 +89,8 @@ def render_pdf(table: ReportTable, filters: TableExport, admin_id: int, now: dat
         Paragraph(
             escape(
                 f"{filters.start_date} a {filters.end_date}; "
-                f"provincia: {filters.province_id}; estado: {filters.status}"
+                f"provincia: {province_label}; "
+                f"estado: {status_label}"
             ),
             styles["Normal"],
         ),

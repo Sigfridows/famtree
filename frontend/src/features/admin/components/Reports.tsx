@@ -4,35 +4,9 @@ import { adminApi, adminError } from "../api";
 import type { Catalogs, ReportTable } from "../types";
 import { Notice, Pagination } from "./AdminUI";
 
-const labels: Record<string, string> = {
-  id: "ID",
-  firstName: "Nombre",
-  lastName: "Apellido",
-  provinceId: "ID de provincia",
-  name: "Nombre",
-  asylum: "Asilo",
-  asylum_name: "Asilo",
-  asylumName: "Asilo",
-  username: "Usuario",
-  email: "Correo",
-  role: "Rol",
-  status: "Estado",
-  createdAt: "Registro",
-  created_at: "Registro",
-  province: "Provincia",
-  municipality: "Municipio",
-  capacity: "Capacidad",
-  minPrice: "Precio mínimo (RD$)",
-  maxPrice: "Precio máximo (RD$)",
-  rating: "Calificación",
-  comment: "Comentario",
-  author: "Autor",
-  reports: "Reportes",
-};
-
-function cell(value: unknown) {
+function cell(value: unknown, translated: Record<string, string> = {}) {
   if (value === null || value === undefined) return "—";
-  const translated: Record<string, string> = {ADMIN_SISTEMA: "Administrador del sistema", ADMIN_ASILO: "Administrador de asilo", USUARIO_REGISTRADO: "Usuario registrado", ACTIVO: "Activo", INACTIVO: "Inactivo", BLOQUEADO: "Bloqueado", PUBLICADA: "Publicada", OCULTA: "Oculta"};
+
   if (typeof value === "string" && translated[value]) return translated[value];
   if (typeof value === "object") return JSON.stringify(value);
   if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value))
@@ -240,7 +214,7 @@ export default function Reports() {
                   <tr>
                     {Object.keys(data.rows[0] || {}).map((key) => (
                       <th key={key}>
-                        {labels[key] || key.replaceAll("_", " ")}
+                        {data.columnLabels?.[key] || key.replaceAll("_", " ")}
                       </th>
                     ))}
                   </tr>
@@ -249,7 +223,7 @@ export default function Reports() {
                   {data.rows.map((row, i) => (
                     <tr key={i}>
                       {Object.entries(row).map(([key, value]) => (
-                        <td key={key}>{cell(value)}</td>
+                        <td key={key}>{cell(value, data.valueLabels)}</td>
                       ))}
                     </tr>
                   ))}
