@@ -4,7 +4,7 @@ import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { apiClient } from "@/lib/apiClient";
 vi.mock("@/lib/apiClient", async importOriginal => ({...await importOriginal<typeof import("@/lib/apiClient")>(), apiClient: {get: vi.fn(), post: vi.fn()}}));
-it("establishes a server session after registration and clears it on logout", async () => {
+it("requires explicit login after registration and clears the session on logout", async () => {
   vi.mocked(apiClient.get).mockRejectedValue(new Error("No session"));
   const user = {username: "Ana123", userId: "100"};
   vi.mocked(apiClient.post).mockResolvedValue({data: user});
@@ -14,6 +14,9 @@ it("establishes a server session after registration and clears it on logout", as
   const data = {username: "Ana123", first_name: "Ana", last_name: "Perez", email: "ana@example.invalid", password: "TestPass9!", confirmPassword: "TestPass9!"};
   await act(() => result.current.register(data));
   expect(apiClient.post).toHaveBeenNthCalledWith(1, "/auth/register", data);
+  expect(result.current.isAuthenticated).toBe(false);
+  expect(apiClient.post).toHaveBeenCalledTimes(1);
+  await act(() => result.current.login({username: data.username, password: data.password}));
   expect(apiClient.post).toHaveBeenNthCalledWith(2, "/auth/login", {username: data.username, password: data.password});
   expect(result.current.isAuthenticated).toBe(true);
   await act(() => result.current.logout());

@@ -39,12 +39,12 @@ describe("registration", () => {
     expect(mocks.register).not.toHaveBeenCalled();
     expect(result.current.formState.errorMessage).toContain("sin espacios ni puntos");
   });
-  it("sends valid data and opens the catalog", async () => {
+  it("sends valid data and opens login after confirmation", async () => {
     const result = setup();
     mocks.register.mockResolvedValue({});
     await act(() => result.current.handlers.handleSubmit(event));
     expect(mocks.register).toHaveBeenCalledWith(expect.objectContaining({first_name: "José", confirmPassword: "ValidTest9!"}));
-    expect(mocks.push).toHaveBeenCalledWith("/catalog");
+    expect(mocks.push).toHaveBeenCalledWith("/login");
   });
   it("translates API validation details without displaying sensitive values", async () => {
     const result = setup();
