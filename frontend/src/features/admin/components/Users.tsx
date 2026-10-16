@@ -22,6 +22,13 @@ export default function Users() {
   const [busy, setBusy] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const [target, setTarget] = useState<AdminUser | null>(null);
+  const [blockReason, setBlockReason] = useState("");
+  useEffect(() => {
+    if (!target || target.status !== "BLOCKED") return;
+    let alive = true;
+    adminApi.blocks(Number(target.userId)).then(rows => { if (alive) setBlockReason(rows.find(row => !row.unblockedAt)?.reason ?? "No registrado"); }).catch(() => { if (alive) setBlockReason("No se pudo cargar el motivo original."); });
+    return () => { alive = false; };
+  }, [target]);
   const [reason, setReason] = useState("");
   const [create, setCreate] = useState(false);
 
@@ -222,7 +229,7 @@ export default function Users() {
               setBusy(true);
               try {
                 if (target.status === "BLOCKED")
-                  await adminApi.unblock(Number(target.userId));
+                  await adminApi.unblock(Number(target.userId), reason.trim());
                 else await adminApi.block(Number(target.userId), reason.trim());
                 setTarget(null);
                 setMessage(`La cuenta @${target.username} ha sido ${target.status === "BLOCKED" ? "desbloqueada" : "bloqueada"}.`);
@@ -241,19 +248,20 @@ export default function Users() {
                 ? "La cuenta podrá volver a iniciar sesión con sus credenciales habituales."
                 : "Se cerrarán sus sesiones y se impedirá el acceso mientras permanezca bloqueada."}
             </p>
-            {target.status !== "BLOCKED" && (
+            {(
+              <><p>{target.status === "BLOCKED" ? `Motivo original: ${blockReason || "Cargando…"}` : ""}</p>
               <label>
-                Motivo del bloqueo
+                {target.status === "BLOCKED" ? "Justificación del desbloqueo" : "Motivo del bloqueo"}
                 <small>Entre 10 y 300 caracteres. {reason.trim().length}/300</small>
                 <textarea
-                  aria-label="Motivo del bloqueo"
+                  aria-label={target.status === "BLOCKED" ? "Justificación del desbloqueo" : "Motivo del bloqueo"}
                   required
                   minLength={10}
                   maxLength={300}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                 />
-              </label>
+              </label></>
             )}
             <Notice error={error} />
             <div className="admin-actions">
@@ -261,10 +269,10 @@ export default function Users() {
                 className="admin-primary"
                 disabled={
                   busy ||
-                  (target.status !== "BLOCKED" && reason.trim().length < 10)
+                  reason.trim().length < 10
                 }
               >
-                {busy ? "Actualizando…" : "Confirmar"}
+                {busy ? "Actualizando…" : target.status === "BLOCKED" ? "Confirmar desbloqueo" : "Confirmar bloqueo"}
               </button>
               <button
                 type="button"
