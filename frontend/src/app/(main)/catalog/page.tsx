@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import Card from "@/features/asylums/components/Card";
@@ -13,6 +13,7 @@ import AsiloDetails, {
 } from "@/features/asylums/components/AsiloDetails";
 import { useAsylums } from "@/features/asylums/hooks/useAsylums";
 import { useAsylumDetail } from "@/features/asylums/hooks/useAsylumDetail";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useFavorites } from "@/features/asylums/hooks/useFavorites";
 import type { AsylumFilters, AsylumSummary } from "@/features/asylums/types/asylum.types";
 import EmptyState from "@/features/asylums/components/EmptyState";
@@ -40,6 +41,8 @@ const cardVariants: Variants = {
 // Componente interno para aislar la lectura de SearchParams dentro de Suspense
 function CatalogContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const asiloIdFromUrl = searchParams.get("asiloId");
 
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
@@ -176,7 +179,7 @@ function CatalogContent() {
           <CatalogSubheader
             totalResults={asylums.length}
             savedCount={enrichedFavorites.length}
-            onOpenFavorites={() => setIsFavoritesOpen(true)}
+            onOpenFavorites={() => isAuthenticated ? setIsFavoritesOpen(true) : router.push("/login")}
             activeFilterCount={activeFiltersCount}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
