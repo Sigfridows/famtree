@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { getImageUrl } from "@/lib/utils";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import RatingSummary from "@/features/asylums/components/RatingSummary";
 import { motion } from "framer-motion";
-import { LocateFixed, Plus, Minus, Star, Loader2 } from "lucide-react";
+import { LocateFixed, Plus, Minus, Loader2 } from "lucide-react";
 import type L from "leaflet";
 import HeaderDesign from "@/components/shared/HeaderDesign";
 import HeaderControls from "@/components/shared/HeaderControls";
@@ -18,192 +19,117 @@ import MapLeafletView from "./MapLeafletView";
 
 export default function MapContainer() {
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
-  const [searchQuery, setSearchQuery] = useState("");
   const [activePinId, setActivePinId] = useState<number | null>(null);
   const [selectedDetailId, setSelectedDetailId] = useState<number | null>(null);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
-
-  // Hook del feature map
-  const { pins, loading, updateFilters } = useAsylumMap();
-
-  // Hook del detalle para el modal al presionar "Ver Detalle"
-  const { data: asylumDetail } = useAsylumDetail(selectedDetailId);
-
-  const handleSearch = () => {
-    updateFilters({ q: searchQuery });
+  const { pins, loading } = useAsylumMap();
+  const sidebarRef = useRef<HTMLElement>(null);
+  const activePin = pins.find(pin => pin.id === activePinId);
+  const orderedPins = activePin ? [activePin, ...pins.filter(pin => pin.id !== activePin.id)] : pins;
+  const selectPin = (id: number) => {
+    setActivePinId(id);
+    if (sidebarRef.current) sidebarRef.current.scrollTop = 0;
   };
+  const { data: asylumDetail } = useAsylumDetail(selectedDetailId);
+  const modalData = asylumDetail ? toDetailData(asylumDetail) : undefined;
 
-  const handleZoomIn = () => mapInstance?.zoomIn();
-  const handleZoomOut = () => mapInstance?.zoomOut();
   const handleCenterLocation = () => {
     setActivePinId(null);
     mapInstance?.fitBounds([[17.5, -72.1], [20, -68.2]], { padding: [30, 30] });
   };
 
-  const modalData = asylumDetail ? toDetailData(asylumDetail) : undefined;
-
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#F3F3F3] dark:bg-zinc-950 text-[#161616] dark:text-zinc-100 font-montserrat pl-20 pr-0 pt-0 transition-colors">
-      
-      <MapLeafletView
-        pins={pins}
-        activePinId={activePinId}
-        onPinSelect={(id) => setActivePinId(id)}
-        onMapReady={(map) => setMapInstance(map)}
-      />
-
-      {/* Cabecera Flotante */}
-      <header className="absolute top-0 left-20 right-0 z-30 px-6 pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 pointer-events-none">
-        <div className="pointer-events-auto w-full lg:flex-1">
+    <div className="relative h-dvh overflow-hidden bg-[#F3F3F3] pl-20 pr-4 py-2 text-[#161616] transition-colors dark:bg-zinc-950 dark:text-zinc-100 sm:pr-8 lg:pl-24 font-montserrat">
+      <div className="mx-auto flex h-full w-full max-w-7xl flex-col gap-6">
+        {/* Same centered banner and content width as the catalog. */}
+        <header aria-label="Encabezado del mapa" className="relative z-30 flex shrink-0 flex-col items-center justify-between gap-4 lg:flex-row">
           <HeaderDesign
             title="Mapa Interactivo"
             subtitle="Asilos cercanos"
-            className="w-full lg:pr-32 shadow-md"
+            showResidenceLabel={false}
+            className="w-full lg:flex-1 lg:pr-28"
           />
-        </div>
+          <HeaderControls showSearch={false} logoSrc={logoFamTree} className="relative z-20 shrink-0 pt-4 lg:-ml-24 lg:pt-0" />
+        </header>
 
-        <div className="pointer-events-auto flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-6">
-          <HeaderControls
-            logoSrc={logoFamTree}
-            placeholder="Que quieres encontrar?"
-            bgClass="bg-[#1A1C1E]/80 backdrop-blur-md"
-            borderClass="border-white/10"
-            placeholderClass="placeholder-zinc-500 text-white/90 font-light"
-            buttonBgClass="bg-[#CCDD99] hover:bg-[#b8cb83]"
-            buttonTextClass="text-zinc-950 font-medium"
-            className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0"
-            searchValue={searchQuery}
-            onSearchChange={(e) => setSearchQuery(e.target.value)}
-            onSearch={handleSearch}
-          />
-        </div>
-      </header>
+        {/* Normal-flow rows/columns keep the list below the header at every size. */}
+        <div className="relative z-10 grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_26.25rem] lg:grid-rows-1">
+          <section aria-label="Mapa de residencias" className="relative min-h-0 overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800">
+            <MapLeafletView
+              pins={pins}
+              activePinId={activePin?.id ?? null}
+              onPinSelect={selectPin}
+              onMapReady={setMapInstance}
+            />
+            <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+              <button
+                type="button" onClick={handleCenterLocation} title="Ver República Dominicana"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 text-white shadow-xl transition-colors hover:bg-zinc-800"
+              >
+                <LocateFixed className="h-5 w-5" />
+              </button>
+              <div className="flex items-center divide-x divide-zinc-700 overflow-hidden rounded-xl bg-zinc-900 text-white shadow-xl">
+                <button type="button" onClick={() => mapInstance?.zoomIn()} title="Acercar" className="flex h-10 w-10 cursor-pointer items-center justify-center transition-colors hover:bg-zinc-800">
+                  <Plus className="h-5 w-5" />
+                </button>
+                <button type="button" onClick={() => mapInstance?.zoomOut()} title="Alejar" className="flex h-10 w-10 cursor-pointer items-center justify-center transition-colors hover:bg-zinc-800">
+                  <Minus className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            {activePin && <button type="button" onClick={() => setActivePinId(null)} className="absolute bottom-20 left-4 z-20 rounded-xl bg-zinc-900 px-3 py-2 text-xs text-white">Cerrar selección</button>}
+          </section>
 
-      {/* Controles del Mapa (Bottom Left) */}
-      <div className="absolute bottom-6 left-28 z-20 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={handleCenterLocation}
-          className="w-10 h-10 bg-[#161616] dark:bg-zinc-900 dark:border dark:border-zinc-800 text-white rounded-xl flex items-center justify-center shadow-xl hover:bg-zinc-800 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-          title="Ver República Dominicana"
-        >
-          <LocateFixed className="w-5 h-5 text-white dark:text-zinc-200" />
-        </button>
-
-        <div className="flex items-center bg-[#161616] dark:bg-zinc-900 dark:border dark:border-zinc-800 text-white rounded-xl shadow-xl overflow-hidden divide-x divide-zinc-700 dark:divide-zinc-800">
-          <button
-            type="button"
-            onClick={handleZoomIn}
-            className="w-10 h-10 flex items-center justify-center hover:bg-zinc-800 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-white dark:text-zinc-200"
-            title="Acercar"
+          <aside ref={sidebarRef} role="list" aria-label="Residencias en el mapa"
+            className="min-h-0 space-y-3 overflow-y-auto p-2 [scrollbar-color:var(--color-zinc-300)_transparent] dark:[scrollbar-color:var(--color-zinc-700)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-700"
           >
-            <Plus className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleZoomOut}
-            className="w-10 h-10 flex items-center justify-center hover:bg-zinc-800 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-white dark:text-zinc-200"
-            title="Alejar"
-          >
-            <Minus className="w-5 h-5" />
-          </button>
+            {loading && <div className="flex items-center justify-center rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              <span className="text-xs font-bold">Cargando ubicaciones...</span>
+            </div>}
+            {!loading && pins.length === 0 && <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-center dark:border-zinc-800 dark:bg-zinc-900">
+              <p className="text-xs font-bold text-zinc-600 dark:text-zinc-400">No se encontraron asilos en esta zona.</p>
+            </div>}
+            {!loading && orderedPins.map((pin, idx) => {
+              const isSelected = activePinId === pin.id;
+              return <motion.div
+                key={pin.id} role="listitem" aria-label={pin.name} aria-current={isSelected ? "true" : undefined} tabIndex={0}
+                onClick={() => selectPin(pin.id)}
+                onKeyDown={event => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {event.preventDefault(); selectPin(pin.id);} }}
+                initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: idx * 0.05 }}
+                className={`cursor-pointer space-y-2.5 rounded-[14px] border-2 p-4 text-xs shadow-xl transition-colors duration-200 ${isSelected
+                  ? "border-[#161616] bg-white dark:border-[#CCDD99] dark:bg-zinc-900"
+                  : "border-zinc-200 bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"}`}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-md bg-[#CCDD99]/60 px-2 py-0.5 text-[10px] font-bold text-emerald-900 dark:bg-[#CCDD99]/20 dark:text-[#d3e5a3]">Disponible</span>
+                    <RatingSummary rating={pin.rating} reviewCount={pin.review_count ?? 0}
+                      className="rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900 dark:bg-amber-950/60 dark:text-amber-200" />
+                  </div>
+                  {pin.review_count > 0 && <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400">{pin.review_count} {pin.review_count === 1 ? "reseña" : "reseñas"}</span>}
+                </div>
+                {isSelected && <p className="font-semibold text-zinc-800 dark:text-[#CCDD99]">Seleccionado</p>}
+                {pin.cover_url && <Image src={getImageUrl(pin.cover_url)} alt={pin.name} width={360} height={120} unoptimized className="h-24 w-full rounded-lg object-cover" />}
+                <p>{pin.municipality_name || "Municipio no informado"} · {pin.province_name || "Provincia no informada"}</p>
+                <h3 className="text-sm font-extrabold leading-tight text-zinc-900 dark:text-zinc-50">{pin.name}</h3>
+                <div className="flex items-center justify-between border-t border-zinc-100 pt-1 dark:border-zinc-800">
+                  <div>
+                    <span className="block text-[9px] font-bold uppercase text-zinc-600 dark:text-zinc-400">Desde:</span>
+                    <span className="text-xs font-black">RD$ {Number(pin.price_min).toLocaleString()} – {Number(pin.price_max).toLocaleString()} /mes</span>
+                  </div>
+                  <button type="button" onClick={event => {event.stopPropagation(); setSelectedDetailId(pin.id);}}
+                    className="cursor-pointer rounded-lg bg-zinc-900 px-3 py-1.5 text-[10px] font-bold text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                  >Ver Detalle</button>
+                </div>
+              </motion.div>;
+            })}
+          </aside>
         </div>
       </div>
-
-      {/* Tarjetas Laterales (Derecha) con Scroll Minimalista y Modo Oscuro */}
-      <aside 
-        className="absolute top-32 right-6 bottom-6 z-20 w-full max-w-105 overflow-y-auto space-y-3 p-2 
-          scrollbar-thin [scrollbar-color:var(--color-zinc-300)_transparent] dark:[scrollbar-color:var(--color-zinc-700)_transparent] 
-          [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent 
-          [&::-webkit-scrollbar-thumb]:bg-zinc-200 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-700/80 
-          [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-zinc-600"
-      >
-        {loading && (
-          <div className="flex items-center justify-center p-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-800">
-            <Loader2 className="w-5 h-5 animate-spin text-zinc-800 dark:text-zinc-200 mr-2" />
-            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Cargando ubicaciones...</span>
-          </div>
-        )}
-
-        {!loading && pins.length === 0 && (
-          <div className="p-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-2xl shadow-xl text-center border border-zinc-100 dark:border-zinc-800">
-            <p className="text-xs font-bold text-zinc-600 dark:text-zinc-400">No se encontraron asilos en esta zona.</p>
-          </div>
-        )}
-
-        {!loading &&
-          pins.map((pin, idx) => {
-            const isSelected = activePinId === pin.id;
-            return (
-              <motion.div
-                key={pin.id}
-                onClick={() => setActivePinId(pin.id)}
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: idx * 0.05 }}
-                className={`cursor-pointer rounded-[14px] p-4 shadow-xl border-2 transition-all duration-200 space-y-2.5 text-xs ${
-                  isSelected
-                    ? "bg-white dark:bg-zinc-900 border-[#161616] dark:border-[#CCDD99] scale-[1.01]"
-                    : "bg-white/95 dark:bg-zinc-900/90 backdrop-blur-md border-transparent dark:border-zinc-800/80 hover:bg-white dark:hover:bg-zinc-900"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-[#CCDD99]/60 dark:bg-[#CCDD99]/20 text-emerald-900 dark:text-[#d3e5a3] rounded-md font-bold text-[10px]">
-                      Disponible
-                    </span>
-                    {pin.rating && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 rounded-md font-bold text-[10px]">
-                        <Star className="w-3 h-3 fill-amber-800 dark:fill-amber-300" />
-                        {pin.rating.toFixed(1)}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-zinc-400 dark:text-zinc-500 font-bold text-[10px]">
-                    {pin.review_count || 0} reseñas
-                  </span>
-                </div>
-
-                {pin.cover_url && <Image src={getImageUrl(pin.cover_url)} alt={pin.name} width={360} height={120} unoptimized className="h-24 w-full rounded-lg object-cover" />}
-                <p>{pin.municipality_name || 'Municipio no informado'} · {pin.province_name || 'Provincia no informada'}</p>
-                <h3 className="font-extrabold text-sm text-zinc-900 dark:text-zinc-50 leading-tight">
-                  {pin.name}
-                </h3>
-
-                <div className="flex items-center justify-between pt-1 border-t border-zinc-100 dark:border-zinc-800">
-                  <div>
-                    <span className="block text-[9px] text-zinc-400 dark:text-zinc-500 font-bold uppercase">Desde:</span>
-                    <span className="text-xs font-black text-zinc-900 dark:text-zinc-100">
-                      RD$ {Number(pin.price_min).toLocaleString()} – {Number(pin.price_max).toLocaleString()} /mes
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedDetailId(pin.id);
-                    }}
-                    className="px-3 py-1.5 bg-[#161616] hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 rounded-lg text-[10px] font-bold transition-colors shadow-2xs cursor-pointer"
-                  >
-                    Ver Detalle
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
-      </aside>
-
-      {activePinId && <button type="button" onClick={() => setActivePinId(null)} className="absolute bottom-20 left-28 z-20 rounded-xl bg-zinc-900 px-3 py-2 text-xs text-white">Cerrar selección</button>}
-      {/* Modal de Detalle */}
-      <AsiloDetails
-        isOpen={!!selectedDetailId}
-        onClose={() => setSelectedDetailId(null)}
-        data={modalData}
-        favorites={favorites}
-        isFavorite={selectedDetailId ? isFavorite(selectedDetailId) : false}
-        onFavoriteToggle={() => { if (asylumDetail) void toggleFavorite(asylumDetail); }}
-      />
+      <AsiloDetails isOpen={!!selectedDetailId} onClose={() => setSelectedDetailId(null)} data={modalData}
+        favorites={favorites} isFavorite={selectedDetailId ? isFavorite(selectedDetailId) : false}
+        onFavoriteToggle={() => { if (asylumDetail) void toggleFavorite(asylumDetail); }} />
     </div>
   );
 }
