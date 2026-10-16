@@ -10,6 +10,8 @@ Phone = Annotated[str, Field(pattern=r"^[0-9]{10}$")]
 
 
 class UserProfile(Contract):
+    province_id: int | None = None
+    municipality_id: int | None = None
     user_id: int
     assigned_asylum_id: int | None
     first_name: str
@@ -26,6 +28,8 @@ class UserProfile(Contract):
 
 
 class ProfileUpdate(Contract):
+    province_id: int | None = Field(default=None, gt=0)
+    municipality_id: int | None = Field(default=None, gt=0)
     first_name: Name | None = None
     last_name: Name | None = None
     phone: Phone | None = None

@@ -1,5 +1,7 @@
 "use client";
 
+import { getAsylumCatalogs } from "@/features/asylums/api/discovery";
+import type { AsylumCatalogs } from "@/features/asylums/types/asylum.types";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,6 +21,7 @@ export function ProfileForm() {
   const router = useRouter();
   const { user: authUser, isLoading: isAuthLoading, logout } = useAuth();
 
+  const [catalogs, setCatalogs] = useState<AsylumCatalogs | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -31,8 +34,8 @@ export function ProfileForm() {
   const [lastName, setLastName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [city, setCity] = useState<string>("Santo Domingo");
-  const [municipality, setMunicipality] = useState<string>("Los Alcarrizos");
+  const [city, setCity] = useState<string>("");
+  const [municipality, setMunicipality] = useState<string>("");
   const [bio, setBio] = useState<string>("");
   const [notifications, setNotifications] = useState<boolean>(false);
   const [offers, setOffers] = useState<boolean>(false);
@@ -51,6 +54,10 @@ export function ProfileForm() {
       try {
         setLoading(true);
         const user: User = await profileService.getProfile();
+        const locationCatalogs = await getAsylumCatalogs();
+        setCatalogs(locationCatalogs);
+        setCity(locationCatalogs.provinces.find(item => item.id === user.provinceId)?.name ?? '');
+        setMunicipality(locationCatalogs.municipalities.find(item => item.id === user.municipalityId)?.name ?? '');
 
         setUsername(user.username ?? "");
         setFirstName(user.firstName ?? "");
@@ -116,6 +123,8 @@ export function ProfileForm() {
         return;
       }
       const payload: UpdateProfilePayload = {
+        provinceId: catalogs?.provinces.find(item => item.name === city)?.id ?? null,
+        municipalityId: catalogs?.municipalities.find(item => item.name === municipality && item.province_id === catalogs?.provinces.find(province => province.name === city)?.id)?.id ?? null,
         firstName,
         lastName,
         phone: phone ? phone.replace(/\D/g, "") : null,
@@ -236,6 +245,8 @@ export function ProfileForm() {
         {/* COLUMNA DERECHA */}
         <div className="lg:col-span-6 space-y-6">
           <ContactSection
+            provinces={catalogs?.provinces.map(item => item.name)}
+            municipalities={catalogs?.municipalities.filter(item => item.province_id === catalogs.provinces.find(province => province.name === city)?.id).map(item => item.name)}
             phone={phone}
             email={email}
             city={city}
@@ -244,7 +255,7 @@ export function ProfileForm() {
             createdAt={createdAt}
             onPhoneChange={setPhone}
             onEmailChange={setEmail}
-            onCityChange={setCity}
+            onCityChange={value => {setCity(value); setMunicipality("");}}
             onMunicipalityChange={setMunicipality}
             onBioChange={setBio}
           />

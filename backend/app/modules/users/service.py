@@ -8,6 +8,7 @@ from sqlalchemy import select
 from app.core.errors import AppError
 from app.core.pagination import AdminQuery, literal_pattern
 from app.db.types import EstadoUsuario, RolUsuario
+from app.modules.asylums.models import Municipio
 from app.modules.users.models import PreferenciaNotificacion, Usuario
 from app.modules.users.repository import UserRepository
 from app.modules.users.schemas import ProfileUpdate, UserProfile
@@ -29,6 +30,8 @@ def profile(user: Usuario) -> UserProfile:
     return UserProfile.model_validate(
         {
             "user_id": user.codigo_usuario,
+            "province_id": user.codigo_provincia,
+            "municipality_id": user.codigo_municipio,
             "assigned_asylum_id": user.codigo_asilo_asignado,
             "first_name": user.nombre_usuario,
             "last_name": user.apellido_usuario,
@@ -102,12 +105,28 @@ class UserDirectory:
         if user is None:
             raise AppError(code="user_not_found", message="Usuario no disponible", status_code=404)
         mapping = {
+            "province_id": "codigo_provincia",
+            "municipality_id": "codigo_municipio",
             "first_name": "nombre_usuario",
             "last_name": "apellido_usuario",
             "phone": "telefono",
             "description": "descripcion",
         }
         values = data.model_dump(exclude_unset=True)
+        if "province_id" in values or "municipality_id" in values:
+            province = values.get("province_id", user.codigo_provincia)
+            municipality = values.get("municipality_id", user.codigo_municipio)
+            if municipality is not None and not await self.repository.session.scalar(
+                select(Municipio.codigo_municipio).where(
+                    Municipio.codigo_municipio == municipality,
+                    Municipio.codigo_provincia == province,
+                )
+            ):
+                raise AppError(
+                    code="invalid_location",
+                    message="Selecciona un municipio de la provincia indicada.",
+                    status_code=422,
+                )
         if "email" in values:
             user.email = str(values.pop("email")).lower()
         for field, value in values.items():
@@ -127,9 +146,25 @@ class UserDirectory:
         if user is None:
             raise AppError(code="user_not_found", message="Usuario no disponible", status_code=404)
         values = data.model_dump(exclude_unset=True)
+        if "province_id" in values or "municipality_id" in values:
+            province = values.get("province_id", user.codigo_provincia)
+            municipality = values.get("municipality_id", user.codigo_municipio)
+            if municipality is not None and not await self.repository.session.scalar(
+                select(Municipio.codigo_municipio).where(
+                    Municipio.codigo_municipio == municipality,
+                    Municipio.codigo_provincia == province,
+                )
+            ):
+                raise AppError(
+                    code="invalid_location",
+                    message="Selecciona un municipio de la provincia indicada.",
+                    status_code=422,
+                )
         if "email" in values:
             user.email = str(values.pop("email")).lower()
         mapping = {
+            "province_id": "codigo_provincia",
+            "municipality_id": "codigo_municipio",
             "first_name": "nombre_usuario",
             "last_name": "apellido_usuario",
             "phone": "telefono",
