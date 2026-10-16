@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
@@ -18,6 +19,7 @@ interface FavoriteBackendItem {
 
 export function useFavorites() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
   const [favorites, setFavorites] = useState<AsylumSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const pending = useRef(new Set<number>());
@@ -115,10 +117,7 @@ export function useFavorites() {
     if (!asylum || !asylum.id) return;
 
     if (!isAuthenticated) {
-      emitFeedback({
-        tone: "info",
-        message: "Inicia sesión para guardar residencias en tus favoritos.",
-      });
+      router.push("/login");
       return;
     }
 
