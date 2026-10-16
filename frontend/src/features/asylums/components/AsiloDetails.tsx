@@ -24,6 +24,7 @@ import {
 import Compare from "./Compare";
 import { AsylumSummary } from "../types/asylum.types";
 import { useRouter } from "next/navigation";
+import { emitFeedback } from "@/components/shared/FeedbackToast";
 
 export interface AsiloDetailData {
   id: string;
@@ -78,6 +79,51 @@ export default function AsiloDetails({
     onClose(); // Cerrar el modal
     const encodedTitle = encodeURIComponent(data.title);
     router.push(`/review?asylumId=${data.id}&asylumName=${encodedTitle}`);
+  };
+
+  const handleShare = async () => {
+    if (!data?.id || typeof window === "undefined") return;
+
+    const shareUrl = new URL(window.location.href);
+    shareUrl.pathname = "/catalog";
+    shareUrl.search = `asiloId=${encodeURIComponent(data.id)}`;
+    const payload = {
+      title: data.title,
+      text: `Conoce ${data.title} en FamTree`,
+      url: shareUrl.toString(),
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(payload);
+      } else {
+        let copied = false;
+        if (navigator.clipboard?.writeText) {
+          try {
+            await navigator.clipboard.writeText(payload.url);
+            copied = true;
+          } catch {
+            // El navegador puede bloquear el portapapeles fuera de un contexto seguro.
+          }
+        }
+        if (!copied) {
+          const input = document.createElement("textarea");
+          input.value = payload.url;
+          input.setAttribute("readonly", "true");
+          input.style.position = "fixed";
+          input.style.opacity = "0";
+          document.body.appendChild(input);
+          input.select();
+          copied = document.execCommand("copy");
+          input.remove();
+        }
+        if (!copied) throw new Error("clipboard_unavailable");
+      }
+      emitFeedback({ tone: "success", message: "Enlace copiado para compartir." });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      emitFeedback({ tone: "error", message: "No se pudo preparar el enlace para compartir." });
+    }
   };
 
   const images = data?.images && data.images.length > 0 ? data.images.map(getImageUrl) : [];
@@ -318,6 +364,7 @@ export default function AsiloDetails({
 
                           <button
                             type="button"
+                            onClick={() => void handleShare()}
                             className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors cursor-pointer"
                             aria-label="Compartir"
                           >
