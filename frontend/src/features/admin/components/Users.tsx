@@ -225,7 +225,7 @@ export default function Users() {
                   await adminApi.unblock(Number(target.userId));
                 else await adminApi.block(Number(target.userId), reason.trim());
                 setTarget(null);
-                setMessage("Estado de la cuenta actualizado.");
+                setMessage(`La cuenta @${target.username} ha sido ${target.status === "BLOCKED" ? "desbloqueada" : "bloqueada"}.`);
                 setLoading(true);
                 setRefresh(refresh + 1);
               } catch (err) {
@@ -235,6 +235,7 @@ export default function Users() {
               }
             }}
           >
+            <p><strong>{target.firstName} {target.lastName}</strong> · {target.email}</p>
             <p className="admin-subtitle">
               {target.status === "BLOCKED"
                 ? "La cuenta podrá volver a iniciar sesión con sus credenciales habituales."
@@ -243,6 +244,7 @@ export default function Users() {
             {target.status !== "BLOCKED" && (
               <label>
                 Motivo del bloqueo
+                <small>Entre 10 y 300 caracteres. {reason.trim().length}/300</small>
                 <textarea
                   aria-label="Motivo del bloqueo"
                   required
