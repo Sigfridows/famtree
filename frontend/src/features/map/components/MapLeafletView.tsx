@@ -22,6 +22,8 @@ export default function MapLeafletView({
   const leafletMap = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<number, L.Marker>>({});
   const LRef = useRef<typeof L | null>(null);
+  const [tileError, setTileError] = useState(false);
+  const tilesRef = useRef<L.TileLayer | null>(null);
   const [readyMap, setReadyMap] = useState<L.Map | null>(null);
 
   // Mantenemos referencias estables de callbacks
@@ -77,11 +79,16 @@ export default function MapLeafletView({
         zoomControl: false,
       });
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      const tiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(map);
+      tilesRef.current = tiles;
+      tiles.on("tileerror", () => setTileError(true));
+      const resizeObserver = new ResizeObserver(() => map.invalidateSize());
+      resizeObserver.observe(mapRef.current);
+      map.on("unload", () => resizeObserver.disconnect());
 
       leafletMap.current = map;
       setReadyMap(map);
@@ -163,9 +170,12 @@ export default function MapLeafletView({
   }, [activePinId, pins, readyMap]);
 
   return (
-    <div 
+    <>
+    {tileError && <div role="alert" className="absolute bottom-20 left-28 z-30 rounded-xl bg-amber-950 p-3 text-xs text-amber-100">No se pudo cargar parte del mapa. <button type="button" onClick={() => { setTileError(false); tilesRef.current?.redraw(); }}>Reintentar</button></div>}
+    <div
       ref={mapRef} 
       className="absolute inset-0 w-full h-full z-0 dark:brightness-[0.82] dark:contrast-[1.25] dark:hue-rotate-180 dark:invert-[0.92] transition-all duration-300" 
     />
+    </>
   );
 }
