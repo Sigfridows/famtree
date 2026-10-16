@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Cinzel, Montserrat, Nunito, Poppins, Roboto_Mono } from "next/font/google";
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import './globals.css';
+import FeedbackToast from '@/components/shared/FeedbackToast';
 
 const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel" });
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" });
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body className="bg-zinc-950 text-white min-h-screen antialiased">
         <AuthProvider>
           {children}
+          <FeedbackToast />
         </AuthProvider>
       </body>
     </html>
