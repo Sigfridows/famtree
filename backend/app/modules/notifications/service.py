@@ -13,6 +13,7 @@ from app.modules.users import UserDirectory
 logger = logging.getLogger(__name__)
 
 EVENT_NAMES = {
+    TipoEventoNotificacion.NUEVO_CENTRO: "NEW_CENTER",
     TipoEventoNotificacion.ESTADO_FAVORITO: "FAVORITE_STATUS",
     TipoEventoNotificacion.ACTUALIZACION_FAVORITO: "FAVORITE_UPDATE",
     TipoEventoNotificacion.RESOLUCION_REPORTE: "REPORT_RESOLUTION",
@@ -65,6 +66,19 @@ class NotificationService:
         result = await self.users.update_preferences(user_id, data.model_dump(exclude_unset=True))
         await self.repository.session.commit()
         return Preferences.model_validate(result)
+
+    async def center_created(self, asylum_id: int, center_name: str) -> None:
+        """New availability uses the existing profile availability preference."""
+        for user_id in await self.repository.new_center_recipients():
+            await self.emit(
+                {
+                    "codigo_usuario": user_id,
+                    "codigo_asilo": asylum_id,
+                    "tipo_evento": TipoEventoNotificacion.NUEVO_CENTRO,
+                    "titulo": "Nuevo centro disponible",
+                    "mensaje": f"El centro {center_name} ya está disponible en el catálogo.",
+                }
+            )
 
     async def center_event(
         self, recipients: list[int], asylum_id: int, *, status_changed: bool, center_name: str

@@ -1,12 +1,30 @@
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.types import EstadoUsuario, RolUsuario
 from app.modules.notifications.models import Notificacion
+from app.modules.users.models import PreferenciaNotificacion, Usuario
 
 
 class NotificationRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+
+    async def new_center_recipients(self) -> list[int]:
+        return list(
+            await self.session.scalars(
+                select(Usuario.codigo_usuario)
+                .join(
+                    PreferenciaNotificacion,
+                    PreferenciaNotificacion.codigo_usuario == Usuario.codigo_usuario,
+                )
+                .where(
+                    Usuario.rol == RolUsuario.USUARIO_REGISTRADO,
+                    Usuario.estado == EstadoUsuario.ACTIVO,
+                    PreferenciaNotificacion.alerta_disponibilidad.is_(True),
+                )
+            )
+        )
 
     async def list_for_user(self, user_id: int, offset: int, limit: int) -> list[Notificacion]:
         return list(

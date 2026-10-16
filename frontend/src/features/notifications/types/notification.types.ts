@@ -1,4 +1,5 @@
 export type NotificationEventType =
+  | "NEW_CENTER"
   | "FAVORITE_STATUS"
   | "FAVORITE_UPDATE"
   | "REPORT_RESOLUTION";
