@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, Suspense } from "react";
+import { getImageUrl } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -263,7 +264,7 @@ function ResenasContent() {
       return {
         id: realId,
         author: authorName,
-        avatar: avatar || "",
+        avatar: getImageUrl(avatar),
         rating: Number(rev.rating || rev.calificacion || 5),
         date: rev.date || rev.createdAt || rev.fecha_creacion || "Reciente",
         text: rev.comment || rev.text || rev.comentario || "",
