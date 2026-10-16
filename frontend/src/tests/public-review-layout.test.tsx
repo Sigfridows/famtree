@@ -28,4 +28,7 @@ it.each([
   expect(screen.getByText("Atención del centro tres")).toBeInTheDocument();
   expect(screen.queryByRole("region", {name: "Resumen de calificaciones"})).not.toBeInTheDocument();
   expect(screen.queryByRole("heading", {name: /Calificaciones de/})).not.toBeInTheDocument();
+  const counts = screen.getByRole("group", {name: "Reseñas por estrellas"});
+  expect(counts).toHaveTextContent("5★ 1");
+  expect(screen.getByRole("heading", {name: title}).compareDocumentPosition(counts) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });

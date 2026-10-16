@@ -337,16 +337,16 @@ function ResenasContent() {
       </AnimatePresence>
 
       {/* Encabezado */}
-      <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 max-w-7xl mx-auto relative z-20">
+      <header className="flex items-center max-w-7xl mx-auto relative z-20">
         <div className="w-full lg:flex-1">
           <HeaderDesign
             title={searchParams.get("asylumId") ? centerTitle : "Sección de Comentarios"}
             subtitle={searchParams.get("asylumId") ? "Opiniones de esta residencia" : "Asilos cercanos"}
-            className="w-full lg:pr-32 shadow-2xl border border-white/10 bg-[#141414]"
+            className="w-full"
           />
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 lg:-ml-24 relative z-30 pt-4 lg:pt-0 pr-2">
+        <div className="absolute right-4 bottom-4 sm:right-6 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 z-30">
           <HeaderControls
             logoSrc={logoFamTree}
             placeholder="Que quieres encontrar?"
@@ -355,7 +355,7 @@ function ResenasContent() {
             placeholderClass="placeholder-zinc-500 text-white/90 font-light"
             buttonBgClass="bg-[#CCDD99] hover:bg-[#b8cb83]"
             buttonTextClass="text-zinc-950 font-medium"
-            className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0"
+            className="relative z-20"
             searchValue={searchQuery}
             onSearchChange={(e) => setSearchQuery(e.target.value)}
             onSearch={() => {}}
@@ -364,9 +364,13 @@ function ResenasContent() {
       </header>
 
       {/* Filtro Mis Reseñas */}
-      {isAuthenticated && (
-        <div className="mt-6 flex justify-end items-center max-w-7xl mx-auto px-2 relative z-10">
-          <button
+        <div className="mt-5 flex flex-wrap justify-between gap-3 items-center max-w-7xl mx-auto px-2 relative z-10">
+          {!loading && !error && <div role="group" aria-label="Reseñas por estrellas" className="flex flex-wrap items-center gap-3 text-[11px] text-zinc-400">
+            {[5, 4, 3, 2, 1].map(stars => <span key={stars} aria-label={`${stars} estrellas: ${reviews.filter(review => review.rating === stars).length} reseñas`}>
+              <span className="text-amber-300/80">{stars}★</span> {reviews.filter(review => review.rating === stars).length}
+            </span>)}
+          </div>}
+          {isAuthenticated && <button
             onClick={() => setOnlyMine(!onlyMine)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border shadow-md cursor-pointer ${
               onlyMine
@@ -376,9 +380,8 @@ function ResenasContent() {
           >
             <span>Mis Reseñas</span>
             <MessageSquareText className="w-4 h-4" />
-          </button>
+          </button>}
         </div>
-      )}
 
       {/* Lista de Reseñas */}
       <main className="max-w-7xl mx-auto mt-6 relative z-10">
