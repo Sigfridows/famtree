@@ -162,21 +162,15 @@ function CatalogContent() {
             onSearchChange={setSearchQuery}
             onSearch={() => updateFilters({ q: searchQuery || undefined })}
             onApplyFilters={(filters) => {
-              let count = 0;
-              if (filters.maxPrice && filters.maxPrice < 50000) count++;
-              if (filters.type) count++;
-              if (filters.services && filters.services.length > 0) count++;
-              if (filters.certifiedOnly) count++;
-              if (filters.minRatingOnly) count++;
-              setActiveFiltersCount(count);
-
-                updateFilters({
-                  property_type: filters.type ? filters.type.toUpperCase() as AsylumFilters["property_type"] : undefined,
+              setActiveFiltersCount(Object.values(filters).filter(value => Array.isArray(value) ? value.length : value !== undefined && value !== false).length);
+              updateFilters({
+                property_type: filters.type as AsylumFilters['property_type'],
                 q: searchQuery || undefined,
-                max_price: filters.maxPrice
-                  ? String(filters.maxPrice)
-                  : undefined,
-                page: 1,
+                min_price: filters.minPrice === undefined ? undefined : String(filters.minPrice),
+                max_price: filters.maxPrice === undefined ? undefined : String(filters.maxPrice),
+                province_id: filters.province, municipality_id: filters.municipality,
+                services: filters.services, care_types: filters.careTypes,
+                certified_only: filters.certifiedOnly ?? false, rating_min: filters.minRating, page: 1,
               });
             }}
           />
