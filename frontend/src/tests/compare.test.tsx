@@ -1,6 +1,11 @@
 import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
+import { getAsylums } from "@/features/asylums/api/discovery";
+
+vi.mock("@/features/asylums/api/discovery", () => ({getAsylums: vi.fn().mockResolvedValue({items: [{id: 99, name: "Centro no guardado", review_count: 0}], pagination: {pages: 1}})}));
+afterEach(() => {cleanup(); vi.clearAllMocks();});
 import Compare from "@/features/asylums/components/Compare";
 import { compareAsylums } from "@/features/compare/api/compare-asylums";
 import type { AsylumDetail } from "@/features/asylums/types/asylum.types";
@@ -17,6 +22,20 @@ const items: AsylumDetail[] = [1, 2].map(id => ({
 }));
 
 describe("comparison", () => {
+  it("only offers saved active residences and never loads the public catalog", async () => {
+    render(<Compare items={[...items, {...items[0], id: 3, name: "Centro cerrado", status: "INACTIVE"}]} />);
+    await waitFor(() => expect(screen.getByRole("checkbox", {name: "Seleccionar Centro 1"})).toBeVisible());
+    expect(getAsylums).not.toHaveBeenCalled();
+    expect(screen.queryByText("Centro no guardado")).not.toBeInTheDocument();
+    expect(screen.queryByText("Centro cerrado")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(2);
+  });
+
+  it("asks users with fewer than two favorites to save another residence", () => {
+    render(<Compare items={items.slice(0, 1)} />);
+    expect(screen.getByRole("status")).toHaveTextContent(/favoritos/i);
+    expect(screen.getByRole("button", {name: "Comparar (0/4)"})).toBeDisabled();
+  });
   it("selects a checkbox once and displays actual API services for selected centers", async () => {
     vi.mocked(compareAsylums).mockResolvedValue({items});
     render(<Compare items={items} />);

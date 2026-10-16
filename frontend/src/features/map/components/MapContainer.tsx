@@ -40,28 +40,15 @@ export default function MapContainer() {
 
   return (
     <div className="relative h-dvh overflow-hidden bg-[#F3F3F3] pl-20 pr-4 py-2 text-[#161616] transition-colors dark:bg-zinc-950 dark:text-zinc-100 sm:pr-8 lg:pl-24 font-montserrat">
-      <div className="mx-auto flex h-full w-full max-w-7xl flex-col gap-6">
-        {/* Same centered banner and content width as the catalog. */}
-        <header aria-label="Encabezado del mapa" className="relative z-30 flex shrink-0 flex-col items-center justify-between gap-4 lg:flex-row">
-          <HeaderDesign
-            title="Mapa Interactivo"
-            subtitle="Asilos cercanos"
-            showResidenceLabel={false}
-            className="w-full lg:flex-1 lg:pr-28"
-          />
-          <HeaderControls showSearch={false} logoSrc={logoFamTree} className="relative z-20 shrink-0 pt-4 lg:-ml-24 lg:pt-0" />
-        </header>
-
-        {/* Normal-flow rows/columns keep the list below the header at every size. */}
-        <div className="relative z-10 grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_26.25rem] lg:grid-rows-1">
-          <section aria-label="Mapa de residencias" className="relative min-h-0 overflow-hidden rounded-2xl border border-zinc-300 dark:border-zinc-800">
+      {/* Full-background map, with the header and cards floating above it. */}
+      <section aria-label="Mapa de residencias" className="absolute inset-0 overflow-hidden">
             <MapLeafletView
               pins={pins}
               activePinId={activePin?.id ?? null}
               onPinSelect={selectPin}
               onMapReady={setMapInstance}
             />
-            <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+            <div className="absolute bottom-4 left-24 z-20 flex items-center gap-2 lg:left-28">
               <button
                 type="button" onClick={handleCenterLocation} title="Ver República Dominicana"
                 className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 text-white shadow-xl transition-colors hover:bg-zinc-800"
@@ -77,11 +64,22 @@ export default function MapContainer() {
                 </button>
               </div>
             </div>
-            {activePin && <button type="button" onClick={() => setActivePinId(null)} className="absolute bottom-20 left-4 z-20 rounded-xl bg-zinc-900 px-3 py-2 text-xs text-white">Cerrar selección</button>}
-          </section>
-
+            {activePin && <button type="button" onClick={() => setActivePinId(null)} className="absolute bottom-20 left-24 z-20 rounded-xl bg-zinc-900 px-3 py-2 text-xs text-white lg:left-28">Cerrar selección</button>}
+      </section>
+      <div className="pointer-events-none relative mx-auto flex h-full w-full max-w-7xl flex-col gap-6">
+        <header aria-label="Encabezado del mapa" className="pointer-events-auto relative z-30 flex shrink-0 flex-col items-center justify-between gap-4 lg:flex-row">
+          <HeaderDesign
+            title="Mapa Interactivo"
+            subtitle="Asilos cercanos"
+            showResidenceLabel={false}
+            className="w-full lg:flex-1 lg:pr-28"
+          />
+          <HeaderControls showSearch={false} logoSrc={logoFamTree} className="relative z-20 shrink-0 pt-4 lg:-ml-24 lg:pt-0" />
+        </header>
+        {/* Flow keeps cards clear of the header without boxing in the map. */}
+        <div className="relative z-10 flex min-h-0 flex-1 justify-end">
           <aside ref={sidebarRef} role="list" aria-label="Residencias en el mapa"
-            className="min-h-0 space-y-3 overflow-y-auto p-2 [scrollbar-color:var(--color-zinc-300)_transparent] dark:[scrollbar-color:var(--color-zinc-700)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-700"
+            className="pointer-events-auto min-h-0 w-full max-w-105 space-y-3 overflow-y-auto p-2 [scrollbar-color:var(--color-zinc-300)_transparent] dark:[scrollbar-color:var(--color-zinc-700)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-700"
           >
             {loading && <div className="flex items-center justify-center rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />

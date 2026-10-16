@@ -20,7 +20,10 @@ describe("published center ratings", () => {
 
   it.each([1, 2])("withholds the average with %i reviews, even from an older API", count => {
     render(<RatingSummary rating={5} reviewCount={count} />);
-    expect(screen.getByText(/mínimo 3/)).toBeVisible();
+    const label = `${count} ${count === 1 ? "reseña" : "reseñas"}`;
+    expect(screen.getByText(label)).toBeVisible();
+    expect(screen.getByLabelText(label)).toHaveAttribute("title", label);
+    expect(document.body.innerHTML).not.toMatch(/mínimo 3|para mostrar promedio/);
     expect(screen.queryByText("5.0")).not.toBeInTheDocument();
   });
 
