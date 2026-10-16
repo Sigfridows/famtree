@@ -115,6 +115,7 @@ export default function FavoritesDrawer({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
                         onClick={() => {
+                          if (!isOpenStatus) return;
                           onSelectAsylum(asylum.id);
                           onClose();
                         }}
@@ -126,6 +127,7 @@ export default function FavoritesDrawer({
                               src={asylum.cover_url}
                               alt={asylum.name}
                               fill
+                              unoptimized
                               sizes="88px"
                               className="object-cover group-hover:scale-108 transition-transform duration-500"
                             />
@@ -142,7 +144,7 @@ export default function FavoritesDrawer({
                               }`}
                             />
                             <span className="text-[9px] font-bold text-zinc-300">
-                              {isOpenStatus ? "Abierto" : "Cerrado"}
+                              {isOpenStatus ? "Abierto" : "No disponible"}
                             </span>
                           </div>
                         </div>

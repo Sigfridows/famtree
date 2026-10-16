@@ -121,7 +121,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
   }
 
   const formattedItems = useMemo(() => {
-    const list = [...new Map([...items, ...publicItems].map(item => [item.id, item])).values()].map(mapSummaryToAsiloItem);
+    const list = [...new Map([...items.filter(item => item.status !== "INACTIVE"), ...publicItems].map(item => [item.id, item])).values()].map(mapSummaryToAsiloItem);
 
     if (data && !list.some((item) => item.id === String(data.id))) {
       list.unshift(mapDetailToAsiloItem(data));
