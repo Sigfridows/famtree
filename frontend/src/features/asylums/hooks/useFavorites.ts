@@ -21,10 +21,12 @@ export function useFavorites() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [favorites, setFavorites] = useState<AsylumSummary[]>([]);
   const [loading, setLoading] = useState(false);
+  const requestVersion = useRef(0);
   const pending = useRef(new Set<number>());
 
   // 1. Cargar y Normalizar Favoritos
   const fetchFavorites = useCallback(async () => {
+    const version = ++requestVersion.current;
     if (!isAuthenticated) {
       setFavorites([]);
       setLoading(false);
@@ -57,9 +59,13 @@ export function useFavorites() {
             ...asylumData,
             id: realId,
             name: (asylumData.name as string) || (asylumData.title as string) || (item.name as string) || "Residencia",
-            rating: Number(asylumData.rating ?? item.rating ?? 0),
+            rating: Number(asylumData.rating ?? asylumData.averageRating ?? item.rating ?? 0),
+            price_min: String(asylumData.price_min ?? asylumData.minPrice ?? "0"),
+            price_max: String(asylumData.price_max ?? asylumData.maxPrice ?? "0"),
+            province_name: String(asylumData.province_name ?? asylumData.province ?? ""),
+            municipality_name: String(asylumData.municipality_name ?? asylumData.municipality ?? ""),
             status: (asylumData.status as string) || (item.status as string) || "ACTIVE",
-            cover_url: (asylumData.cover_url as string) || (asylumData.coverUrl as string) || (item.cover_url as string),
+            cover_url: (asylumData.cover_url as string) || (asylumData.coverUrl as string) || (asylumData.imageUrl as string) || (item.cover_url as string),
           } as AsylumSummary;
         })
         .filter((item) => Boolean(item.id && item.id !== 0));
@@ -72,7 +78,7 @@ export function useFavorites() {
             return response.data;
           } catch (error) {
             console.warn(`El asilo ID ${item.id} no está disponible o fue desactivado:`, error);
-            return null; // Retorna null si el asilo no se encuentra o dio error
+            return item.status === "INACTIVE" ? item : null; // Preserve unavailable saved centers.
           }
         })
       );
@@ -82,8 +88,9 @@ export function useFavorites() {
         (item): item is AsylumSummary => item !== null
       );
 
-      setFavorites(activeFavorites);
+      if (version === requestVersion.current) setFavorites(activeFavorites);
     } catch (error: unknown) {
+      if (version !== requestVersion.current) return;
       const errObj = error as { status?: number; statusCode?: number; response?: { status?: number } };
       if (errObj?.status === 401 || errObj?.statusCode === 401 || errObj?.response?.status === 401) {
         setFavorites([]);
@@ -91,7 +98,7 @@ export function useFavorites() {
         console.error("Error al obtener favoritos desde la API:", error);
       }
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }, [isAuthenticated]);
 
