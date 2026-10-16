@@ -1,5 +1,6 @@
 """Public discovery contracts. Money is serialized as decimal strings."""
 
+from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Annotated, Self
@@ -126,6 +127,7 @@ class AsylumImage(BaseModel):
 
 
 class AsylumDetail(AsylumSummary):
+    updated_at: datetime | None = None
     description: str
     admission_requirements: str
     capacity: int

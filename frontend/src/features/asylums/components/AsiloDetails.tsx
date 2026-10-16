@@ -343,12 +343,7 @@ export default function AsiloDetails({
                               Nuevo
                             </span>
                           )}
-                          <span className="px-3 py-0.5 bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 rounded-full text-xs font-bold">
-                            Verificado
-                          </span>
-                          <span className="px-3 py-0.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 rounded-full text-xs font-bold">
-                            Seguro
-                          </span>
+
                         </div>
 
                         <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-500 mr-8 lg:mr-0 shrink-0">
@@ -518,6 +513,11 @@ export default function AsiloDetails({
                         <h4 className="font-bold">Requisitos de ingreso</h4>
                         <p>{data.entryRequirements || 'No informado'}</p>
                         <p>Capacidad total: {data.capacity !== undefined ? `${data.capacity} residentes` : 'No informado'}</p>
+                      </section>
+                      <section className="space-y-1 text-xs">
+                        <h4 className="font-bold">Certificaciones declaradas</h4>
+                        <p>{data.certifications || 'Sin certificaciones declaradas'}</p>
+                        <p>Última actualización: {data.updatedAt ? new Date(data.updatedAt).toLocaleString('es-DO') : 'No informada'}</p>
                       </section>
                       {/* Tipos de Cuidado */}
                       {data.careTypes && data.careTypes.length > 0 && (
