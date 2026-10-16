@@ -205,7 +205,7 @@ export default function Centers() {
                             setViewingId(c.asylumId);
                           }}
                         >
-                          <Eye size={14} />
+                          <Eye size={14} /> Ver detalle
                         </button>
                         <button
                           title="Editar"
@@ -216,7 +216,7 @@ export default function Centers() {
                             setEditor(c);
                           }}
                         >
-                          <Edit3 size={14} />
+                          <Edit3 size={14} /> Editar
                         </button>
                         <button
                           title={c.status === "ACTIVE" ? "Desactivar" : "Activar"}
@@ -231,7 +231,7 @@ export default function Centers() {
                             setConfirm(c);
                           }}
                         >
-                          <Power size={14} />
+                          <Power size={14} /> {c.status === "ACTIVE" ? "Desactivar" : "Activar"}
                         </button>
                       </div>
                     </td>
