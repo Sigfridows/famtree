@@ -10,7 +10,7 @@ Desde `/home/isaac/.graphify/repos/Sigfridows/famtree`:
 
 Cuentas: `demoAdmin` (administrador del sistema), `demoUser` (usuario), `demoCenter`
 (administrador del centro; debe cambiar su contraseña temporal). El seed crea ocho centros demo
-con imágenes locales generadas para que el catálogo, mapa, filtros y comparación tengan datos variados.
+con fotografías demo remotas para que el catálogo, mapa, filtros y comparación tengan datos variados.
 El seed es idempotente y no reemplaza credenciales ni datos de cuentas/centros existentes.
 
 ## Arranque existente
