@@ -514,6 +514,11 @@ export default function AsiloDetails({
                         </p>
                       </div>
 
+                      <section className="space-y-1 text-xs">
+                        <h4 className="font-bold">Requisitos de ingreso</h4>
+                        <p>{data.entryRequirements || 'No informado'}</p>
+                        <p>Capacidad total: {data.capacity !== undefined ? `${data.capacity} residentes` : 'No informado'}</p>
+                      </section>
                       {/* Tipos de Cuidado */}
                       {data.careTypes && data.careTypes.length > 0 && (
                         <div className="space-y-1.5 shrink-0">
