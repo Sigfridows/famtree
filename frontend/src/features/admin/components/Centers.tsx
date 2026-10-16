@@ -312,7 +312,7 @@ export default function Centers() {
                     confirm.status !== "ACTIVE"
                   );
                   setConfirm(null);
-                  setMessage("Estado actualizado.");
+                  setMessage(`${confirm.name} ha sido ${confirm.status === "ACTIVE" ? "desactivado" : "activado"}.`);
                   setLoading(true);
                   setRefresh(refresh + 1);
                 } catch (e) {
@@ -322,7 +322,7 @@ export default function Centers() {
                 }
               }}
             >
-              {busy ? "Actualizando…" : "Confirmar"}
+              {busy ? "Actualizando…" : confirm.status === "ACTIVE" ? "Confirmar desactivación" : "Confirmar activación"}
             </button>
             <button disabled={busy} onClick={() => setConfirm(null)}>
               Cancelar
