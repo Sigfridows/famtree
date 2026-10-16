@@ -21,6 +21,7 @@ export function useReviews(asylumId?: number | string | null) {
       if (asylumId) {
         const data = await reviewService.getReviewsByAsylum(asylumId);
         setReviews(data);
+        setAsylums(await reviewService.getAsylums());
       } else {
         const asylumsList = await reviewService.getAsylums();
         setAsylums(asylumsList);
