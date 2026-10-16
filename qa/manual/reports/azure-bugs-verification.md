@@ -1,3 +1,5 @@
+> Informe histórico: sus capturas y excepciones de favoritos/registro han sido sustituidas. Para el estado vigente, usa [la revisión por criterios](acceptance-criteria-review.md) y [la guía manual](capture-guide.md).
+
 # FamTree — Evidencias de correcciones de bugs
 
 ## Alcance y fuente
