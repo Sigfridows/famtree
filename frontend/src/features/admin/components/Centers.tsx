@@ -68,6 +68,15 @@ export default function Centers() {
     setConfirm(null);
   };
 
+  useEffect(() => {
+    if (query.q === search) return;
+    const timer = window.setTimeout(() => {
+      setLoading(true);
+      setQuery(previous => previous.q === search ? previous : { ...previous, q: search, page: 1 });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [search, query.q]);
+
   const filter = (values: Partial<typeof query>) => {
     setLoading(true);
     setQuery({ ...query, ...values });
@@ -147,7 +156,6 @@ export default function Centers() {
               ))}
             </select>
           </label>
-          <button className="admin-secondary">Buscar</button>
         </form>
 
         {loading ? (

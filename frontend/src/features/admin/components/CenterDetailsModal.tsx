@@ -105,8 +105,8 @@ export default function CenterDetailsModal({
         }
 
         .min-card {
-          background: #ffffff;
-          border: 1px solid #f1f5f9;
+          background: #f1f7eb;
+          border: 1px solid #c5d8b5;
           border-radius: 8px;
           padding: 12px 14px;
           display: flex;
@@ -115,19 +115,19 @@ export default function CenterDetailsModal({
         }
 
         .min-card-flat {
-          background: #f8fafc;
-          border: 1px solid #f1f5f9;
+          background: #eaf2f8;
+          border: 1px solid #c5d8b5;
         }
 
         .min-header {
           display: flex;
           align-items: center;
           gap: 6px;
-          font-size: 11px;
+          font-size: 13px;
           font-weight: 600;
           letter-spacing: 0.03em;
           text-transform: uppercase;
-          color: #64748b;
+          color: #334155;
           padding-bottom: 6px;
           border-bottom: 1px solid #f8fafc;
         }
@@ -136,14 +136,14 @@ export default function CenterDetailsModal({
           display: flex;
           justify-content: space-between;
           align-items: center;
-          font-size: 12.5px;
+          font-size: 14px;
           gap: 12px;
         }
 
         .min-label {
-          color: #64748b;
+          color: #334155;
           font-weight: 400;
-          font-size: 12px;
+          font-size: 14px;
           white-space: nowrap;
         }
 
@@ -155,7 +155,7 @@ export default function CenterDetailsModal({
 
         .min-mono {
           font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-          font-size: 12px;
+          font-size: 14px;
           color: #1e293b;
         }
 
