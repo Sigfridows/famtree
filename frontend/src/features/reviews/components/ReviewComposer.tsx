@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Bold, Italic, Underline, AtSign, AlertCircle, X, Loader2, Building2 } from "lucide-react";
+import ReviewText, { formatSelection, type ReviewFormat } from "./ReviewText";
 import MentionDropdown, { Asilo, asiloMentionColor } from "./MentionDropdown";
 
 const RATING_SUGGESTIONS: Record<number, string[]> = {
@@ -35,9 +36,7 @@ export default function ReviewComposer({
   const [selectedAsilo, setSelectedAsilo] = useState<Asilo | null>(initialAsilo);
   const [showMentionDropdown, setShowMentionDropdown] = useState(false);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
-  const [isBold, setIsBold] = useState(false);
-  const [isItalic, setIsItalic] = useState(false);
-  const [isUnderline, setIsUnderline] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
@@ -70,6 +69,27 @@ export default function ReviewComposer({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const applyFormat = (format: ReviewFormat) => {
+    const input = textareaRef.current;
+    if (!input || isSubmitting) return;
+    const { selectionStart, selectionEnd } = input;
+    if (selectionStart === selectionEnd) {
+      setWarningMessage("Selecciona la parte del texto que quieres formatear.");
+      input.focus();
+      return;
+    }
+    const next = formatSelection(commentText, selectionStart, selectionEnd, format);
+    if (next.length > 500) {
+      setWarningMessage("El texto y sus marcas de formato no pueden superar 500 caracteres.");
+      return;
+    }
+    setCommentText(next);
+    setWarningMessage(null);
+    input.focus();
+    const shift = (next.length - commentText.length) / 2;
+    requestAnimationFrame(() => input.setSelectionRange(selectionStart + shift, selectionEnd + shift));
+  };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
@@ -235,11 +255,11 @@ export default function ReviewComposer({
           onChange={handleTextChange}
           rows={1}
           disabled={isSubmitting}
-          className={`w-full text-xs text-zinc-100 bg-transparent resize-none focus:outline-none placeholder:text-zinc-500 leading-relaxed min-h-8 max-h-32 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-zinc-700 [&::-webkit-scrollbar-thumb]:rounded-full ${
-            isBold ? "font-bold" : "font-normal"
-          } ${isItalic ? "italic" : ""} ${isUnderline ? "underline" : ""}`}
+          className="w-full text-xs text-zinc-100 bg-transparent resize-none focus:outline-none placeholder:text-zinc-500 leading-relaxed min-h-8 max-h-32 overflow-y-auto"
           placeholder="Escribe tu experiencia... Usa '@' para etiquetar un asilo"
         />
+        {commentText && <div aria-label="Vista previa de la reseña" className="text-xs text-zinc-200 border-t border-white/5 pt-2"><ReviewText text={commentText} /></div>}
+        <p className="text-[10px] text-zinc-500">Selecciona texto para aplicar formato. El límite incluye las marcas de formato.</p>
         <div className={`text-right text-[10px] ${commentText.length > 500 ? "text-rose-300" : "text-zinc-500"}`}>
           {commentText.length}/500 caracteres
         </div>
@@ -247,26 +267,32 @@ export default function ReviewComposer({
         <div className="flex items-center justify-between pt-2 border-t border-white/5">
           <div className="flex items-center gap-1 text-zinc-400">
             <button
-              onClick={() => setIsBold(!isBold)}
-              className={`p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors ${
-                isBold ? "text-zinc-950 bg-[#CCD999]" : ""
-              }`}
+              aria-label="Negrita"
+              title="Selecciona texto para aplicar negrita"
+              disabled={isSubmitting}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => applyFormat("bold")}
+              className="p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors"
             >
               <Bold className="w-3.5 h-3.5" />
             </button>
             <button
-              onClick={() => setIsItalic(!isItalic)}
-              className={`p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors ${
-                isItalic ? "text-zinc-950 bg-[#CCD999]" : ""
-              }`}
+              aria-label="Cursiva"
+              title="Selecciona texto para aplicar cursiva"
+              disabled={isSubmitting}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => applyFormat("italic")}
+              className="p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors"
             >
               <Italic className="w-3.5 h-3.5" />
             </button>
             <button
-              onClick={() => setIsUnderline(!isUnderline)}
-              className={`p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors ${
-                isUnderline ? "text-zinc-950 bg-[#CCD999]" : ""
-              }`}
+              aria-label="Subrayado"
+              title="Selecciona texto para aplicar subrayado"
+              disabled={isSubmitting}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => applyFormat("underline")}
+              className="p-1.5 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-colors"
             >
               <Underline className="w-3.5 h-3.5" />
             </button>
@@ -275,6 +301,7 @@ export default function ReviewComposer({
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
+                  aria-label={`${star} estrellas`}
                   onClick={() => handleRatingChange(star)}
                   className="cursor-pointer p-0.5"
                 >

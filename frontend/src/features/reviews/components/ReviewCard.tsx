@@ -1,5 +1,6 @@
 "use client";
 
+import ReviewText from "./ReviewText";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -138,7 +139,7 @@ export default function ReviewCard({
             !isExpanded ? "line-clamp-4" : ""
           }`}
         >
-          {review.text}
+          <ReviewText text={review.text} />
         </motion.p>
 
         {isLongText && (
