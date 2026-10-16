@@ -1,258 +1,46 @@
 'use client';
-
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, Home, Building, Building2, Check, RotateCcw, Eye, Hotel
-} from 'lucide-react';
-import CustomSelect from '../../../components/shared/CustomSelect';
+import { useEffect, useState } from 'react';
+import { getAsylumCatalogs } from '../api/discovery';
+import type { AsylumCatalogs } from '../types/asylum.types';
 
 export interface FilterData {
-  type?: string;
-  services?: string[];
-  maxPrice?: number;
-  province?: string;
-  municipality?: string;
-  certifiedOnly?: boolean;
-  minRatingOnly?: boolean;
+  type?: string; services?: number[]; careTypes?: number[]; minPrice?: number; maxPrice?: number;
+  province?: number; municipality?: number; certifiedOnly?: boolean; minRating?: number;
 }
-
-interface FilterModalProps {
-  isOpen?: boolean;
-  onClose?: () => void;
-  onApply?: (filters: FilterData) => void;
-  servicesList?: string[];
-}
-
-const PROPERTY_TYPES = [
-  { id: 'casa', label: 'Casa', icon: Home },
-  { id: 'apartamento', label: 'Apt.', icon: Building },
-  { id: 'villa', label: 'Villa', icon: Building2 },
-  { id: 'geriatrico', label: 'Geriátrico', icon: Hotel },
-];
-
-const DEFAULT_SERVICES = [
-  'Alimentación', 'Rampas Accesibles', 'Terapia', 'Seguridad 24/7', 'Áreas Verdes', 'Supervisión',
-];
-
-const PROVINCES = ['Santo Domingo', 'Santiago', 'Puerto Plata', 'La Vega', 'San Cristóbal'];
-const MUNICIPALITIES_BY_PROVINCE: Record<string, string[]> = {
-  'Santo Domingo': ['Pedro Brand', 'Distrito Nacional', 'Boca Chica', 'Santo Domingo Este'],
-  'Santiago': ['Santiago de los Caballeros', 'Tamboril', 'Puñal'],
-  'Puerto Plata': ['Puerto Plata', 'Sosúa', 'Cabarete'],
-  'La Vega': ['Concepción de La Vega', 'Jarabacoa', 'Constanza'],
-  'San Cristóbal': ['San Cristóbal', 'Bajos de Haina', 'Villa Altagracia'],
-};
-
-export default function FilterModal({ isOpen = false, onClose, onApply, servicesList }: FilterModalProps) {
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [price, setPrice] = useState(50000);
-  const [province, setProvince] = useState('Santo Domingo');
-  const [municipality, setMunicipality] = useState('Pedro Brand');
-  const [certifiedOnly, setCertifiedOnly] = useState(false);
-  const [minRatingOnly, setMinRatingOnly] = useState(false);
-
-  const activeServices = servicesList && servicesList.length > 0 ? servicesList : DEFAULT_SERVICES;
-  const availableMunicipalities = MUNICIPALITIES_BY_PROVINCE[province] || [];
-
-  const toggleService = (service: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(service) ? prev.filter((s) => s !== service) : [...prev, service]
-    );
+interface Props {isOpen?: boolean; onClose?: () => void; onApply?: (filters: FilterData) => void; servicesList?: string[]}
+export default function FilterModal({isOpen, onClose, onApply}: Props) {
+  const [catalogs, setCatalogs] = useState<AsylumCatalogs | null>(null);
+  const [draft, setDraft] = useState<FilterData>({});
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const controller = new AbortController();
+    getAsylumCatalogs(undefined, controller.signal).then(setCatalogs).catch(() => {if (!controller.signal.aborted) setError('No se pudieron cargar los filtros. Cierra y vuelve a intentarlo.');});
+    return () => controller.abort();
+  }, []);
+  if (!isOpen) return null;
+  const inputClass = 'w-full rounded-xl border border-zinc-600 bg-zinc-900 p-2 text-sm text-white';
+  const toggle = (key: 'services' | 'careTypes', id: number) => setDraft(previous => ({...previous, [key]: previous[key]?.includes(id) ? previous[key]!.filter(value => value !== id) : [...previous[key] ?? [], id]}));
+  const apply = () => {
+    if (draft.minPrice !== undefined && draft.maxPrice !== undefined && draft.minPrice > draft.maxPrice) {setError('El precio mínimo no puede superar el máximo.'); return;}
+    setError(''); onApply?.(draft); onClose?.();
   };
-
-  const handleReset = () => {
-    setSelectedType(''); setSelectedServices([]); setPrice(50000);
-    setProvince('Santo Domingo'); setMunicipality('Pedro Brand');
-    setCertifiedOnly(false); setMinRatingOnly(false);
-  };
-
-  const handleApply = () => {
-    onApply?.({ type: selectedType || undefined, services: selectedServices, maxPrice: price, province, municipality, certifiedOnly, minRatingOnly });
-    onClose?.();
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop totalmente transparente: permite cerrar al hacer clic afuera sin oscurecer */}
-        <div 
-          className="fixed inset-0 z-40 bg-transparent" 
-          onClick={onClose} 
-        />
-
-          {/* Panel de Filtros anclado directamente debajo del botón */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -8 }}
-            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute right-0 top-full mt-2 z-50 w-[92vw] sm:w-135 md:w-155 bg-[#161616] rounded-3xl shadow-2xl text-white font-montserrat p-5 space-y-4 border border-zinc-800 origin-top-right"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between pb-2.5 border-b border-zinc-800">
-              <h2 className="text-base sm:text-lg font-bold text-white">Filtros</h2>
-              <button 
-                type="button" 
-                onClick={onClose} 
-                className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Contenido Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-xs font-semibold text-zinc-400">Tipo de Propiedad</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedType('')}
-                      className={`flex flex-col items-center justify-center p-1.5 h-14 rounded-2xl border transition-all text-center cursor-pointer ${!selectedType ? 'border-[#CCDD99] bg-[#CCDD99]/10 text-[#CCDD99] shadow-sm' : 'border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 text-zinc-400'}`}
-                    >
-                      <span className="text-[10px] font-semibold">Todos</span>
-                    </button>
-                    {PROPERTY_TYPES.map((type) => {
-                      const Icon = type.icon;
-                      const isSelected = selectedType === type.id;
-                      return (
-                        <button
-                          key={type.id}
-                          type="button"
-                          onClick={() => setSelectedType(type.id)}
-                          className={`flex flex-col items-center justify-center p-1.5 h-14 rounded-2xl border transition-all text-center cursor-pointer ${
-                            isSelected
-                              ? 'border-[#CCDD99] bg-[#CCDD99]/10 text-[#CCDD99] shadow-sm'
-                              : 'border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 text-zinc-400'
-                          }`}
-                        >
-                          <Icon className="w-4 h-4 mb-1" />
-                          <span className="text-[10px] font-semibold leading-tight">{type.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-xs font-semibold text-zinc-400">Ubicación</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <CustomSelect
-                      options={PROVINCES} value={province}
-                      onChange={(val) => {
-                        setProvince(val);
-                        setMunicipality(MUNICIPALITIES_BY_PROVINCE[val]?.[0] || '');
-                      }}
-                    />
-                    <CustomSelect options={availableMunicipalities} value={municipality} onChange={setMunicipality} />
-                  </div>
-                </div>
-
-                <div className="space-y-2.5 pt-1">
-                  <h3 className="text-xs font-semibold text-zinc-400">Opciones</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold text-zinc-200">Certificación</p>
-                      <p className="text-[10px] text-zinc-500">Solo asilos verificados</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setCertifiedOnly(!certifiedOnly)}
-                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                        certifiedOnly ? 'bg-[#CCDD99]' : 'bg-zinc-800'
-                      }`}
-                    >
-                      <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-zinc-950 shadow-lg ring-0 transition duration-200 ease-in-out ${certifiedOnly ? 'translate-x-4' : 'translate-x-0'}`} />
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-zinc-800 pt-2">
-                    <div>
-                      <p className="text-xs font-semibold text-zinc-200">Calificación Mínima</p>
-                      <p className="text-[10px] text-zinc-500">Solo calificaciones superiores</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setMinRatingOnly(!minRatingOnly)}
-                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                        minRatingOnly ? 'bg-[#CCDD99]' : 'bg-zinc-800'
-                      }`}
-                    >
-                      <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-zinc-950 shadow-lg ring-0 transition duration-200 ease-in-out ${minRatingOnly ? 'translate-x-4' : 'translate-x-0'}`} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <h3 className="text-xs font-semibold text-zinc-400">Precio Máximo</h3>
-                  <p className="text-base font-bold text-white tracking-tight">RD$ {price.toLocaleString()}</p>
-                  <div className="relative pt-1">
-                    <input
-                      type="range" min="500" max="50000" step="250" value={price}
-                      onChange={(e) => setPrice(Number(e.target.value))}
-                      className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-[#CCDD99]"
-                    />
-                    <div className="flex justify-between text-[10px] text-zinc-500 font-medium pt-1">
-                      <span>RD$ 500</span><span>RD$ 50,000+</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-xs font-semibold text-zinc-400">Servicios Incluidos</h3>
-                  <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
-                    {activeServices.map((service) => {
-                      const isChecked = selectedServices.includes(service);
-                      return (
-                        <button
-                          key={service} 
-                          type="button"
-                          onClick={() => toggleService(service)}
-                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[11px] font-semibold transition-all cursor-pointer ${
-                            isChecked
-                              ? 'border-[#CCDD99] bg-[#CCDD99]/10 text-[#CCDD99]'
-                              : 'border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-600'
-                          }`}
-                        >
-                          <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border transition-all ${
-                            isChecked ? 'bg-[#CCDD99] border-[#CCDD99] text-zinc-950' : 'border-zinc-600'
-                          }`}>
-                            {isChecked && <Check className="w-2.5 h-2.5 stroke-3" />}
-                          </div>
-                          <span>{service}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] border border-zinc-700 text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition-colors cursor-pointer"
-              >
-                <span>Restablecer</span><RotateCcw className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={handleApply}
-                className="flex items-center gap-1.5 px-6 py-2 rounded-[10px] bg-[#CCDD99] text-zinc-950 text-xs font-bold hover:bg-[#b8cb83] transition-colors cursor-pointer"
-              >
-                <span>Aplicar selección</span><Eye className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
+  return <>
+    <div className="fixed inset-0 z-40" onClick={onClose} />
+    <section role="dialog" aria-label="Filtros de residencias" className="absolute right-0 top-full z-50 mt-2 max-h-[75vh] w-[min(92vw,620px)] overflow-auto rounded-2xl border border-zinc-700 bg-zinc-950 p-5 text-white shadow-2xl">
+      <div className="mb-4 flex justify-between"><h2 className="font-bold">Filtros</h2><button type="button" aria-label="Cerrar filtros" onClick={onClose}>Cerrar</button></div>
+      {error && <p role="alert" className="mb-3 text-sm text-amber-300">{error}</p>}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label>Tipo de propiedad<select aria-label="Tipo de propiedad" className={inputClass} value={draft.type ?? ''} onChange={event => setDraft({...draft, type: event.target.value || undefined})}><option value="">Todos</option>{['CASA','APARTAMENTO','VILLA','GERIATRICO'].map(type => <option key={type}>{type}</option>)}</select></label>
+        <label>Calificación mínima<select aria-label="Calificación mínima" className={inputClass} value={draft.minRating ?? ''} onChange={event => setDraft({...draft, minRating: event.target.value ? Number(event.target.value) : undefined})}><option value="">Todas</option>{[1,2,3,4,5].map(rating => <option key={rating} value={rating}>{rating} estrellas o más</option>)}</select></label>
+        <label>Precio mínimo (DOP)<input aria-label="Precio mínimo (DOP)" className={inputClass} type="number" min="0" step="0.01" value={draft.minPrice ?? ''} onChange={event => setDraft({...draft, minPrice: event.target.value ? Number(event.target.value) : undefined})} /></label>
+        <label>Precio máximo (DOP)<input aria-label="Precio máximo (DOP)" className={inputClass} type="number" min="0" step="0.01" value={draft.maxPrice ?? ''} onChange={event => setDraft({...draft, maxPrice: event.target.value ? Number(event.target.value) : undefined})} /></label>
+        <label>Provincia<select aria-label="Provincia" className={inputClass} value={draft.province ?? ''} onChange={event => setDraft({...draft, province: Number(event.target.value) || undefined, municipality: undefined})}><option value="">Todas</option>{catalogs?.provinces.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label>Municipio<select aria-label="Municipio" className={inputClass} value={draft.municipality ?? ''} onChange={event => setDraft({...draft, municipality: Number(event.target.value) || undefined})}><option value="">Todos</option>{catalogs?.municipalities.filter(item => !draft.province || item.province_id === draft.province).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <fieldset className="space-y-2"><legend className="mb-2 font-semibold">Tipo de adulto mayor</legend>{catalogs?.care_types.map(item => <label className="flex gap-2 text-sm" key={item.id}><input type="checkbox" checked={draft.careTypes?.includes(item.id) ?? false} onChange={() => toggle('careTypes', item.id)} />{item.name}</label>)}</fieldset>
+        <fieldset className="space-y-2"><legend className="mb-2 font-semibold">Servicios incluidos</legend>{catalogs?.services.map(item => <label className="flex gap-2 text-sm" key={item.id}><input type="checkbox" checked={draft.services?.includes(item.id) ?? false} onChange={() => toggle('services', item.id)} />{item.name}</label>)}</fieldset>
+        <label className="flex gap-2 text-sm"><input type="checkbox" checked={draft.certifiedOnly ?? false} onChange={event => setDraft({...draft, certifiedOnly: event.target.checked})} />Solo centros con certificaciones declaradas</label>
+      </div>
+      <footer className="sticky bottom-0 mt-4 flex justify-between bg-zinc-950 py-3"><button type="button" onClick={() => {setDraft({}); setError(''); onApply?.({});}}>Restablecer</button><button type="button" className="rounded-xl bg-[#CCDD99] px-4 py-2 font-bold text-zinc-950" onClick={apply}>Aplicar selección</button></footer>
+    </section>
+  </>;
 }
