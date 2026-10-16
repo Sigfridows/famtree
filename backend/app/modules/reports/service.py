@@ -17,6 +17,7 @@ from reportlab.platypus import (  # type: ignore[import-untyped]
 )
 
 from app.core.errors import AppError
+from app.modules.reports.presentation import LABELS, value_label
 from app.modules.reports.repository import ReportRepository
 from app.modules.reports.schemas import (
     ReportFilter,
@@ -53,9 +54,9 @@ class ReportService:
         if filters.format == "csv":
             output = io.StringIO(newline="")
             writer = csv.writer(output)
-            writer.writerow(table.rows[0].keys())
+            writer.writerow([LABELS.get(key, key) for key in table.rows[0]])
             for row in table.rows:
-                writer.writerow([csv_cell(value) for value in row.values()])
+                writer.writerow([csv_cell(value_label(key, value)) for key, value in row.items()])
             return output.getvalue().encode("utf-8-sig"), "text/csv", filename
         data = await asyncio.to_thread(render_pdf, table, filters, admin_id, now)
         return data, "application/pdf", filename
@@ -72,10 +73,16 @@ def render_pdf(table: ReportTable, filters: TableExport, admin_id: int, now: dat
     output = io.BytesIO()
     styles = getSampleStyleSheet()
     logo = Path(__file__).parent / "assets" / "logo-famtree.png"
+    report_name = {"centers": "centros", "users": "usuarios", "reviews": "reseñas"}[
+        filters.report_type
+    ]
     story = [
         Image(str(logo), width=80, height=80, kind="proportional"),
         Paragraph("FamTree", styles["Title"]),
-        Paragraph(f"Reporte de {filters.report_type}", styles["Heading1"]),
+        Paragraph(
+            f"Reporte de {report_name}",
+            styles["Heading1"],
+        ),
         Paragraph(
             escape(
                 f"{filters.start_date} a {filters.end_date}; "
@@ -86,9 +93,9 @@ def render_pdf(table: ReportTable, filters: TableExport, admin_id: int, now: dat
         Paragraph(f"Emisor: {admin_id}; generado: {now:%Y-%m-%d %H:%M UTC}", styles["Normal"]),
         Spacer(1, 12),
     ]
-    body = [[Paragraph(escape(key), styles["Normal"]) for key in table.rows[0]]]
+    body = [[Paragraph(escape(LABELS.get(key, key)), styles["Normal"]) for key in table.rows[0]]]
     body += [
-        [Paragraph(escape(str(value or "")), styles["Normal"]) for value in row.values()]
+        [Paragraph(escape(value_label(key, value)), styles["Normal"]) for key, value in row.items()]
         for row in table.rows
     ]
     grid = Table(body, repeatRows=1)
@@ -103,7 +110,11 @@ def render_pdf(table: ReportTable, filters: TableExport, admin_id: int, now: dat
     )
     story += [grid, Spacer(1, 12), Paragraph(f"Total: {table.total}", styles["Normal"])]
     SimpleDocTemplate(
-        output, pagesize=(842, 595), leftMargin=25, rightMargin=25,
-        title=f"FamTree - Reporte de {filters.report_type}", author="FamTree",
+        output,
+        pagesize=(842, 595),
+        leftMargin=25,
+        rightMargin=25,
+        title=f"FamTree - Reporte de {filters.report_type}",
+        author="FamTree",
     ).build(story)
     return output.getvalue()
