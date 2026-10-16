@@ -67,6 +67,8 @@ class TableExport(TableFilter):
 
 
 class ReportTable(Contract):
+    column_labels: dict[str, str] = Field(default_factory=dict)
+    value_labels: dict[str, str] = Field(default_factory=dict)
     rows: list[dict[str, object]]
     total: int
     page: int

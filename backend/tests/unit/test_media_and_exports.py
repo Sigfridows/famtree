@@ -46,3 +46,24 @@ def test_export_does_not_execute_spreadsheet_formulas(value: str) -> None:
 def test_csv_preserves_plain_data() -> None:
     assert csv_cell(None) == ""
     assert csv_cell("Centro") == "Centro"
+
+
+async def test_table_and_exports_use_the_same_label_catalog() -> None:
+    from datetime import date
+    from unittest.mock import AsyncMock, MagicMock
+
+    from app.modules.reports.presentation import LABELS, VALUES
+    from app.modules.reports.repository import ReportRepository
+    from app.modules.reports.schemas import ReportTable, TableFilter
+    from app.modules.reports.service import ReportService
+
+    repository = MagicMock(spec=ReportRepository)
+    repository.table = AsyncMock(return_value=ReportTable(rows=[], total=0, page=1))
+    service = ReportService(repository)
+    table = await service.table(
+        TableFilter(report_type="users", start_date=date(2026, 1, 1), end_date=date(2026, 12, 31))
+    )
+    assert table.column_labels == LABELS
+    assert table.value_labels == VALUES
+    assert table.column_labels["firstName"] == "Nombre"
+    assert table.value_labels["ADMIN_SISTEMA"] == "Administrador del sistema"
