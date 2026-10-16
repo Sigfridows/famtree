@@ -42,13 +42,13 @@ export default function HeaderControls({
   logoAlt = "Logo",
   showLogo = true,
   showSearch = false,
-  logoClassName = "w-16 h-16 object-contain",
+  logoClassName = "w-10 h-10 sm:w-14 sm:h-14 object-contain",
   className = "",
 }: HeaderControlsProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   return (
-    <header className={`relative z-40 flex items-center justify-end gap-4 sm:gap-6 ${className}`}>
-      {isAuthenticated && <NotificationsPopover variant="dark" />}
+    <header className={`z-40 flex items-center justify-end gap-2 sm:gap-3 ${className}`}>
+      {isAuthenticated && !isLoading && <NotificationsPopover variant="dark" />}
       
       {showSearch && <SearchBar
           value={searchValue}

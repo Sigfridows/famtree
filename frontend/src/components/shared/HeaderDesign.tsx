@@ -7,10 +7,10 @@ interface PageBannerProps {
   className?: string;
 }
 
-export default function PageBanner({ title, subtitle, showResidenceLabel = true, className = '' }: PageBannerProps) {
+export default function PageBanner({ title, subtitle, className = '' }: PageBannerProps) {
   return (
     <div
-      className={`relative w-full min-h-32 sm:min-h-36 flex-1 bg-linear-to-br from-[#CCDD99] via-[#C5D792] to-[#B8CC80] rounded-2xl px-7 py-6 sm:px-10 sm:py-7 overflow-hidden flex items-center justify-between border border-white/20 shadow-xs ${className}`}
+      className={`relative w-full min-h-32 sm:min-h-36 flex-1 bg-linear-to-br from-[#CCDD99] via-[#C5D792] to-[#B8CC80] rounded-2xl px-7 py-6 pb-20 sm:px-10 sm:py-7 overflow-hidden flex items-center justify-between border border-white/20 shadow-xs ${className}`}
     >
       {/* 1. Malla de micro-puntos minimalista */}
       <div 
@@ -43,13 +43,13 @@ export default function PageBanner({ title, subtitle, showResidenceLabel = true,
       </svg>
 
       {/* 4. Jerarquía de texto principal */}
-      <div className="relative z-10 space-y-1 max-w-xl">
+      <div className="relative z-10 space-y-2 w-full min-w-0 text-center mx-auto sm:px-28">
         {/* <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-zinc-950/10 border border-zinc-950/10 text-[10px] sm:text-[11px] font-semibold text-zinc-900 tracking-wider uppercase backdrop-blur-xs mb-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-800 animate-pulse" />
           Explorar Residencias
         </div> */}
 
-        <h1 className="text-3xl sm:text-4xl md:text-[42px] font-bold text-zinc-950 tracking-tight leading-none">
+        <h1 className="text-2xl sm:text-3xl md:text-[42px] font-bold text-zinc-950 tracking-tight leading-none">
           {title}
         </h1>
 
@@ -60,13 +60,7 @@ export default function PageBanner({ title, subtitle, showResidenceLabel = true,
         )}
       </div>
 
-      {/* 5. Acento sutil y minimalista en la esquina inferior derecha */}
-      {showResidenceLabel && <div className="absolute bottom-3 right-6 z-10 hidden sm:flex items-center gap-2 bg-zinc-950/10 backdrop-blur-xs border-[0.8px] border-white px-3 py-1 rounded-lg pointer-events-none">
-        {/* <span className="w-1.5 h-1.5 rounded-full bg-emerald-700" /> */}
-        <span className="text-[11px] font-semibold text-[#161616] tracking-wide">
-          Información de residencias
-        </span>
-      </div>}
+
     </div>
   );
 }
