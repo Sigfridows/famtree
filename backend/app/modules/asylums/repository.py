@@ -70,6 +70,7 @@ class SqlAlchemyAsylumReader:
                 Asilo.telefono_asilo.label("phone"),
                 Asilo.email_asilo.label("email"),
                 Asilo.sitio_web.label("website"),
+                Asilo.fecha_actualizacion.label("updated_at"),
             )
         return (
             statement.select_from(Asilo)
