@@ -203,7 +203,20 @@ async def test_favorites_reviews_moderation_and_notifications(workflow: Workflow
         )
         assert result.status_code == 200, result.text
         assert (await alice.delete(PREFIX + f"/reviews/{review_id}")).status_code == 404
-        assert len((await admin.get(PREFIX + "/admin/moderation-decisions")).json()) == 1
+        decisions = (await admin.get(PREFIX + "/admin/moderation-decisions")).json()
+        assert len(decisions) == 1
+        original_actor = decisions[0]["moderatorName"]
+        assert original_actor
+        assert (
+            await admin.patch(
+                PREFIX + f"/admin/users/{decisions[0]['moderatorUserId']}",
+                json={"firstName": "Moderador", "lastName": "Renombrado"},
+            )
+        ).status_code == 200
+        retained = (await admin.get(PREFIX + "/admin/moderation-decisions")).json()[0]
+        assert retained["moderatorName"] == original_actor
+        assert retained["justification"] == "Reporte verificado de prueba."
+        assert retained["reviewId"] == review_id
         notices = (await bob.get(PREFIX + "/notifications")).json()
         assert len(notices) == 1
         nid = notices[0]["notificationId"]

@@ -24,6 +24,7 @@ from app.modules.reviews.schemas import (
     ReviewView,
 )
 from app.modules.users import UserDirectory
+from app.modules.users.models import Usuario
 
 REASONS = {
     "OFFENSIVE_LANGUAGE": MotivoReporte.LENGUAJE_OFENSIVO,
@@ -268,12 +269,39 @@ class ReviewService:
             .offset(offset)
             .limit(limit)
         )
+        snapshots = [dict(row.snapshot) for row in rows]
+        await self._legacy_moderator_usernames(snapshots)
         return [
             ReportView.model_validate(
-                {k: v for k, v in row.snapshot.items() if k in ReportView.model_fields}
+                {k: v for k, v in snapshot.items() if k in ReportView.model_fields}
             )
-            for row in rows
+            for snapshot in snapshots
         ]
+
+    async def _legacy_moderator_usernames(self, snapshots: list[dict[str, Any]]) -> None:
+        # Usernames are immutable through the application. For legacy snapshots without
+        # actor names, expose that stable identifier without inventing a historical name
+        # or changing the append-only audit record.
+        ids = {
+            int(row["moderator_user_id"])
+            for row in snapshots
+            if row.get("moderator_user_id")
+            and not row.get("moderator_name")
+            and not row.get("moderator_username")
+        }
+        if not ids:
+            return
+        users = await self.repository.session.execute(
+            select(Usuario.codigo_usuario, Usuario.username).where(Usuario.codigo_usuario.in_(ids))
+        )
+        usernames = {row.codigo_usuario: row.username for row in users}
+        for row in snapshots:
+            if (
+                row.get("moderator_user_id") in usernames
+                and not row.get("moderator_name")
+                and not row.get("moderator_username")
+            ):
+                row["moderator_username"] = usernames[row["moderator_user_id"]]
 
     async def reputation(
         self, asylum_id: int, filters: ReviewQuery, viewer_id: int | None = None
@@ -335,7 +363,9 @@ class ReviewService:
     async def report_cases(self, filters: ReportQuery) -> dict[str, object]:
         rows, total = await self.repository.report_cases(filters)
         items = []
-        for row in rows:
+        snapshots = [dict(row) for row in rows]
+        await self._legacy_moderator_usernames(snapshots)
+        for row in snapshots:
             row = dict(row)
             row["status"] = {
                 "PENDIENTE": "PENDING",

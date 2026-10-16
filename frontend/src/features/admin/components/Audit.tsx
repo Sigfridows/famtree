@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { adminApi, adminError } from "../api";
-import { Notice, Status } from "./AdminUI";
+import { Modal, Notice, Status } from "./AdminUI";
 export default function Audit() {
+  const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [page, setPage] = useState(1);
   const [error, setError] = useState("");
@@ -51,6 +52,7 @@ export default function Audit() {
                   <th>Resolución</th>
                   <th>Justificación</th>
                   <th>Fecha</th>
+                  <th>Detalle</th>
                 </tr>
               </thead>
               <tbody>
@@ -63,6 +65,7 @@ export default function Audit() {
                     </td>
                     <td>{String(row.justification || "—")}</td>
                     <td>{row.resolvedAt ? new Date(String(row.resolvedAt)).toLocaleString("es-DO") : "—"}</td>
+                    <td><button className="admin-secondary" onClick={() => setSelected(row)}>Ver evento</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -94,6 +97,16 @@ export default function Audit() {
           </button>
         </nav>
       </section>
+      {selected && <Modal title={`Evento de moderación · Reporte #${selected.reportId}`} onClose={() => setSelected(null)}>
+        <dl className="admin-form">
+          <div><dt>Actor</dt><dd>{String(selected.moderatorName || selected.moderatorUsername || "Nombre histórico no registrado")} · ID {String(selected.moderatorUserId)}</dd></div>
+          <div><dt>Acción</dt><dd>{selected.status === "REVIEW_REMOVED" ? "Eliminar reseña reportada" : "Descartar reporte y conservar reseña"}</dd></div>
+          <div><dt>Entidad</dt><dd>Reporte #{String(selected.reportId)} · Reseña #{String(selected.reviewId)}</dd></div>
+          <div><dt>Justificación histórica</dt><dd>{String(selected.justification || "No registrada")}</dd></div>
+          <div><dt>Fecha de resolución</dt><dd>{selected.resolvedAt ? new Date(String(selected.resolvedAt)).toLocaleString("es-DO") : "No registrada"}</dd></div>
+        </dl>
+        <button className="admin-secondary" onClick={() => setSelected(null)}>Cerrar detalle</button>
+      </Modal>}
     </>
   );
 }
