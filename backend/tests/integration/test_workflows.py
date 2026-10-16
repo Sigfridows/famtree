@@ -622,3 +622,31 @@ async def test_review_likes_deny_admin_blocked_hidden_and_inactive(workflow: Wor
         )
         assert blocked.status_code == 204, blocked.text
         assert (await user.post(path)).status_code in {401, 403}
+
+
+async def test_profile_location_rejects_mismatch_and_persists(workflow: Workflow) -> None:
+    async with workflow.client() as client:
+        await register(client, "locationuser")
+        await login(client, "locationuser")
+        catalogs = (await client.get(PREFIX + "/asylums/catalogs")).json()
+        municipality = catalogs["municipalities"][0]
+        other_province = next(
+            item["id"]
+            for item in catalogs["provinces"]
+            if item["id"] != municipality["province_id"]
+        )
+        rejected = await client.patch(
+            PREFIX + "/users/me",
+            json={"provinceId": other_province, "municipalityId": municipality["id"]},
+        )
+        assert rejected.status_code == 422
+        saved = await client.patch(
+            PREFIX + "/users/me",
+            json={"provinceId": municipality["province_id"], "municipalityId": municipality["id"]},
+        )
+        assert saved.status_code == 200, saved.text
+        await client.post(PREFIX + "/auth/logout")
+        await login(client, "locationuser")
+        profile = (await client.get(PREFIX + "/users/me")).json()
+        assert profile["provinceId"] == municipality["province_id"]
+        assert profile["municipalityId"] == municipality["id"]
