@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import Image, { StaticImageData } from "next/image";
 import SearchBar from "./SearchBar";
 import NotificationsPopover from "./Notification";
@@ -44,9 +45,10 @@ export default function HeaderControls({
   logoClassName = "w-16 h-16 object-contain",
   className = "",
 }: HeaderControlsProps) {
+  const { isAuthenticated } = useAuth();
   return (
     <header className={`relative z-40 flex items-center justify-end gap-4 sm:gap-6 ${className}`}>
-      <NotificationsPopover variant="dark" />
+      {isAuthenticated && <NotificationsPopover variant="dark" />}
       
       {showSearch && <SearchBar
           value={searchValue}
