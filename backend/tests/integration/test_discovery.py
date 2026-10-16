@@ -294,6 +294,8 @@ async def test_map_matches_filters_without_private_or_heavy_fields(discovery: Di
         "rating",
         "review_count",
         "cover_url",
+        "province_name",
+        "municipality_name",
     }
     assert (await discovery.client.get("/api/v1/asylums/map?page=2")).json()["items"] == []
     all_pins = (await discovery.client.get("/api/v1/asylums/map")).json()
