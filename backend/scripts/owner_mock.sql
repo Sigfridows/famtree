@@ -60,8 +60,14 @@ FROM (VALUES (
 )) AS seed (codigo_municipio, nombre_asilo, descripcion_asilo, sector_asilo, direccion_asilo, latitud, longitud, capacidad_total, precio_minimo, precio_maximo, requisitos_ingreso, certificaciones, telefono_asilo, email_asilo, sitio_web, estado_asilo)
 WHERE NOT EXISTS (SELECT 1 FROM famtree.asilos AS target WHERE target.nombre_asilo = seed.nombre_asilo);
 
+-- Insert the requested cover first: the insert trigger promotes the first image.
+-- If a center already has a cover, keep it and append new mock images as gallery.
 INSERT INTO famtree.imagenes_asilo (codigo_asilo, url, es_portada)
-SELECT seed.codigo_asilo, seed.url, seed.es_portada
+SELECT seed.codigo_asilo, seed.url,
+       seed.es_portada AND NOT EXISTS (
+           SELECT 1 FROM famtree.imagenes_asilo AS current_cover
+           WHERE current_cover.codigo_asilo = seed.codigo_asilo AND current_cover.es_portada
+       )
 FROM (VALUES ((SELECT codigo_asilo FROM famtree.asilos WHERE nombre_asilo = 'Residencia San José'), 'https://i.pinimg.com/736x/f4/5d/3e/f45d3e751be6b4993f176bcb37aa910c.jpg', TRUE),
 ((SELECT codigo_asilo FROM famtree.asilos WHERE nombre_asilo = 'Residencia San José'), 'https://i.pinimg.com/1200x/9a/57/9d/9a579d288be16cd49e494717634ad22d.jpg', FALSE),
 
@@ -71,7 +77,8 @@ FROM (VALUES ((SELECT codigo_asilo FROM famtree.asilos WHERE nombre_asilo = 'Res
 
 
 ((SELECT codigo_asilo FROM famtree.asilos WHERE nombre_asilo = 'Residencia Senior Dorada'), 'https://i.pinimg.com/736x/f6/d3/87/f6d387ecac1fc7806fbe52d3fa1c4aac.jpg', TRUE)) AS seed (codigo_asilo, url, es_portada)
-WHERE NOT EXISTS (SELECT 1 FROM famtree.imagenes_asilo AS target WHERE target.codigo_asilo = seed.codigo_asilo AND target.url = seed.url);
+WHERE NOT EXISTS (SELECT 1 FROM famtree.imagenes_asilo AS target WHERE target.codigo_asilo = seed.codigo_asilo AND target.url = seed.url)
+ORDER BY seed.codigo_asilo, seed.es_portada DESC, seed.url;
 
 INSERT INTO famtree.asilos_tipos_adulto (codigo_asilo, codigo_tipo)
 SELECT seed.codigo_asilo, seed.codigo_tipo
