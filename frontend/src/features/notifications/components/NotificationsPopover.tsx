@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, CheckCheck, Loader2, Inbox } from "lucide-react";
 import { useNotifications } from "../hooks/useNotifications";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import NotificationItem from "./NotificationItem";
 import type { NotificationVariant } from "../types/notification.types";
 
@@ -17,6 +18,7 @@ export default function NotificationsPopover({
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"Hoy" | "Semana" | "Ayer">("Hoy");
   const containerRef = useRef<HTMLDivElement>(null);
+  const { isAuthenticated, isLoading } = useAuth();
 
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead } =
     useNotifications();
@@ -86,6 +88,8 @@ export default function NotificationsPopover({
         "bg-white/10 border-white/15 text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]",
     },
   }[variant];
+
+  if (!isAuthenticated || isLoading) return null;
 
   return (
     <div className="relative z-50 inline-block" ref={containerRef}>
