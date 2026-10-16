@@ -248,12 +248,12 @@ export default function CenterDetailsModal({
                   </span>
                 </div>
 
-                {center.capacity !== undefined && (
+                {center.totalCapacity !== undefined && (
                   <div className="min-row">
                     <span className="min-label">Capacidad</span>
                     <span className="min-val min-mono">
                       <Users size={12} strokeWidth={1.5} style={{ display: "inline", marginRight: "4px", color: "#94a3b8", verticalAlign: "middle" }} />
-                      {center.capacity} personas
+                      {center.totalCapacity} personas
                     </span>
                   </div>
                 )}

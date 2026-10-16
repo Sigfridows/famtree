@@ -13,7 +13,6 @@ export interface AdminCenter extends CenterInfo {
   createdAt: string;
   updatedAt: string;
   administrator: { userId: number; name: string } | null;
-  capacity: number;
 }
 export interface Page<T> {
   items: T[];
