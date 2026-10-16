@@ -58,7 +58,7 @@ function CatalogContent() {
   const { favorites, isFavorite, toggleFavorite, removeFavoriteById } =
     useFavorites();
 
-  const { data, loading, updateFilters } = useAsylums();
+  const { data, loading, filters, error, refetch, updateFilters } = useAsylums();
   const { data: asylumDetail, loading: detailLoading } =
     useAsylumDetail(selectedAsiloId);
 
@@ -176,6 +176,13 @@ function CatalogContent() {
           />
         </div>
 
+        <label className="flex items-center gap-3 text-sm">Ordenar por
+          <select aria-label="Ordenar residencias" className="rounded-lg border border-zinc-600 bg-zinc-900 p-2 text-white" value={filters.sort ?? 'name_asc'} onChange={event => updateFilters({sort: event.target.value as AsylumFilters['sort']})}>
+            <option value="name_asc">Nombre A–Z</option><option value="name_desc">Nombre Z–A</option><option value="price_asc">Menor precio</option><option value="price_desc">Mayor precio</option><option value="rating_desc">Mejor calificación</option>
+          </select>
+        </label>
+        {error && <p role="alert">No se pudo cargar el catálogo. <button onClick={refetch}>Reintentar</button></p>}
+        {data && data.pagination.pages > 1 && <nav aria-label="Paginación del catálogo" className="flex gap-4"><button disabled={data.pagination.page <= 1} onClick={() => updateFilters({page: data.pagination.page - 1})}>Anterior</button><span>Página {data.pagination.page} de {data.pagination.pages}</span><button disabled={data.pagination.page >= data.pagination.pages} onClick={() => updateFilters({page: data.pagination.page + 1})}>Siguiente</button></nav>}
         {/* Estado de Carga */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-24">
