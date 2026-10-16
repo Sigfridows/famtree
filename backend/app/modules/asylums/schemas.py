@@ -154,6 +154,8 @@ class AsylumPage(BaseModel):
 
 
 class MapPin(BaseModel):
+    municipality_name: str = ""
+    province_name: str = ""
     id: int
     name: str
     latitude: float
