@@ -157,6 +157,7 @@ class CenterService:
                 for i, image in enumerate(data.images)
             ]
         )
+        await self.notifications.center_created(row.codigo_asilo, row.nombre_asilo)
         await db.commit()
         await db.refresh(row)
         return (await self.describe_many([row]))[0]
