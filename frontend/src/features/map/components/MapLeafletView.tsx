@@ -68,8 +68,12 @@ export default function MapLeafletView({
       }
 
       const map = L.map(mapRef.current, {
-        center: [18.47, -69.935],
-        zoom: 12,
+        center: [18.9, -70.2],
+        zoom: 7,
+        minZoom: 7,
+        maxZoom: 19,
+        maxBounds: [[17.2, -72.5], [20.5, -68]],
+        maxBoundsViscosity: 0.8,
         zoomControl: false,
       });
 
