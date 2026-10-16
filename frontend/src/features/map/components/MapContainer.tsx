@@ -8,6 +8,7 @@ import HeaderDesign from "@/components/shared/HeaderDesign";
 import HeaderControls from "@/components/shared/HeaderControls";
 import logoFamTree from "@/assets/famtree.png";
 import { useFavorites } from "@/features/asylums/hooks/useFavorites";
+import { toDetailData } from "@/features/asylums/adapters/detail";
 import AsiloDetails from "@/features/asylums/components/AsiloDetails";
 import { useAsylumDetail } from "@/features/asylums/hooks/useAsylumDetail";
 import { useAsylumMap } from "../hooks/useAsylumMap";
@@ -36,24 +37,7 @@ export default function MapContainer() {
     mapInstance?.flyTo([18.47, -69.935], 12);
   };
 
-  const modalData = asylumDetail
-    ? {
-        id: String(asylumDetail.id),
-        title: asylumDetail.name,
-        address: asylumDetail.address || `${asylumDetail.sector}, ${asylumDetail.municipality_name}`,
-        schedule: "8:00 AM - 6:00 PM",
-        email: asylumDetail.email,
-        phone: asylumDetail.phone,
-        admin: "Administración",
-        priceMin: Number(asylumDetail.price_min) || 0,
-        description: asylumDetail.description,
-        rating: asylumDetail.rating ?? 0,
-        isNew: false,
-        images: asylumDetail.images?.map((img) => img.url) || [
-          "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800&auto=format&fit=crop&q=80",
-        ],
-      }
-    : undefined;
+  const modalData = asylumDetail ? toDetailData(asylumDetail) : undefined;
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#F3F3F3] dark:bg-zinc-950 text-[#161616] dark:text-zinc-100 font-montserrat pl-20 pr-0 pt-0 transition-colors">
