@@ -87,8 +87,8 @@ export default function RegisterPage() {
       <form className="space-y-3.5" onSubmit={handlers.handleSubmit}>
         {/* Nombre de usuario */}
         <motion.div variants={itemVariants}>
-          <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat">Nombre Usuario</label>
-          <input
+          <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat" htmlFor="register-0">Nombre Usuario *</label>
+          <input id="register-0" required
             type="text"
             placeholder="Ej. JuanEduardo"
             value={formState.username}
@@ -102,8 +102,8 @@ export default function RegisterPage() {
         {/* Nombre y Apellido */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat">Nombre Completo</label>
-            <input
+            <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat" htmlFor="register-1">Nombre Completo *</label>
+            <input id="register-1" required
               type="text"
               placeholder="Ej. Juan Eduardo"
               value={formState.firstName}
@@ -112,8 +112,8 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat">Apellido Completo</label>
-            <input
+            <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat" htmlFor="register-2">Apellido Completo *</label>
+            <input id="register-2" required
               type="text"
               placeholder="Ej. Rodriguez Alcantara"
               value={formState.lastName}
@@ -125,8 +125,8 @@ export default function RegisterPage() {
 
         {/* Correo Electrónico */}
         <motion.div variants={itemVariants}>
-          <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat">Correo Electrónico</label>
-          <input
+          <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat" htmlFor="register-3">Correo Electrónico *</label>
+          <input id="register-3" required
             type="email"
             placeholder="usuario@dominio.extension"
             value={formState.email}
@@ -139,9 +139,9 @@ export default function RegisterPage() {
         <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Contraseña */}
           <div>
-            <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat">Contraseña</label>
+            <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat" htmlFor="register-4">Contraseña *</label>
             <div className="relative">
-              <input
+              <input id="register-4" required
                 type={formState.showPassword ? "text" : "password"}
                 placeholder="••••••••••••••••"
                 value={formState.password}
@@ -184,9 +184,9 @@ export default function RegisterPage() {
 
           {/* Confirmar Contraseña */}
           <div>
-            <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat">Confirmar Contraseña</label>
+            <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat" htmlFor="register-5">Confirmar Contraseña *</label>
             <div className="relative">
-              <input
+              <input id="register-5" required
                 type={formState.showConfirmPassword ? "text" : "password"}
                 placeholder="••••••••••••••••"
                 value={formState.confirmPassword}
