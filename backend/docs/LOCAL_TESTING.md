@@ -9,16 +9,19 @@ Desde `/home/isaac/.graphify/repos/Sigfridows/famtree`:
 - Credenciales generadas: `backend/.runtime/demo-credentials.json` (privado, ignorado por Git).
 
 Cuentas: `demoAdmin` (administrador del sistema), `demoUser` (usuario), `demoCenter`
-(administrador del centro; debe cambiar su contraseña temporal). El seed crea ocho centros demo
-con fotografías demo remotas para que el catálogo, mapa, filtros y comparación tengan datos variados.
-El seed es idempotente y no reemplaza credenciales ni datos de cuentas/centros existentes.
+(administrador del centro; debe cambiar su contraseña temporal). `scripts.seed_development` carga
+los ocho centros demo y los tres centros de `scripts.seed_owner_mock`: 11 asilos activos en una base
+nueva, con fotos remotas, servicios y tipos de atención. Las cuentas ficticias del segundo seed usan
+`backend/.runtime/owner-mock-credentials.json`, privado e ignorado por Git.
+La carga es idempotente y no reemplaza credenciales ni datos de cuentas/centros existentes.
+No copia las modificaciones manuales de la base local ni crea las cuentas temporales de QA.
 
 ## Arranque existente
 
 ```bash
 backend/.venv/bin/python backend/scripts/prepare_local.py
 docker compose --env-file backend/.runtime/compose.env up -d --build --no-deps backend
-docker exec famtree-backend-1 python -m scripts.seed_demo
+docker exec famtree-backend-1 python -m scripts.seed_development
 ```
 
 `prepare_local.py` recupera configuración de los contenedores de desarrollo existentes; no es un

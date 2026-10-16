@@ -59,6 +59,8 @@ jobs:
         run: mypy app tests
       - name: Tests and coverage
         run: pytest --cov=app --cov-report=term-missing --cov-report=xml
+      - name: Verify development catalog from an empty database
+        run: PYTHON_BIN=python bash scripts/check_development_seed.sh
       - name: Bandit
         run: bandit -c pyproject.toml -r app
       - name: Dependency audit
