@@ -73,14 +73,13 @@ export default function CenterForm({
           .filter(Boolean);
         if (
           !initial &&
-          (urls.length < 1 ||
-            urls.length > 15 ||
+          (urls.length > 15 ||
             urls.some(
               (url) => !/^https?:\/\/\S+$/.test(url) || url.length > 255,
             ))
         ) {
           setError(
-            "Agrega entre 1 y 15 enlaces de imagen válidos (https://), uno por línea, de hasta 255 caracteres.",
+            "Agrega hasta 15 enlaces de imagen válidos (https://), uno por línea, de hasta 255 caracteres.",
           );
           return;
         }
@@ -108,6 +107,7 @@ export default function CenterForm({
         <div className="admin-grid">
           <label>
             Nombre del asilo
+            <small>Obligatorio: 5–100 caracteres</small>
             <input
               aria-label="Nombre del asilo"
               required
@@ -156,6 +156,7 @@ export default function CenterForm({
           </label>
           <label>
             Sector
+            <small>Obligatorio: máximo 100 caracteres</small>
             <input
               aria-label="Sector"
               required
@@ -166,6 +167,7 @@ export default function CenterForm({
           </label>
           <label>
             Dirección
+            <small>Obligatorio: máximo 200 caracteres</small>
             <input
               aria-label="Dirección"
               required
@@ -208,6 +210,7 @@ export default function CenterForm({
         <div className="admin-grid">
           <label>
             Descripción
+            <small>Obligatorio: 20–1000 caracteres</small>
             <textarea
               aria-label="Descripción"
               required
@@ -220,6 +223,7 @@ export default function CenterForm({
           </label>
           <label>
             Requisitos de ingreso
+            <small>Obligatorio: 10–500 caracteres</small>
             <textarea
               aria-label="Requisitos de ingreso"
               required
@@ -245,6 +249,7 @@ export default function CenterForm({
           </label>
           <label>
             Certificaciones
+            <small>Opcional: máximo 250 caracteres</small>
             <textarea
               aria-label="Certificaciones"
               maxLength={250}
@@ -302,6 +307,7 @@ export default function CenterForm({
           </label>
           <label>
             Sitio web
+            <small>Opcional: https:// y hasta 255 caracteres</small>
             <input
               aria-label="Sitio web"
               type="url"
@@ -347,10 +353,9 @@ export default function CenterForm({
 
       {!initial && (
         <label>
-          Imágenes: un enlace público por línea (1–15)
+          Imágenes opcionales: hasta 15 enlaces, uno por línea
           <textarea
-            aria-label="Imágenes: un enlace público por línea (1–15)"
-            required
+            aria-label="Imágenes opcionales: hasta 15 enlaces, uno por línea"
             rows={3}
             value={images}
             onChange={(e) => setImages(e.target.value)}
