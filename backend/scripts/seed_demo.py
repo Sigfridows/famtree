@@ -1,19 +1,16 @@
 """Idempotent synthetic data for development. Never changes existing accounts or centers."""
 
 import asyncio
-import io
 import json
 import os
 import secrets
 from pathlib import Path
 from typing import cast
 
-from PIL import Image
 from sqlalchemy import select
 
 from app.api.dependencies import get_center_management, get_favorites, get_notifications, get_users
 from app.core.config import Settings
-from app.core.media import ImageStore
 from app.core.passwords import hash_password
 from app.db import models as _models  # noqa: F401
 from app.db.session import DatabaseManager
@@ -38,7 +35,7 @@ DEMO_CENTERS = (
         "email": "demo1@example.invalid",
         "services": ("Alimentación",),
         "care_types": ("Adulto mayor independiente",),
-        "color": (70, 130, 95),
+        "image_url": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",
     },
     {
         "name": "FamTree Demo Centro 2",
@@ -55,7 +52,7 @@ DEMO_CENTERS = (
         "email": "demo2@example.invalid",
         "services": ("Alimentación",),
         "care_types": ("Adulto mayor independiente",),
-        "color": (57, 107, 81),
+        "image_url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
     },
     {
         "name": "Casa Serena del Caribe",
@@ -72,7 +69,7 @@ DEMO_CENTERS = (
         "email": "serena@example.invalid",
         "services": ("Alimentación", "Enfermería 24 horas", "Recreación y actividades"),
         "care_types": ("Adulto mayor independiente", "Movilidad reducida"),
-        "color": (68, 125, 104),
+        "image_url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
     },
     {
         "name": "Hogar Brisas de La Romana",
@@ -89,7 +86,7 @@ DEMO_CENTERS = (
         "email": "brisas@example.invalid",
         "services": ("Alimentación", "Fisioterapia", "Transporte"),
         "care_types": ("Adulto mayor independiente", "Cuidado permanente"),
-        "color": (87, 116, 151),
+        "image_url": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80",
     },
     {
         "name": "Residencia Sol de Samaná",
@@ -106,7 +103,7 @@ DEMO_CENTERS = (
         "email": "solsamana@example.invalid",
         "services": ("Atención médica", "Terapia ocupacional", "Recreación y actividades"),
         "care_types": ("Movilidad reducida", "Cuidados especializados"),
-        "color": (178, 132, 76),
+        "image_url": "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1200&q=80",
     },
     {
         "name": "Villa Los Almendros",
@@ -127,7 +124,7 @@ DEMO_CENTERS = (
             "Asistencia en higiene personal",
         ),
         "care_types": ("Discapacidad física", "Cuidado permanente"),
-        "color": (117, 92, 132),
+        "image_url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
     },
     {
         "name": "Centro Vida Plena",
@@ -144,7 +141,7 @@ DEMO_CENTERS = (
         "email": "vidaplana@example.invalid",
         "services": ("Enfermería 24 horas", "Fisioterapia", "Atención médica"),
         "care_types": ("Movilidad reducida", "Cuidados especializados"),
-        "color": (76, 135, 131),
+        "image_url": "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1200&q=80",
     },
     {
         "name": "Casa Jardines de Baní",
@@ -161,7 +158,7 @@ DEMO_CENTERS = (
         "email": "jardinesbani@example.invalid",
         "services": ("Alimentación", "Terapia ocupacional", "Transporte"),
         "care_types": ("Adulto mayor independiente", "Condiciones cognitivas"),
-        "color": (131, 111, 65),
+        "image_url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
     },
 )
 
@@ -221,11 +218,6 @@ async def main() -> None:
                 )
                 if not municipality or not service_ids or not senior_type_ids:
                     raise RuntimeError("Run Alembic migrations and catalog seeds before seeding")
-                buffer = io.BytesIO()
-                Image.new(
-                    "RGB", (640, 360), cast(tuple[int, int, int], specification["color"])
-                ).save(buffer, "PNG")
-                image_url = await ImageStore(settings.upload_dir).save(buffer.getvalue())
                 center = await centers.create(
                     AsylumCreate.model_validate(
                         {
@@ -248,7 +240,7 @@ async def main() -> None:
                             "email": specification["email"],
                             "serviceIds": service_ids,
                             "seniorTypeIds": senior_type_ids,
-                            "images": [{"url": image_url}],
+                            "images": [{"url": cast(str, specification["image_url"])}],
                         }
                     )
                 )
