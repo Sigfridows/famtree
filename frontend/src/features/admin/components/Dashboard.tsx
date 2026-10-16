@@ -23,6 +23,7 @@ function localDateInput(value: Date): string {
 }
 
 export default function Dashboard() {
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const [data, setData] = useState<Metrics | null>(null);
   const [catalogs, setCatalogs] = useState<Catalogs | null>(null);
   const [error, setError] = useState("");
@@ -37,6 +38,7 @@ export default function Dashboard() {
       .then(([value, options]) => {
         if (alive) {
           setData(value);
+          setUpdatedAt(new Date());
           setCatalogs(options);
           setError("");
         }
@@ -146,6 +148,7 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {updatedAt && <p className="admin-subtitle">Datos actualizados: {updatedAt.toLocaleString("es-DO")}</p>}
       <Notice error={error} />
       <p className="admin-subtitle" aria-live="polite">
         Período aplicado: {query.startDate || "Todo el historial"}
