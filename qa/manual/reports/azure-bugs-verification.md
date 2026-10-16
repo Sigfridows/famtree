@@ -161,3 +161,9 @@ eaca846 fix(admin): show the saved center capacity in its details
 Carpeta local: `/home/isaac/Downloads/FamTree_Evidencias_Bugs`.
 
 Reproducir: `FAMTREE_CASES=770,771 node qa/manual/verify-azure-bugs.mjs` desde la raíz, con Docker Compose activo. El ejecutor requiere los archivos locales de fixtures en `backend/.runtime/`, deliberadamente excluidos de Git. No ejecutar contra producción: crea cuentas y modifica datos de prueba. Los casos 800–803 necesitan una cuenta con cambio temporal pendiente; después de 803 debe prepararse una nueva cuenta temporal antes de repetirlos.
+
+## Revisión de capturas
+
+Se repitieron los 58 casos activos y se revisaron visualmente las nuevas capturas. Todas tienen 1440 × 1000 píxeles y muestran el área visible del navegador tras esperar la carga y las transiciones. Se ocultó únicamente el indicador de desarrollo de Next.js, sin modificar los datos ni los controles de la aplicación. AZ-773 espera a la tabla comparativa; AZ-828 muestra el PDF abierto en el visor real de Chromium.
+
+En la carpeta local, `GALERIA.html` permite buscar y abrir las imágenes originales. `CAPTURAS/` contiene las copias para adjuntar en Azure, y `revision-capturas.json` registra fecha, dimensiones y hash de cada imagen. Los estados de Azure no se modificaron.
