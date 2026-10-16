@@ -26,6 +26,8 @@ import LocationMap from "./LocationMap";
 import { AsylumSummary } from "../types/asylum.types";
 import { useRouter } from "next/navigation";
 import { emitFeedback } from "@/components/shared/FeedbackToast";
+import { requestAuthentication } from "@/components/shared/AuthenticationPrompt";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export interface AsiloDetailData {
   id: string;
@@ -81,6 +83,7 @@ export default function AsiloDetails({
   favorites = [],
 }: AsiloDetailsProps) {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const websiteUrl = getSafeWebsiteUrl(data?.website);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
 
@@ -576,7 +579,13 @@ export default function AsiloDetails({
                       <div className="flex items-center gap-3 pt-3 pb-1 shrink-0">
                         <button
                           type="button"
-                          onClick={() => setIsCompareOpen(true)}
+                          onClick={() => {
+                            if (!isAuthenticated) {
+                              requestAuthentication("Inicia sesión para comparar tus residencias favoritas.");
+                              return;
+                            }
+                            setIsCompareOpen(true);
+                          }}
                           className="w-[35%] bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-2xs"
                         >
                           Comparar
@@ -606,7 +615,7 @@ export default function AsiloDetails({
 
       {/* Modal de Comparación */}
       <AnimatePresence>
-        {isCompareOpen && (
+        {isCompareOpen && isAuthenticated && (
           <div className="fixed inset-0 z-60 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0 }}
@@ -623,7 +632,7 @@ export default function AsiloDetails({
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="relative w-full max-w-5xl z-10"
             >
-              <Compare data={data} items={favorites} onClose={() => setIsCompareOpen(false)} />
+              <Compare items={favorites} onClose={() => setIsCompareOpen(false)} />
             </motion.div>
           </div>
         )}

@@ -17,6 +17,16 @@ vi.mock("@/features/map/components/MapLeafletView", () => ({default: ({onPinSele
 
 afterEach(cleanup);
 
+it("uses a full-background map behind the centered header and floating residence list", () => {
+  render(<MapContainer />);
+  const map = screen.getByRole("region", {name: "Mapa de residencias"});
+  expect(map).toHaveClass("absolute", "inset-0");
+  expect(map).not.toHaveClass("rounded-2xl");
+  const header = screen.getByRole("banner", {name: "Encabezado del mapa"});
+  expect(header.parentElement).toHaveClass("mx-auto", "max-w-7xl");
+  expect(screen.getByRole("list", {name: "Residencias en el mapa"})).toHaveClass("pointer-events-auto", "max-w-105");
+});
+
 it("moves the selected marker's card first, highlights it, and resets the sidebar scroll", async () => {
   render(<MapContainer />);
   const list = screen.getByRole("list", {name: "Residencias en el mapa"});
