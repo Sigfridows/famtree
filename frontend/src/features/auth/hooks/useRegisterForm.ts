@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
 import { validatePassword, validatePasswordsMatch, REGISTER_RULES, registrationErrorMessage } from "@/lib/validations/auth";
+import { emitFeedback } from "@/components/shared/FeedbackToast";
 import { ApiError, friendlyError } from "@/lib/apiClient";
 
 export function useRegisterForm() {
@@ -85,6 +86,7 @@ export function useRegisterForm() {
         confirmPassword,
       });
       router.push("/catalog");
+      emitFeedback({tone: "success", message: "Tu cuenta se creó correctamente. Bienvenido a FamTree."});
     } catch (err: unknown) {
       if (err instanceof ApiError && err.message) {
         setErrorMessage(err.status === 422 ? registrationErrorMessage(err.details) : friendlyError(err, "No se pudo crear la cuenta. Revisa tus datos e inténtalo de nuevo."));
