@@ -67,14 +67,14 @@ export default function MapContainer() {
             {activePin && <button type="button" onClick={() => setActivePinId(null)} className="absolute bottom-20 left-24 z-20 rounded-xl bg-zinc-900 px-3 py-2 text-xs text-white lg:left-28">Cerrar selección</button>}
       </section>
       <div className="pointer-events-none relative mx-auto flex h-full w-full max-w-7xl flex-col gap-6">
-        <header aria-label="Encabezado del mapa" className="pointer-events-auto relative z-30 flex shrink-0 flex-col items-center justify-between gap-4 lg:flex-row">
+        <header aria-label="Encabezado del mapa" className="pointer-events-auto relative z-30 flex shrink-0 items-center">
           <HeaderDesign
             title="Mapa Interactivo"
             subtitle="Asilos cercanos"
             showResidenceLabel={false}
-            className="w-full lg:flex-1 lg:pr-28"
+            className="w-full"
           />
-          <HeaderControls showSearch={false} logoSrc={logoFamTree} className="relative z-20 shrink-0 pt-4 lg:-ml-24 lg:pt-0" />
+          <HeaderControls showSearch={false} logoSrc={logoFamTree} className="absolute right-4 bottom-4 sm:right-6 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 z-20" />
         </header>
         {/* Flow keeps cards clear of the header without boxing in the map. */}
         <div className="relative z-10 flex min-h-0 flex-1 justify-end">

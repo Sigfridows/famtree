@@ -135,15 +135,15 @@ function CatalogContent() {
 
       <div className="max-w-7xl mx-auto space-y-6 relative z-10">
         {/* Cabecera y Controles */}
-        <div className="-mt-4 flex flex-col z-40 lg:flex-row items-center justify-between relative">
+        <div className="relative z-40 flex items-center">
           <HeaderDesign
             title="Catálogo"
             showResidenceLabel={false}
             subtitle="Residencias y asilos disponibles"
-            className="w-full lg:flex-1 lg:pr-28"
+            className="w-full"
           />
 
-          <HeaderControls showSearch={false} logoSrc={logoFamTree} className="shrink-0 lg:-ml-24 relative z-20 pt-4 lg:pt-0" />
+          <HeaderControls showSearch={false} logoSrc={logoFamTree} className="absolute right-4 bottom-4 sm:right-6 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 z-20" />
         </div>
 
         {/* SUBHEADER COMPONENTE REUTILIZABLE */}
