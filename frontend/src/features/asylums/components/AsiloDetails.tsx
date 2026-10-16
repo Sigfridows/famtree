@@ -1,5 +1,5 @@
 "use client";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getSafeWebsiteUrl } from "@/lib/utils";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -81,6 +81,7 @@ export default function AsiloDetails({
   favorites = [],
 }: AsiloDetailsProps) {
   const router = useRouter();
+  const websiteUrl = getSafeWebsiteUrl(data?.website);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
 
   const handleGiveReview = () => {
@@ -446,7 +447,7 @@ export default function AsiloDetails({
                           </div>
 
                           {/* Sitio Web */}
-                          {data.website && /^https?:\/\//i.test(data.website) && (
+                          {websiteUrl && (
                             <div className="flex items-center gap-2.5">
                               <div className="w-7 h-7 rounded-full border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shrink-0 shadow-2xs">
                                 <Globe className="w-3.5 h-3.5" />
@@ -454,7 +455,7 @@ export default function AsiloDetails({
                               <div className="flex flex-col -space-y-0.5 min-w-0">
                                 <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">Sitio Web</span>
                                 <a
-                                  href={data.website.startsWith("http") ? data.website : `https://${data.website}`}
+                                  href={websiteUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline truncate"
@@ -466,7 +467,7 @@ export default function AsiloDetails({
                           )}
 
                           {/* Capacidad */}
-                          {data.capacity !== undefined && (
+                          {typeof data.capacity === "number" && Number.isFinite(data.capacity) && (
                             <div className="flex items-center gap-2.5">
                               <div className="w-7 h-7 rounded-full border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shrink-0 shadow-2xs">
                                 <Users className="w-3.5 h-3.5" />
@@ -509,7 +510,7 @@ export default function AsiloDetails({
                       <section className="space-y-1 text-xs">
                         <h4 className="font-bold">Requisitos de ingreso</h4>
                         <p>{data.entryRequirements || 'No informado'}</p>
-                        <p>Capacidad total: {data.capacity !== undefined ? `${data.capacity} residentes` : 'No informado'}</p>
+                        <p>Capacidad total: {typeof data.capacity === "number" && Number.isFinite(data.capacity) ? `${data.capacity} residentes` : 'No informado'}</p>
                       </section>
                       <section className="space-y-1 text-xs">
                         <h4 className="font-bold">Certificaciones declaradas</h4>
@@ -537,6 +538,7 @@ export default function AsiloDetails({
                         </div>
                       )}
 
+                      {!data.careTypes?.length && <section className="text-xs"><h4 className="font-bold">Tipos de Cuidado Especializado</h4><p>No se han informado tipos de cuidado.</p></section>}
                       {/* Servicios Incluidos */}
                       {data.services && data.services.length > 0 && (
                         <div className="space-y-1.5 shrink-0">
@@ -558,6 +560,7 @@ export default function AsiloDetails({
                         </div>
                       )}
 
+                      {!data.services?.length && <section className="text-xs"><h4 className="font-bold">Servicios e Instalaciones</h4><p>No se han informado servicios.</p></section>}
                       {/* Comodidades */}
                       {data.amenities && data.amenities.length > 0 && (
                         <div className="space-y-1.5 shrink-0">
