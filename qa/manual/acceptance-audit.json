@@ -1,0 +1,630 @@
+[
+  {
+    "azureId": "770",
+    "title": "BUG01 - El aviso de favoritos para visitantes usa una alerta nativa sin accesos a autenticación",
+    "implementationFiles": ["frontend/src/components/shared/AuthenticationPrompt.tsx", "frontend/src/features/asylums/hooks/useFavorites.ts", "frontend/src/app/(main)/catalog/page.tsx", "frontend/src/tests/authentication-prompt.test.tsx"],
+    "criteria": [
+      {"id": "770-CA1", "text": "Sustituir la alerta nativa por un modal de la aplicación.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "770-CA2", "text": "Mostrar un mensaje que explique que es necesario iniciar sesión para guardar favoritos.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "770-CA3", "text": "Incluir enlaces funcionales Iniciar sesión y Registrarse, además de una opción de cierre.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "770-CA4", "text": "No crear un favorito ni marcar el corazón mientras el visitante no esté autenticado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "771",
+    "title": "BUG02 - Guardados presenta una lista personal vacía a un visitante sin explicar la restricción",
+    "implementationFiles": ["frontend/src/components/shared/AuthenticationPrompt.tsx", "frontend/src/features/asylums/hooks/useFavorites.ts", "frontend/src/app/(main)/catalog/page.tsx", "frontend/src/tests/authentication-prompt.test.tsx"],
+    "criteria": [
+      {"id": "771-CA1", "text": "Comprobar la sesión antes de consultar la lista personal.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "771-CA2", "text": "Solicitar autenticación al visitante con accesos a iniciar sesión y registrarse.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "771-CA3", "text": "Reservar el estado Sin residencias guardadas para una cuenta autenticada cuya lista esté realmente vacía.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "771-CA4", "text": "Conservar el catálogo al cerrar el aviso.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "772",
+    "title": "BUG03 - La campana y el panel de notificaciones se muestran sin autenticación",
+    "implementationFiles": ["frontend/src/components/shared/HeaderControls.tsx", "frontend/src/app/(main)/notifications/page.tsx", "frontend/src/features/notifications/hooks/useNotifications.ts", "frontend/src/tests/notification-privacy.test.tsx"],
+    "criteria": [
+      {"id": "772-CA1", "text": "Ocultar la campana y el acceso a la bandeja en modo visitante.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "772-CA2", "text": "Redirigir a Iniciar sesión si se accede directamente a una ruta privada de notificaciones.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Ruta de notificaciones exige sesión", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "772-CA3", "text": "Comprobar permisos en el servicio que consulta las notificaciones.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Ruta de notificaciones exige sesión", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "772-CA4", "text": "No dejar datos de la bandeja al cerrar sesión.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "773",
+    "title": "BUG04 - La comparación pública exige guardar otro asilo en favoritos y bloquea al visitante",
+    "implementationFiles": ["frontend/src/features/asylums/components/Compare.tsx", "frontend/src/tests/compare.test.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "773-CA1", "text": "Permitir seleccionar entre 2 y 4 asilos activos desde el catálogo sin requerir favoritos ni autenticación.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "773-CA2", "text": "Ofrecer una acción para añadir un segundo asilo al flujo ya iniciado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "773-CA3", "text": "Habilitar Comparar al seleccionar 2, 3 o 4 centros.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "773-CA4", "text": "Mantener deshabilitada la comparación con menos de 2 y comunicar cómo completar la selección.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "774",
+    "title": "BUG60 - Auditoría usa un ID de moderador sin identificación legible",
+    "implementationFiles": ["frontend/src/features/admin/components/Moderation.tsx", "frontend/src/features/admin/components/Audit.tsx", "backend/app/modules/reviews/service.py", "backend/tests/unit/test_moderation_identity.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "774-CA1", "text": "Mostrar nombre o usuario del moderador junto a su ID.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Detalle de auditoría identifica actor, acción, entidad y justificación", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "774-CA2", "text": "Mantener la atribución histórica aunque cambie el perfil actual.", "status": "verificado_en_prueba", "evidence": {"mode": "integracion_y_unitaria", "files": ["backend/tests/integration/test_workflows.py", "backend/tests/unit/test_moderation_identity.py"], "test": "Atribución histórica tras cambiar el nombre; lectura de username estable para eventos antiguos sin reescribir el registro"}},
+      {"id": "774-CA3", "text": "Ofrecer un detalle del evento con actor, acción, entidad y justificación.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Detalle de auditoría identifica actor, acción, entidad y justificación", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "776",
+    "title": "BUG05 - La columna Provincia de la selección comparativa muestra una dirección de calle",
+    "implementationFiles": ["frontend/src/features/asylums/components/Compare.tsx", "frontend/src/tests/compare.test.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "776-CA1", "text": "Asignar a Provincia el dato de provincia del centro.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Comparación sin provincia nunca usa la dirección", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "776-CA2", "text": "Mostrar la calle únicamente con una etiqueta de Dirección.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Comparación sin provincia nunca usa la dirección", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "776-CA3", "text": "Presentar un estado No informado si la provincia no existe, sin sustituirla por otro atributo.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Comparación sin provincia nunca usa la dirección", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "776-CA4", "text": "Comprobar la correspondencia de columnas para todos los asilos seleccionados.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "777",
+    "title": "BUG06 - La ficha de asilo omite provincia, municipio y sector de la dirección",
+    "implementationFiles": ["frontend/src/features/asylums/adapters/detail.ts", "frontend/src/features/asylums/components/AsiloDetails.tsx", "frontend/src/features/asylums/components/LocationMap.tsx", "backend/app/modules/asylums/repository.py"],
+    "criteria": [
+      {"id": "777-CA1", "text": "Presentar provincia, municipio, sector y dirección específica en una sección identificable.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "777-CA2", "text": "Usar estados No informado para atributos ausentes.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Datos ausentes en ficha y enlaces inválidos", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "777-CA3", "text": "Mantener los mismos datos de ubicación al abrir desde catálogo y mapa.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "778",
+    "title": "BUG07 - La ficha pública no presenta capacidad ni requisitos de ingreso",
+    "implementationFiles": ["frontend/src/features/asylums/adapters/detail.ts", "frontend/src/features/asylums/components/AsiloDetails.tsx", "frontend/src/features/asylums/components/LocationMap.tsx", "backend/app/modules/asylums/repository.py"],
+    "criteria": [
+      {"id": "778-CA1", "text": "Mostrar la capacidad total con su unidad.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "778-CA2", "text": "Mostrar los requisitos de ingreso registrados sin sustituirlos por la descripción.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "778-CA3", "text": "Presentar un estado explícito si algún dato no ha sido informado.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Datos ausentes en ficha y enlaces inválidos", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "778-CA4", "text": "Verificar los mismos atributos al abrir desde mapa.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "779",
+    "title": "BUG08 - Los distintivos Verificado y Seguro no muestran certificaciones ni fecha de actualización",
+    "implementationFiles": ["frontend/src/features/asylums/adapters/detail.ts", "frontend/src/features/asylums/components/AsiloDetails.tsx", "frontend/src/features/asylums/components/LocationMap.tsx", "backend/app/modules/asylums/repository.py"],
+    "criteria": [
+      {"id": "779-CA1", "text": "Presentar las certificaciones o licencias declaradas con una etiqueta clara.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "779-CA2", "text": "Mostrar la última fecha de actualización del centro.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "779-CA3", "text": "Vincular el distintivo de verificación a información real del centro o retirar la afirmación si no existe soporte.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "779-CA4", "text": "Mostrar Sin certificaciones declaradas cuando corresponda.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Datos ausentes en ficha y enlaces inválidos", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "780",
+    "title": "BUG09 - La ficha omite el acceso al sitio web registrado del asilo",
+    "implementationFiles": ["frontend/src/features/asylums/adapters/detail.ts", "frontend/src/features/asylums/components/AsiloDetails.tsx", "frontend/src/features/asylums/components/LocationMap.tsx", "backend/app/modules/asylums/repository.py"],
+    "criteria": [
+      {"id": "780-CA1", "text": "Mostrar el sitio web cuando el centro tenga una URL registrada.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "780-CA2", "text": "Abrir la URL en una nueva pestaña.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "780-CA3", "text": "Mantener enlaces tel: y mailto: para teléfono y correo.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "780-CA4", "text": "No renderizar enlaces vacíos o inválidos.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Datos ausentes en ficha y enlaces inválidos", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "781",
+    "title": "BUG10 - El detalle no ofrece un mapa individual de la ubicación del centro",
+    "implementationFiles": ["frontend/src/features/asylums/adapters/detail.ts", "frontend/src/features/asylums/components/AsiloDetails.tsx", "frontend/src/features/asylums/components/LocationMap.tsx", "backend/app/modules/asylums/repository.py"],
+    "criteria": [
+      {"id": "781-CA1", "text": "Incluir un mapa 2D centrado en las coordenadas del centro con un único marcador.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "781-CA2", "text": "Mostrar dirección textual y controles de zoom.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "781-CA3", "text": "Si faltan coordenadas, presentar Ubicación en mapa no disponible para este centro sin romper la ficha.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Datos ausentes en ficha y enlaces inválidos", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "782",
+    "title": "BUG11 - El detalle abierto desde el mapa pierde el precio máximo mensual",
+    "implementationFiles": ["frontend/src/features/asylums/adapters/detail.ts", "frontend/src/features/asylums/components/AsiloDetails.tsx", "frontend/src/features/asylums/components/LocationMap.tsx", "backend/app/modules/asylums/repository.py"],
+    "criteria": [
+      {"id": "782-CA1", "text": "Usar el mismo rango mínimo/máximo mensual en ambas fichas.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "782-CA2", "text": "Mantener la moneda DOP y la indicación por mes.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "782-CA3", "text": "Compartir la fuente de datos de la ficha para evitar diferencias entre vistas.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "782-CA4", "text": "No reemplazar el rango completo por el mínimo en una vista de detalle.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "783",
+    "title": "BUG12 - El detalle desde el mapa omite servicios y tipos de cuidado visibles en catálogo",
+    "implementationFiles": ["frontend/src/features/asylums/adapters/detail.ts", "frontend/src/features/asylums/components/AsiloDetails.tsx", "frontend/src/features/asylums/components/LocationMap.tsx", "backend/app/modules/asylums/repository.py"],
+    "criteria": [
+      {"id": "783-CA1", "text": "Mostrar los mismos tipos de cuidado y servicios desde todos los accesos al detalle.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "783-CA2", "text": "Reutilizar una ficha con una fuente de datos consistente.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "783-CA3", "text": "Distinguir ausencia real de datos de una carga pendiente.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Datos ausentes en ficha y enlaces inválidos", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "783-CA4", "text": "Mantener estas secciones visibles sin depender del listado de origen.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "784",
+    "title": "BUG13 - Al alejar el mapa quedan grandes áreas grises y una franja cartográfica incompleta",
+    "implementationFiles": ["frontend/src/features/map/components/MapLeafletView.tsx", "frontend/src/features/map/components/MapContainer.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "784-CA1", "text": "Renderizar cartografía válida en toda el área útil en los niveles permitidos.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Fallo cartográfico se explica y Reintentar recupera las teselas", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "784-CA2", "text": "Definir niveles mínimos/máximos compatibles con la fuente cartográfica.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "784-CA3", "text": "Mantener marcadores alineados con sus coordenadas al variar el zoom.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "784-CA4", "text": "Mostrar un aviso y una opción Reintentar si hay un fallo de carga, evitando un área gris silenciosa.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Fallo cartográfico se explica y Reintentar recupera las teselas", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "785",
+    "title": "BUG14 - El encuadre inicial del mapa se limita al entorno de Santo Domingo",
+    "implementationFiles": ["frontend/src/features/map/components/MapLeafletView.tsx", "frontend/src/features/map/components/MapContainer.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "785-CA1", "text": "Aplicar por defecto un encuadre que permita identificar el territorio dominicano.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "785-CA2", "text": "Mantener visibles los marcadores activos dentro del encuadre.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "785-CA3", "text": "Permitir acercarse a un centro sin perder la posibilidad de volver a la vista general.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "786",
+    "title": "BUG15 - El resumen lateral del mapa omite foto, municipio/provincia y rango mensual",
+    "implementationFiles": ["frontend/src/features/map/components/MapLeafletView.tsx", "frontend/src/features/map/components/MapContainer.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "786-CA1", "text": "Confirmar y documentar si se mantiene popup o resumen lateral.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "786-CA2", "text": "Presentar imagen, nombre, municipio/provincia, rango mensual y calificación del centro seleccionado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "786-CA3", "text": "Incluir Ver Detalles y una acción para cerrar o cambiar la selección.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "786-CA4", "text": "Sincronizar el marcador seleccionado con el resumen visible.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "787",
+    "title": "BUG16 - Dar Reseña desde un asilo muestra opiniones de otros centros",
+    "implementationFiles": ["frontend/src/app/(main)/review/page.tsx", "frontend/src/features/reviews/hooks/useReviews.ts", "backend/app/modules/reviews/service.py"],
+    "criteria": [
+      {"id": "787-CA1", "text": "Conservar el identificador del asilo seleccionado al navegar.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Autenticación de reseña conserva el centro de origen", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "787-CA2", "text": "Mostrar únicamente sus reseñas cuando la navegación se inicia desde su ficha.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "787-CA3", "text": "Identificar el centro en la cabecera y en el formulario de publicación.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Autenticación de reseña conserva el centro de origen", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "787-CA4", "text": "En modo visitante, ofrecer autenticación conservando el asilo de origen.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Autenticación de reseña conserva el centro de origen", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "788",
+    "title": "BUG17 - No se presenta el resumen de reseñas por centro ni la distribución de estrellas",
+    "implementationFiles": ["frontend/src/app/(main)/review/page.tsx", "frontend/src/features/reviews/hooks/useReviews.ts", "backend/app/modules/reviews/service.py"],
+    "criteria": [
+      {"id": "788-CA1", "text": "Mostrar promedio con un decimal, estrellas, total y distribución de 1 a 5 por centro.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Resumen usa las mismas reseñas visibles con Mis Reseñas", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "788-CA2", "text": "Calcular el resumen con las mismas reseñas visibles del centro.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Resumen usa las mismas reseñas visibles con Mis Reseñas", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "788-CA3", "text": "Mostrar el estado sin reseñas cuando corresponda.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Resumen usa las mismas reseñas visibles con Mis Reseñas", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "788-CA4", "text": "Conservar la consulta pública sin exigir autenticación.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "789",
+    "title": "BUG18 - Faltan controles para ordenar por precio y nombre en el catálogo",
+    "implementationFiles": ["frontend/src/features/asylums/components/Filter.tsx", "frontend/src/features/asylums/hooks/useAsylums.ts", "frontend/src/app/(main)/catalog/page.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "789-CA1", "text": "Proveer las cinco opciones de orden definidas en HU06 o documentar un cambio de alcance aprobado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "789-CA2", "text": "Aplicar el orden sobre el conjunto filtrado sin cambiar sus miembros.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "789-CA3", "text": "Conservar el orden al cambiar filtros y páginas.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "789-CA4", "text": "Usar Nombre A-Z por defecto si sigue vigente el criterio de la HU.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "790",
+    "title": "BUG19 - Calificación mínima se reduce a un interruptor sin indicar el umbral aplicado",
+    "implementationFiles": ["frontend/src/features/asylums/components/Filter.tsx", "frontend/src/features/asylums/hooks/useAsylums.ts", "frontend/src/app/(main)/catalog/page.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "790-CA1", "text": "Permitir elegir un umbral de 1 a 5 según HU05 o mostrar explícitamente el umbral aprobado del interruptor.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Filtros: precios no negativos, umbral visible y limpieza", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "790-CA2", "text": "Indicar el valor aplicado en el panel y en el estado de filtros.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Filtros: precios no negativos, umbral visible y limpieza", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "790-CA3", "text": "Excluir centros por debajo del umbral seleccionado.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Filtros: precios no negativos, umbral visible y limpieza", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "790-CA4", "text": "Restablecer el umbral al limpiar filtros.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Filtros: precios no negativos, umbral visible y limpieza", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "791",
+    "title": "BUG20 - El inicio de sesión interpreta credenciales incorrectas como fin de sesión",
+    "implementationFiles": ["frontend/src/features/auth/hooks/useLoginForm.ts", "frontend/src/features/auth/hooks/useRegisterForm.ts", "frontend/src/features/auth/components/AuthProvider.tsx", "backend/app/modules/auth/service.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "791-CA1", "text": "Mostrar Nombre de usuario o contraseña incorrectos para autenticación fallida.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "791-CA2", "text": "Reservar el aviso de sesión terminada para una sesión previa realmente expirada.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "791-CA3", "text": "No revelar si el usuario existe.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "791-CA4", "text": "Conservar el usuario y limpiar la contraseña tras el error.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "792",
+    "title": "BUG21 - La validación de campos vacíos en login no indica qué debe corregirse",
+    "implementationFiles": ["frontend/src/features/auth/hooks/useLoginForm.ts", "frontend/src/features/auth/hooks/useRegisterForm.ts", "frontend/src/features/auth/components/AuthProvider.tsx", "backend/app/modules/auth/service.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "792-CA1", "text": "Mostrar un mensaje de obligatoriedad asociado a cada campo vacío.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "792-CA2", "text": "Mantener el aviso general como resumen, sin sustituir los mensajes de campo.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "792-CA3", "text": "Llevar el foco al primer campo inválido.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "792-CA4", "text": "No enviar una petición de autenticación con campos obligatorios vacíos.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "793",
+    "title": "BUG22 - Los formularios de registro y acceso no señalan visualmente los campos obligatorios",
+    "implementationFiles": ["frontend/src/features/auth/hooks/useLoginForm.ts", "frontend/src/features/auth/hooks/useRegisterForm.ts", "frontend/src/features/auth/components/AuthProvider.tsx", "backend/app/modules/auth/service.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "793-CA1", "text": "Señalizar los campos requeridos de forma consistente.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "793-CA2", "text": "Explicar el significado del indicador cuando se utilice asterisco.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "793-CA3", "text": "Mantener la validación de obligatoriedad aunque el usuario no lea el indicador.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "793-CA4", "text": "Incluir la condición requerida en el nombre accesible de los controles.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "794",
+    "title": "BUG23 - El registro exitoso inicia sesión automáticamente y omite la confirmación exigida",
+    "implementationFiles": ["frontend/src/features/auth/hooks/useLoginForm.ts", "frontend/src/features/auth/hooks/useRegisterForm.ts", "frontend/src/features/auth/components/AuthProvider.tsx", "backend/app/modules/auth/service.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "794-CA1", "text": "Mostrar una confirmación explícita de creación de cuenta.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "794-CA2", "text": "Redirigir a Iniciar sesión si se mantiene HU01 CA04.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "794-CA3", "text": "Si se aprueba el acceso automático, documentarlo y mostrar la confirmación antes o al entrar al catálogo.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "794-CA4", "text": "Evitar crear registros duplicados al reenviar el formulario.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "795",
+    "title": "BUG24 - El aviso de bloqueo temporal no informa la duración ni cuándo reintentar",
+    "implementationFiles": ["frontend/src/features/auth/hooks/useLoginForm.ts", "frontend/src/features/auth/hooks/useRegisterForm.ts", "frontend/src/features/auth/components/AuthProvider.tsx", "backend/app/modules/auth/service.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "795-CA1", "text": "Informar de un bloqueo temporal con una duración o tiempo restante coherente con 15 minutos.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "795-CA2", "text": "Mantener el mensaje sin revelar datos adicionales de existencia de cuenta.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "795-CA3", "text": "Bloquear el acceso de esa cuenta durante el plazo configurado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "795-CA4", "text": "Permitir reintentar al finalizar el plazo y verificar el comportamiento con una prueba temporizada.", "status": "verificado_en_prueba", "evidence": {"mode": "reloj_controlado", "file": "backend/tests/integration/test_workflows.py", "test": "test_auth_sessions_lockout_and_profile: rechaza hasta 14:59, permite a los 15:01"}}
+    ]
+  },
+  {
+    "azureId": "797",
+    "title": "BUG26 - El cambio de contraseña conserva los tres campos tras un error de validación",
+    "implementationFiles": ["frontend/src/lib/validations/password-change.ts", "frontend/src/features/profile/components/PasswordModal.tsx", "frontend/src/features/center-admin/components/ForcePasswordChangeModal.tsx", "frontend/src/tests/password-change.test.ts", "backend/app/modules/auth/service.py"],
+    "criteria": [
+      {"id": "797-CA1", "text": "Limpiar los tres campos tras cada error de validación o autenticación de la clave actual.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Contraseña actual incorrecta: error por campo, limpieza y clave vigente", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "797-CA2", "text": "Restablecer el enmascaramiento de los campos al limpiarlos.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Contraseña actual incorrecta: error por campo, limpieza y clave vigente", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "797-CA3", "text": "Conservar un mensaje descriptivo de la regla fallida.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Contraseña actual incorrecta: error por campo, limpieza y clave vigente", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "797-CA4", "text": "Mantener la contraseña vigente sin alteración.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Contraseña actual incorrecta: error por campo, limpieza y clave vigente", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "798",
+    "title": "BUG27 - El mensaje de nueva contraseña agrupa causas distintas y no identifica la regla fallida",
+    "implementationFiles": ["frontend/src/lib/validations/password-change.ts", "frontend/src/features/profile/components/PasswordModal.tsx", "frontend/src/features/center-admin/components/ForcePasswordChangeModal.tsx", "frontend/src/tests/password-change.test.ts", "backend/app/modules/auth/service.py"],
+    "criteria": [
+      {"id": "798-CA1", "text": "Mostrar La nueva contraseña no puede ser igual a la contraseña actual solo para igualdad.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "798-CA2", "text": "Identificar específicamente las reglas de complejidad incumplidas.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "798-CA3", "text": "Asociar el mensaje a Nueva Contraseña y resaltar su estado inválido.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "798-CA4", "text": "Mantener los errores de contraseña actual y confirmación separados de los de complejidad.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Contraseña actual incorrecta: error por campo, limpieza y clave vigente", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "799",
+    "title": "BUG28 - La validación de obligatorios del cambio de contraseña aparece en inglés y como tooltip nativo",
+    "implementationFiles": ["frontend/src/lib/validations/password-change.ts", "frontend/src/features/profile/components/PasswordModal.tsx", "frontend/src/features/center-admin/components/ForcePasswordChangeModal.tsx", "frontend/src/tests/password-change.test.ts", "backend/app/modules/auth/service.py"],
+    "criteria": [
+      {"id": "799-CA1", "text": "Presentar mensajes de obligatoriedad en español dentro del formulario.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "799-CA2", "text": "Usar el mismo patrón visual para errores de cliente y servidor.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Contraseña actual incorrecta: error por campo, limpieza y clave vigente", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "799-CA3", "text": "Identificar el campo y mantener el foco en el primer requerido vacío.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "799-CA4", "text": "Aplicar el patrón también al cambio obligatorio de contraseña temporal.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "800",
+    "title": "BUG29 - Las contraseñas del administrador de asilo son ilegibles al mostrarlas",
+    "implementationFiles": ["frontend/src/lib/validations/password-change.ts", "frontend/src/features/profile/components/PasswordModal.tsx", "frontend/src/features/center-admin/components/ForcePasswordChangeModal.tsx", "frontend/src/tests/password-change.test.ts", "backend/app/modules/auth/service.py"],
+    "criteria": [
+      {"id": "800-CA1", "text": "Usar colores de texto y fondo con contraste suficiente en los tres campos.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "800-CA2", "text": "Verificar tanto estado enmascarado como estado visible, foco y error.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "800-CA3", "text": "Mantener los estilos consistentes con el tema del modal.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "800-CA4", "text": "Comprobar la legibilidad en Chrome sobre Windows 11.", "status": "pendiente_prueba_manual_windows11", "evidence": {"mode": "limitacion_de_entorno", "detail": "Se probó Chromium en Ubuntu. Hace falta verificar Chrome sobre Windows 11 para satisfacer este criterio literal."}}
+    ]
+  },
+  {
+    "azureId": "801",
+    "title": "BUG30 - La ayuda del cambio temporal omite la minúscula requerida y usa cotejos sin validar la entrada",
+    "implementationFiles": ["frontend/src/lib/validations/password-change.ts", "frontend/src/features/profile/components/PasswordModal.tsx", "frontend/src/features/center-admin/components/ForcePasswordChangeModal.tsx", "frontend/src/tests/password-change.test.ts", "backend/app/modules/auth/service.py"],
+    "criteria": [
+      {"id": "801-CA1", "text": "Enumerar todas las reglas vigentes, incluyendo minúscula.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "801-CA2", "text": "Si los cotejos representan validación, actualizarlos de acuerdo con la entrada real.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "801-CA3", "text": "Si son solo decoración, sustituirlos por indicadores neutrales y aclarar su carácter informativo.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "801-CA4", "text": "Mantener coherencia entre ayuda, errores y política aplicada.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "802",
+    "title": "BUG31 - El cambio temporal usa un aviso general en lugar de señalar Nueva contraseña",
+    "implementationFiles": ["frontend/src/lib/validations/password-change.ts", "frontend/src/features/profile/components/PasswordModal.tsx", "frontend/src/features/center-admin/components/ForcePasswordChangeModal.tsx", "frontend/src/tests/password-change.test.ts", "backend/app/modules/auth/service.py"],
+    "criteria": [
+      {"id": "802-CA1", "text": "Informar que falta un carácter especial junto a Nueva contraseña.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "802-CA2", "text": "Distinguir falta de complejidad, igualdad con temporal y confirmación diferente.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "802-CA3", "text": "Mantener el bloqueo de navegación mientras no se complete una actualización válida.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "802-CA4", "text": "Evitar que indicadores de ayuda contradigan el resultado de validación.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "803",
+    "title": "BUG32 - El cambio de contraseña temporal no muestra la confirmación de bienvenida",
+    "implementationFiles": ["frontend/src/lib/validations/password-change.ts", "frontend/src/features/profile/components/PasswordModal.tsx", "frontend/src/features/center-admin/components/ForcePasswordChangeModal.tsx", "frontend/src/tests/password-change.test.ts", "backend/app/modules/auth/service.py"],
+    "criteria": [
+      {"id": "803-CA1", "text": "Mostrar una confirmación visible de contraseña actualizada.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "803-CA2", "text": "Redirigir al panel del centro asignado una vez finalizado el proceso.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "803-CA3", "text": "Permitir el siguiente inicio con la clave definitiva e impedir el uso de la temporal.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "803-CA4", "text": "Verificar por un medio técnico la desactivación de requiere_cambio_clave.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "804",
+    "title": "BUG33 - Quitar la foto y guardar informa éxito, pero la imagen reaparece",
+    "implementationFiles": ["frontend/src/features/profile/components/ProfileForm.tsx", "frontend/src/features/profile/components/ContactSection.tsx", "frontend/src/features/profile/components/CustomSelect.tsx", "frontend/src/tests/profile-cancel.test.tsx", "backend/app/modules/users/service.py"],
+    "criteria": [
+      {"id": "804-CA1", "text": "Persistir la retirada de la referencia de foto.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Cancelar y abandonar perfil no guardan borradores ni fotos", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "804-CA2", "text": "Mostrar el avatar por defecto después del guardado, recarga y nuevo inicio de sesión.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "804-CA3", "text": "No restaurar la imagen desde una caché o un estado anterior.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "804-CA4", "text": "Mostrar éxito solo cuando el estado guardado sea el que se devuelve al consultar el perfil.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "805",
+    "title": "BUG34 - El municipio no se adapta a la ciudad seleccionada y permite combinaciones incompatibles",
+    "implementationFiles": ["frontend/src/features/profile/components/ProfileForm.tsx", "frontend/src/features/profile/components/ContactSection.tsx", "frontend/src/features/profile/components/CustomSelect.tsx", "frontend/src/tests/profile-cancel.test.tsx", "backend/app/modules/users/service.py"],
+    "criteria": [
+      {"id": "805-CA1", "text": "Cargar los municipios correspondientes a la ciudad/provincia seleccionada.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "805-CA2", "text": "Limpiar o invalidar un municipio previo que no pertenezca al nuevo valor geográfico.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "805-CA3", "text": "Validar la relación también en el servidor.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "805-CA4", "text": "Rechazar combinaciones incompatibles con un mensaje junto al selector.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "806",
+    "title": "BUG35 - Los cambios de ciudad y municipio no se conservan al volver al perfil",
+    "implementationFiles": ["frontend/src/features/profile/components/ProfileForm.tsx", "frontend/src/features/profile/components/ContactSection.tsx", "frontend/src/features/profile/components/CustomSelect.tsx", "frontend/src/tests/profile-cancel.test.tsx", "backend/app/modules/users/service.py"],
+    "criteria": [
+      {"id": "806-CA1", "text": "No emitir éxito si los valores solicitados no se guardaron.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "806-CA2", "text": "Persistir y recuperar una combinación geográfica válida sin restaurar valores anteriores.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "806-CA3", "text": "Rechazar de forma explícita una combinación inválida.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "806-CA4", "text": "Separar el diagnóstico de guardado del problema de dependencia de municipios.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "808",
+    "title": "BUG37 - La pantalla de consulta del perfil no muestra el rol ni un modo de consulta separado",
+    "implementationFiles": ["frontend/src/features/profile/components/ProfileForm.tsx", "frontend/src/features/profile/components/ContactSection.tsx", "frontend/src/features/profile/components/CustomSelect.tsx", "frontend/src/tests/profile-cancel.test.tsx", "backend/app/modules/users/service.py"],
+    "criteria": [
+      {"id": "808-CA1", "text": "Mostrar el rol asignado junto a los datos de cuenta.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "808-CA2", "text": "Mantener un modo solo lectura y Editar perfil si sigue vigente HU14.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "808-CA3", "text": "Si se aprueba la pantalla unificada, actualizar el diseño y el criterio de consulta de HU14.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "808-CA4", "text": "No mostrar ningún valor de contraseña en la vista de perfil.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "809",
+    "title": "BUG38 - La edición del perfil no ofrece Cancelar para descartar cambios",
+    "implementationFiles": ["frontend/src/features/profile/components/ProfileForm.tsx", "frontend/src/features/profile/components/ContactSection.tsx", "frontend/src/features/profile/components/CustomSelect.tsx", "frontend/src/tests/profile-cancel.test.tsx", "backend/app/modules/users/service.py"],
+    "criteria": [
+      {"id": "809-CA1", "text": "Incluir Cancelar sin cerrar la sesión.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Cancelar y abandonar perfil no guardan borradores ni fotos", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "809-CA2", "text": "Restaurar los valores persistidos y descartar el borrador al cancelar.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Cancelar y abandonar perfil no guardan borradores ni fotos", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "809-CA3", "text": "No guardar cambios parciales durante la cancelación.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Cancelar y abandonar perfil no guardan borradores ni fotos", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "809-CA4", "text": "Definir un aviso de cambios pendientes si se abandona la edición por navegación.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Cancelar y abandonar perfil no guardan borradores ni fotos", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "810",
+    "title": "BUG39 - La cabecera muestra Servicios Verificado con concordancia incorrecta",
+    "implementationFiles": ["frontend/src/components/shared/HeaderDesign.tsx"],
+    "criteria": [
+      {"id": "810-CA1", "text": "Corregir la concordancia a Servicios verificados si ese es el significado aprobado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "810-CA2", "text": "Precisar qué entidad o información está verificada.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "810-CA3", "text": "No mostrar un estado de verificación de servicio como si fuera un dato del perfil personal.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "810-CA4", "text": "Aplicar el texto corregido en todas las cabeceras compartidas.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "811",
+    "title": "BUG40 - Las preguntas frecuentes anuncian citas y cancelaciones fuera del alcance de FamTree",
+    "implementationFiles": ["frontend/src/app/(main)/support/page.tsx"],
+    "criteria": [
+      {"id": "811-CA1", "text": "Alinear las FAQ con el alcance aprobado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "811-CA2", "text": "Explicar el contacto externo con el centro si las visitas se acuerdan fuera de FamTree.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "811-CA3", "text": "Retirar instrucciones sobre controles o flujos inexistentes.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "811-CA4", "text": "Si las citas se incorporaron por cambio aprobado, actualizar las HUs y aportar sus pruebas.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "812",
+    "title": "BUG41 - El filtro de precio no permite definir un mínimo ni un rango completo",
+    "implementationFiles": ["frontend/src/features/asylums/components/Filter.tsx", "frontend/src/features/asylums/hooks/useAsylums.ts", "frontend/src/app/(main)/catalog/page.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "812-CA1", "text": "Proveer límites mínimo y máximo expresos en DOP si HU05 sigue vigente.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Filtros: precios no negativos, umbral visible y limpieza", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "812-CA2", "text": "Admitir valores numéricos mayores o iguales a 0.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Filtros: precios no negativos, umbral visible y limpieza", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "812-CA3", "text": "Validar que mínimo no supere máximo y comunicar el error junto al rango.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Filtros: precios no negativos, umbral visible y limpieza", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "812-CA4", "text": "Si se aprobó un filtro exclusivamente de máximo, documentar el cambio y sus límites.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "813",
+    "title": "BUG42 - El filtro usa tipos de propiedad en lugar de las categorías de adulto mayor",
+    "implementationFiles": ["frontend/src/features/asylums/components/Filter.tsx", "frontend/src/features/asylums/hooks/useAsylums.ts", "frontend/src/app/(main)/catalog/page.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "813-CA1", "text": "Presentar un grupo multiselección de Tipo de adulto mayor con las seis categorías de HU05.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "813-CA2", "text": "Vincular el filtro a los tipos de atención registrados por cada centro.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "813-CA3", "text": "Mantener Tipo de Propiedad solo si es un criterio adicional aprobado y claramente diferenciado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "813-CA4", "text": "Aplicar todas las categorías seleccionadas según la lógica de filtrado acordada.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "814",
+    "title": "BUG43 - El catálogo de servicios del filtro omite categorías clínicas definidas en la HU",
+    "implementationFiles": ["frontend/src/features/asylums/components/Filter.tsx", "frontend/src/features/asylums/hooks/useAsylums.ts", "frontend/src/app/(main)/catalog/page.tsx", "backend/tests/integration/test_discovery.py"],
+    "criteria": [
+      {"id": "814-CA1", "text": "Ofrecer los nueve servicios definidos en HU05 si ese alcance se mantiene.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "814-CA2", "text": "Distinguir Fisioterapia de Terapia ocupacional.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "814-CA3", "text": "Usar las mismas categorías en gestión del centro, detalle, filtro y comparación.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "814-CA4", "text": "Documentar cualquier sustitución de categorías aprobada para evitar resultados incompatibles.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "815",
+    "title": "BUG44 - Desactivar un asilo cambia su estado sin confirmación previa",
+    "implementationFiles": ["frontend/src/features/admin/components/Centers.tsx", "frontend/src/features/admin/components/CenterForm.tsx", "frontend/src/features/admin/components/CenterDetailsModal.tsx", "backend/app/modules/asylums/management_service.py"],
+    "criteria": [
+      {"id": "815-CA1", "text": "Abrir un diálogo antes de modificar el estado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "815-CA2", "text": "Identificar el centro y explicar que desaparecerá de catálogo, búsquedas y mapa, y permanecerá no disponible en favoritos.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Asilo desactivado permanece en Guardados como No disponible", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "815-CA3", "text": "Ofrecer Confirmar desactivación y Cancelar.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "815-CA4", "text": "Cambiar el estado únicamente después de confirmar y mantenerlo intacto al cancelar.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "816",
+    "title": "BUG45 - La confirmación de cambio de estado del asilo no identifica acción ni centro",
+    "implementationFiles": ["frontend/src/features/admin/components/Centers.tsx", "frontend/src/features/admin/components/CenterForm.tsx", "frontend/src/features/admin/components/CenterDetailsModal.tsx", "backend/app/modules/asylums/management_service.py"],
+    "criteria": [
+      {"id": "816-CA1", "text": "Mostrar Residencia San José ha sido desactivada o un mensaje equivalente con centro y estado final.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "816-CA2", "text": "Mantener el badge de la misma fila sincronizado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "816-CA3", "text": "Usar mensajes diferentes para activar, desactivar, fallo y cancelación.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "817",
+    "title": "BUG46 - Las acciones de asilos se representan con iconos sin etiqueta visible",
+    "implementationFiles": ["frontend/src/features/admin/components/Centers.tsx", "frontend/src/features/admin/components/CenterForm.tsx", "frontend/src/features/admin/components/CenterDetailsModal.tsx", "backend/app/modules/asylums/management_service.py"],
+    "criteria": [
+      {"id": "817-CA1", "text": "Añadir etiquetas Ver detalle, Editar y Activar/Desactivar, o un menú de acciones identificado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "817-CA2", "text": "Incluir ayudas al pasar el puntero y nombres accesibles.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "817-CA3", "text": "Diferenciar la acción de cambio de estado de la de edición.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "817-CA4", "text": "Asegurar que la acción siempre corresponde al estado de esa fila.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "818",
+    "title": "BUG47 - El detalle administrativo omite servicios, tipos de atención y contacto institucional",
+    "implementationFiles": ["frontend/src/features/admin/components/Centers.tsx", "frontend/src/features/admin/components/CenterForm.tsx", "frontend/src/features/admin/components/CenterDetailsModal.tsx", "backend/app/modules/asylums/management_service.py"],
+    "criteria": [
+      {"id": "818-CA1", "text": "Mostrar los atributos de la ficha completa o enlazar explícitamente a ella.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "818-CA2", "text": "Incluir teléfono, correo, web, servicios, tipos de atención y requisitos con valores del centro.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "818-CA3", "text": "Identificar datos no informados.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "818-CA4", "text": "Mantener separadas la consulta institucional y la cuenta del administrador asignado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "819",
+    "title": "BUG48 — La edición de asilo no indica límites de texto junto a los campos",
+    "implementationFiles": ["frontend/src/features/admin/components/Centers.tsx", "frontend/src/features/admin/components/CenterForm.tsx", "frontend/src/features/admin/components/CenterDetailsModal.tsx", "backend/app/modules/asylums/management_service.py"],
+    "criteria": [
+      {"id": "819-CA1", "text": "Mostrar ayuda 5–100 para nombre, 20–1000 para descripción, máximo 100 para sector y 200 para dirección.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "819-CA2", "text": "Mostrar 10–500 para requisitos y máximo 250 para certificaciones.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "819-CA3", "text": "Identificar obligatorios y opcionales.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "819-CA4", "text": "Actualizar un contador o error de longitud junto al campo correspondiente.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "820",
+    "title": "BUG49 - El error de edición menciona rangos de fechas en un formulario sin fechas",
+    "implementationFiles": ["frontend/src/features/admin/components/Centers.tsx", "frontend/src/features/admin/components/CenterForm.tsx", "frontend/src/features/admin/components/CenterDetailsModal.tsx", "backend/app/modules/asylums/management_service.py"],
+    "criteria": [
+      {"id": "820-CA1", "text": "Mostrar Ingresa un correo institucional válido junto a Correo institucional para ese caso.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "820-CA2", "text": "Enumerar solamente errores realmente encontrados.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "820-CA3", "text": "Retirar la referencia a fechas del formulario de asilos.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "820-CA4", "text": "Conservar valores válidos y orientar hacia el primer campo inválido.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "821",
+    "title": "BUG50 - La falta de servicios o atención se comunica con un aviso combinado lejos de los grupos",
+    "implementationFiles": ["frontend/src/features/admin/components/Centers.tsx", "frontend/src/features/admin/components/CenterForm.tsx", "frontend/src/features/admin/components/CenterDetailsModal.tsx", "backend/app/modules/asylums/management_service.py"],
+    "criteria": [
+      {"id": "821-CA1", "text": "Validar cada grupo por separado.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "821-CA2", "text": "Mostrar Selecciona al menos un servicio junto a Servicios y Selecciona al menos un tipo de atención solo si ese grupo también falla.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "821-CA3", "text": "Marcar visualmente el grupo inválido y hacerlo accesible.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "821-CA4", "text": "Mantener las demás selecciones y no guardar hasta corregir.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "824",
+    "title": "BUG51 - Los indicadores no explican si el período filtra altas o el estado actual",
+    "implementationFiles": ["frontend/src/features/admin/components/Dashboard.tsx", "frontend/src/features/admin/components/AdminUI.tsx", "backend/app/modules/reports/repository.py"],
+    "criteria": [
+      {"id": "824-CA1", "text": "Definir si cada KPI mide un stock actual o altas/eventos del período.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Atajos de período consultan intervalos distintos y muestran definición", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "824-CA2", "text": "Usar etiquetas como Asilos registrados en el período que están activos cuando ese sea el cálculo.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Atajos de período consultan intervalos distintos y muestran definición", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "824-CA3", "text": "Separar el total operativo actual de los eventos del período si ambos se necesitan.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Atajos de período consultan intervalos distintos y muestran definición", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "824-CA4", "text": "Mostrar período aplicado, fecha de actualización y definición accesible de cada indicador.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Atajos de período consultan intervalos distintos y muestran definición", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "825",
+    "title": "BUG52 - El gráfico de calificaciones queda vacío sin explicación cuando el período no tiene datos",
+    "implementationFiles": ["frontend/src/features/admin/components/Dashboard.tsx", "frontend/src/features/admin/components/AdminUI.tsx", "backend/app/modules/reports/repository.py"],
+    "criteria": [
+      {"id": "825-CA1", "text": "Mostrar un mensaje de ausencia de datos en cada gráfico vacío.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "825-CA2", "text": "Distinguir un resultado sin registros de un error de carga.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Fallos del dashboard se distinguen de un período sin registros", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "825-CA3", "text": "Ofrecer Todo el historial para recuperar la vista general.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "826",
+    "title": "BUG53 - El reporte de centros expone provinceId en vez del nombre de la provincia",
+    "implementationFiles": ["backend/app/modules/reports/service.py", "backend/app/modules/reports/presentation.py", "frontend/src/features/admin/components/Reports.tsx", "backend/tests/unit/test_media_and_exports.py"],
+    "criteria": [
+      {"id": "826-CA1", "text": "Mostrar Provincia con su nombre legible en tabla y archivo.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Provincia Santiago legible en tabla, PDF y CSV", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "826-CA2", "text": "Conservar el ID solo como columna adicional si es útil para auditoría.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "826-CA3", "text": "Mostrar el filtro aplicado con Santiago, no únicamente 29.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Provincia Santiago legible en tabla, PDF y CSV", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "826-CA4", "text": "Verificar correspondencia entre ID y nombre.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Provincia Santiago legible en tabla, PDF y CSV", "file": "qa/manual/verify-acceptance-edges.mjs"}}
+    ]
+  },
+  {
+    "azureId": "827",
+    "title": "BUG54 - Las columnas de cuentas exponen firstName, lastName y códigos de rol internos",
+    "implementationFiles": ["backend/app/modules/reports/service.py", "backend/app/modules/reports/presentation.py", "frontend/src/features/admin/components/Reports.tsx", "backend/tests/unit/test_media_and_exports.py"],
+    "criteria": [
+      {"id": "827-CA1", "text": "Usar Nombre, Apellido y Rol con etiquetas legibles.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "827-CA2", "text": "Mostrar Usuario registrado, Administrador de asilo y Administrador del sistema.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "827-CA3", "text": "Mantener un mapeo único entre interfaz, PDF y CSV.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "827-CA4", "text": "No usar claves técnicas como sustituto del significado del dato.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "828",
+    "title": "BUG55 - El PDF conserva un título de documento anónimo en el visor",
+    "implementationFiles": ["backend/app/modules/reports/service.py", "backend/app/modules/reports/presentation.py", "frontend/src/features/admin/components/Reports.tsx", "backend/tests/unit/test_media_and_exports.py"],
+    "criteria": [
+      {"id": "828-CA1", "text": "Definir un título PDF descriptivo con tipo de reporte.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Provincia Santiago legible en tabla, PDF y CSV", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "828-CA2", "text": "Incluir metadatos de autor institucional y fecha de generación cuando corresponda.", "status": "verificado_en_prueba", "evidence": {"mode": "navegador_sin_capturas", "test": "Provincia Santiago legible en tabla, PDF y CSV", "file": "qa/manual/verify-acceptance-edges.mjs"}},
+      {"id": "828-CA3", "text": "Mantener una convención de nombre de archivo consistente.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "829",
+    "title": "BUG56 - Desbloquear una cuenta actúa sin modal ni motivo original visible",
+    "implementationFiles": ["frontend/src/features/admin/components/Users.tsx", "backend/app/modules/administration/service.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "829-CA1", "text": "Abrir una confirmación con nombre, correo y razón original del bloqueo.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "829-CA2", "text": "Explicar que la cuenta recuperará el acceso y ofrecer Confirmar desbloqueo / Cancelar.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "829-CA3", "text": "Mantener el bloqueo al cancelar.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "829-CA4", "text": "Registrar el desbloqueo solo al confirmar y actualizar la fila.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "830",
+    "title": "BUG57 - Bloquear y desbloquear producen el mismo aviso genérico",
+    "implementationFiles": ["frontend/src/features/admin/components/Users.tsx", "backend/app/modules/administration/service.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "830-CA1", "text": "Mostrar La cuenta @ngomez ha sido bloqueada y una confirmación diferente para desbloqueo.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "830-CA2", "text": "Identificar el usuario afectado y su estado final.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "830-CA3", "text": "Conservar la tabla, búsqueda y filtros salvo que el nuevo estado deje de coincidir con ellos.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "831",
+    "title": "BUG58 - La vista de moderación omite la fecha de publicación de la reseña",
+    "implementationFiles": ["frontend/src/features/admin/components/Moderation.tsx", "frontend/src/features/admin/components/Audit.tsx", "backend/app/modules/reviews/service.py", "backend/tests/unit/test_moderation_identity.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "831-CA1", "text": "Presentar fecha de publicación de la reseña separada de fecha del reporte.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "831-CA2", "text": "Mantener autor, calificación, comentario, asilo y denunciante completos.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "831-CA3", "text": "Mostrar fechas con formato legible y contexto temporal.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  },
+  {
+    "azureId": "832",
+    "title": "BUG59 - La resolución consultada no identifica al moderador responsable",
+    "implementationFiles": ["frontend/src/features/admin/components/Moderation.tsx", "frontend/src/features/admin/components/Audit.tsx", "backend/app/modules/reviews/service.py", "backend/tests/unit/test_moderation_identity.py", "backend/tests/integration/test_workflows.py"],
+    "criteria": [
+      {"id": "832-CA1", "text": "Mostrar nombre/usuario e ID del moderador en la resolución.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "832-CA2", "text": "Conservar la justificación histórica y fecha/hora.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}},
+      {"id": "832-CA3", "text": "Mantener el modo de consulta sin permitir modificar una resolución ya cerrada.", "status": "implementado_revisado_en_codigo", "evidence": {"mode": "revision_de_implementacion", "source": "implementationFiles del mismo bug"}}
+    ]
+  }
+]
