@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, Plus, ArrowLeft, CheckSquare, Square, Sparkles, Building2 } from "lucide-react";
 import logoFamTree from "@/assets/famtree.png";
 import EmptyState from "./EmptyState";
+import RatingSummary from "./RatingSummary";
 import { getAsylums } from "@/features/asylums/api/discovery";
 import { compareAsylums } from "@/features/compare/api/compare-asylums";
 import { getImageUrl } from "@/lib/utils";
@@ -18,6 +19,7 @@ export interface AsiloItem {
   name: string;
   status: string;
   rating: number;
+  reviewCount: number;
   province: string;
   price: string;
   numericPrice: number;
@@ -40,6 +42,7 @@ function mapSummaryToAsiloItem(item: AsylumSummary): AsiloItem {
       name: "Residencia",
       status: "Desconocido",
       rating: 0,
+      reviewCount: 0,
       province: "N/A",
       price: "Consultar",
       numericPrice: 0,
@@ -57,6 +60,7 @@ function mapSummaryToAsiloItem(item: AsylumSummary): AsiloItem {
     name: item.name || "Residencia sin nombre",
     status: item.status === "INACTIVE" ? "Cerrado" : "Abierto",
     rating: typeof item.rating === "number" ? item.rating : 0,
+    reviewCount: item.review_count,
     province: item.province_name || "No informado",
     price: priceText,
     numericPrice: priceMin,
@@ -76,6 +80,7 @@ function mapDetailToAsiloItem(detail: AsiloDetailData): AsiloItem {
     name: detail.title || "Residencia sin nombre",
     status: "Abierto",
     rating: typeof detail.rating === "number" ? detail.rating : 0,
+    reviewCount: detail.reviewsCount ?? 0,
     province: detail.province || "No informado",
     price: priceText,
     numericPrice: priceMin,
@@ -153,7 +158,8 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
     return comparisonItems
       .filter((item) => selectedIds.includes(item.id))
       .map((item, _, array) => {
-        const isBest = array.every((other) => {
+        const isBest = item.reviewCount >= 3 && array.every((other) => {
+          if (other.reviewCount < 3) return true;
           if (item.id === other.id) return true;
           if (item.rating > other.rating) return true;
           if (item.rating === other.rating) {
@@ -374,7 +380,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
                           </div>
                         </div>
                         <div className="sm:col-span-2 text-left sm:text-center font-extrabold text-xs text-white">
-                          ★ {item.rating.toFixed(1)}
+                          <RatingSummary rating={item.rating} reviewCount={item.reviewCount} />
                         </div>
                         <div className="sm:col-span-2 text-left sm:text-center font-bold text-xs text-zinc-400">
                           {item.province}
@@ -480,7 +486,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
                         key={asilo.id}
                         className={`${layoutConfig.paddingX} ${layoutConfig.paddingY} text-center font-black ${layoutConfig.textSize} text-white border-r border-zinc-800 last:border-r-0`}
                       >
-                        ★ {asilo.rating.toFixed(1)}
+                        <RatingSummary rating={asilo.rating} reviewCount={asilo.reviewCount} />
                       </td>
                     ))}
                   </tr>
