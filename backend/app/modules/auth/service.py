@@ -38,7 +38,10 @@ class AuthService:
         now = datetime.now(UTC)
         if guard.locked_until and guard.locked_until > now:
             raise AppError(
-                code="login_locked", message="Espera antes de volver a intentar", status_code=429
+                code="login_locked",
+                message="Acceso bloqueado temporalmente. Vuelve a intentarlo al finalizar el plazo.",
+                status_code=429,
+                details={"retry_after_seconds": max(1, int((guard.locked_until - now).total_seconds()))},
             )
         if guard.locked_until:
             guard.failures = 0
