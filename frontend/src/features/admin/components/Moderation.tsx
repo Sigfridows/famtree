@@ -202,6 +202,7 @@ export default function Moderation() {
               <strong>{reasons[target.reason] || target.reason}</strong>
             </p>
             <p>Detalle adicional de la denuncia: {target.detail || "Sin detalles adicionales."}</p>
+            <p>Fecha del reporte: {new Date(target.created_at).toLocaleString("es-DO")}</p>
             <p>Publicación de la reseña: {target.review_published_at ? new Date(target.review_published_at).toLocaleString("es-DO") : "Fecha histórica no registrada"}</p>
 
             {target.status !== "PENDING" ? (
