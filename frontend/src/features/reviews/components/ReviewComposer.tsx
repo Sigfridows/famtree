@@ -127,6 +127,18 @@ export default function ReviewComposer({
     }
     const reviewText = commentText.trim() || RATING_SUGGESTIONS[selectedRating][0];
 
+    if (reviewText.length < 10) {
+      setWarningMessage("La reseña debe tener al menos 10 caracteres.");
+      return;
+    }
+
+    if (reviewText.length > 500) {
+      setWarningMessage(
+        `La reseña no puede superar 500 caracteres. Actualmente tiene ${reviewText.length}.`,
+      );
+      return;
+    }
+
     if (!selectedAsilo) {
       setWarningMessage("Debes etiquetar o seleccionar una residencia usando '@' para publicar.");
       return;
@@ -228,6 +240,9 @@ export default function ReviewComposer({
           } ${isItalic ? "italic" : ""} ${isUnderline ? "underline" : ""}`}
           placeholder="Escribe tu experiencia... Usa '@' para etiquetar un asilo"
         />
+        <div className={`text-right text-[10px] ${commentText.length > 500 ? "text-rose-300" : "text-zinc-500"}`}>
+          {commentText.length}/500 caracteres
+        </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-white/5">
           <div className="flex items-center gap-1 text-zinc-400">
