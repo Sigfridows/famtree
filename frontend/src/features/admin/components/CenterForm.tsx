@@ -372,7 +372,7 @@ export default function CenterForm({
             ["seniorTypeIds", "Tipos de atención", catalogs.care_types],
           ] as const
         ).map(([key, label, options]) => (
-          <fieldset key={key} disabled={busy}>
+          <fieldset key={key} disabled={busy} aria-invalid={Boolean(fieldErrors[key])}>
             <legend>{label} (al menos uno)</legend>
             {fieldErrors[key] && <p role="alert" style={{color: "#b91c1c"}}>{fieldErrors[key]}</p>}
             <div className="admin-checks">
