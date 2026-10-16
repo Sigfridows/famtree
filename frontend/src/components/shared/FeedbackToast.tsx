@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, X, XCircle } from "lucide-react";
+import { CheckCircle2, Info, X, XCircle } from "lucide-react";
 
 export type FeedbackTone = "success" | "error" | "info";
 export type FeedbackEvent = { message: string; tone?: FeedbackTone };
@@ -24,8 +24,14 @@ export default function FeedbackToast() {
   }, [event]);
   if (!event) return null;
   const error = event.tone === "error";
-  return <div role={error ? "alert" : "status"} aria-live="polite" className={`fixed right-4 top-4 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border px-4 py-3 text-sm shadow-2xl backdrop-blur-xl ${error ? "border-rose-400/40 bg-rose-950/90 text-rose-100" : "border-emerald-400/40 bg-emerald-950/90 text-emerald-100"}`}>
-    {error ? <XCircle className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}
+  const info = event.tone === "info";
+  const toneClass = error
+    ? "border-rose-400/40 bg-rose-950/90 text-rose-100"
+    : info
+      ? "border-amber-400/40 bg-amber-950/90 text-amber-100"
+      : "border-emerald-400/40 bg-emerald-950/90 text-emerald-100";
+  return <div role={error ? "alert" : "status"} aria-live="polite" className={`fixed right-4 top-4 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border px-4 py-3 text-sm shadow-2xl backdrop-blur-xl ${toneClass}`}>
+    {error ? <XCircle className="mt-0.5 h-4 w-4 shrink-0" /> : info ? <Info className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}
     <span className="flex-1">{event.message}</span>
     <button type="button" aria-label="Cerrar mensaje" onClick={() => setEvent(null)}><X className="h-4 w-4" /></button>
   </div>;
