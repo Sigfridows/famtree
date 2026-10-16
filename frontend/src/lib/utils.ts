@@ -38,3 +38,12 @@ export function formatPhoneNumber(value?: string | null): string {
   
   return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
+export function getSafeWebsiteUrl(value?: string | null): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return /^https?:$/.test(url.protocol) && url.hostname && !url.username && !url.password ? url.href : null;
+  } catch {
+    return null;
+  }
+}
