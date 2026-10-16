@@ -204,7 +204,10 @@ export function ProfileForm() {
             lastName={lastName}
             isUploadingAvatar={isUploadingAvatar}
             onFileSelect={handleFileSelect}
-            onRemoveAvatar={() => setAvatarUrl("")}
+            onRemoveAvatar={() => void (async () => {
+              try { await profileService.removeAvatar(); setAvatarUrl(''); setFeedback({type: 'success', message: 'Foto de perfil eliminada.'}); }
+              catch { setFeedback({type: 'error', message: 'No se pudo quitar la foto.'}); }
+            })()}
             onUsernameChange={setUsername}
             onFirstNameChange={setFirstName}
             onLastNameChange={setLastName}

@@ -180,7 +180,7 @@ class UserDirectory:
         await self.repository.session.flush()
         return await self.preferences(user_id)
 
-    async def set_picture(self, user_id: int, url: str) -> tuple[UserProfile, str | None]:
+    async def set_picture(self, user_id: int, url: str | None) -> tuple[UserProfile, str | None]:
         user = await self.repository.get(user_id, lock=True)
         if user is None:
             raise AppError(code="user_not_found", message="Usuario no disponible", status_code=404)
