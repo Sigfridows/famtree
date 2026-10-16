@@ -9,6 +9,7 @@ export type PropertyType = "CASA" | "APARTAMENTO" | "VILLA" | "GERIATRICO";
 
 export type SortOrder =
   | "name_asc"
+  | "name_desc"
   | "price_asc"
   | "price_desc"
   | "rating_desc";

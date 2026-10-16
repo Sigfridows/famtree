@@ -147,6 +147,8 @@ class SqlAlchemyAsylumReader:
     def _order(self, sort: SortOrder) -> list[ColumnElement[Any]]:
         primary: ColumnElement[Any]
         match sort:
+            case SortOrder.NAME_DESC:
+                primary = func.lower(func.famtree.f_unaccent(Asilo.nombre_asilo)).desc()
             case SortOrder.PRICE_ASC:
                 primary = Asilo.precio_minimo.asc()
             case SortOrder.PRICE_DESC:
