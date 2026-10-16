@@ -1,0 +1,234 @@
+{
+  "770": {
+    "visible": "Catálogo visitante y, tras pulsar el corazón, formulario Iniciar sesión; no se muestra una alerta nativa.",
+    "limit": "Excepción aprobada: redirección directa, no el modal que figura en los criterios originales."
+  },
+  "771": {
+    "visible": "Catálogo visitante y formulario Iniciar sesión tras pulsar Guardados.",
+    "limit": "El aviso se sustituye por redirección conforme al flujo de autenticación; la imagen no demuestra por sí sola la ausencia de consulta privada."
+  },
+  "772": {
+    "visible": "Cabecera del catálogo visitante sin campana ni bandeja personal.",
+    "limit": "La denegación 401 se comprueba por API; la imagen solo demuestra la ausencia del acceso."
+  },
+  "773": {
+    "visible": "Tabla final comparando dos centros sin sesión y captura adicional seleccionando cuatro centros públicos.",
+    "limit": "La prueba también comprueba que no se puede comparar con cero y que un quinto centro no se puede seleccionar."
+  },
+  "774": {
+    "visible": "Auditoría de moderación con nombre Sistema Admin, ID, resolución, justificación y fecha.",
+    "limit": "Una imagen no prueba conservación histórica tras cambiar el perfil; los eventos antiguos sin nombre se identifican expresamente."
+  },
+  "776": {
+    "visible": "Selección comparativa con columna Provincia: Casa Jardines de Baní → Peravia y Casa Serena del Caribe → Puerto Plata.",
+    "limit": "Es la SELECCIÓN previa a comparar, que es precisamente la vista indicada en BUG05. No es la tabla final de servicios. Ambos valores se cotejan con la API; no se simula un centro sin provincia."
+  },
+  "777": {
+    "visible": "Detalle de Residencia San José con Provincia, Municipio, Sector y Dirección específica etiquetados.",
+    "limit": "La captura demuestra los campos informados, no todas las variantes de datos ausentes."
+  },
+  "778": {
+    "visible": "Ficha con capacidad expresada en residentes y sección Requisitos de ingreso separada de Descripción general.",
+    "limit": "La captura no sustituye la prueba de campos nulos en otros centros."
+  },
+  "779": {
+    "visible": "Certificaciones declaradas y fecha de actualización; se retiraron los distintivos Seguro y Verificado no sustentados.",
+    "limit": "No se afirma que FamTree haya verificado una licencia por mostrar su declaración."
+  },
+  "780": {
+    "visible": "Sitio web visible junto a teléfono y correo de Residencia San José.",
+    "limit": "La prueba comprueba href tel:, mailto: y apertura del sitio en nueva pestaña; esos atributos no se demuestran solo con píxeles."
+  },
+  "781": {
+    "visible": "Mapa individual en la ficha con marcador del centro y controles de zoom.",
+    "limit": "Solo se captura un centro con coordenadas; no la variante sin ubicación."
+  },
+  "782": {
+    "visible": "Casa Jardines de Baní abierta desde MAPA con rango mensual RD$20,000–36,000; imagen adicional del MISMO centro desde catálogo.",
+    "limit": "Las dos imágenes permiten cotejar el dato; la prueba también comprueba el precio máximo con la API."
+  },
+  "783": {
+    "visible": "Tipos de cuidado y servicios de Casa Jardines de Baní desde MAPA y desde CATÁLOGO.",
+    "limit": "Se compara el mismo centro para evitar atribuir diferencias a datos de instituciones distintas."
+  },
+  "784": {
+    "visible": "Mapa alejado con cartografía en el área visible y marcadores sobre el territorio.",
+    "limit": "No es evidencia de recuperación ante caída del proveedor: no se simuló esa interrupción."
+  },
+  "785": {
+    "visible": "Vista general de República Dominicana con marcadores y botón para recuperar el encuadre.",
+    "limit": "La captura documenta el encuadre general; los acercamientos requieren interacción."
+  },
+  "786": {
+    "visible": "Resumen lateral del mapa con foto, nombre, municipio/provincia, calificación, rango mensual y Ver Detalle.",
+    "limit": "Se conserva el resumen lateral; la captura no demuestra por sí sola cada transición al seleccionar marcadores."
+  },
+  "787": {
+    "visible": "Cabecera Residencia San José y reseñas de ese centro; acceso público a iniciar sesión.",
+    "limit": "El alcance por ID se comprueba además consultando las reseñas del centro en la API."
+  },
+  "788": {
+    "visible": "Resumen de Residencia San José con promedio, total y cinco barras de distribución.",
+    "limit": "La imagen corresponde al estado con reseñas; no al estado sin reseñas."
+  },
+  "789": {
+    "visible": "Control Ordenar por y centros reordenados; cinco capturas adicionales, una por opción.",
+    "limit": "El registro opciones-y-resultados.json documenta las cinco opciones y el conjunto consultado. La imagen principal es Mayor precio."
+  },
+  "790": {
+    "visible": "Filtro Calificación mínima aplicado en 4 estrellas y catálogo resultante detrás del panel.",
+    "limit": "La captura no prueba todas las opciones de 1 a 5 ni la limpieza; se identifica el umbral concreto probado."
+  },
+  "791": {
+    "visible": "Mensaje de usuario o contraseña incorrectos, usuario conservado y contraseña vacía.",
+    "limit": "No se revela la existencia de la cuenta; el registro de la prueba comprueba el valor vacío."
+  },
+  "792": {
+    "visible": "Errores en español bajo Usuario y Contraseña al enviar login vacío.",
+    "limit": "El foco se comprueba técnicamente; una captura no prueba por sí sola que no hubo petición HTTP."
+  },
+  "793": {
+    "visible": "Registro con asteriscos en los seis campos y aclaración de obligatorios.",
+    "limit": "Los atributos required y las etiquetas asociadas se comprueban en el DOM."
+  },
+  "794": {
+    "visible": "Catálogo con confirmación visible de creación de cuenta.",
+    "limit": "Se mantiene el acceso automático aprobado; no se presenta como una redirección a login."
+  },
+  "795": {
+    "visible": "Mensaje de bloqueo temporal con plazo de hasta 15 minutos y orientación para reintentar.",
+    "limit": "No se esperaron 15 minutos reales para demostrar el vencimiento."
+  },
+  "797": {
+    "visible": "Cambio de contraseña con los tres campos vacíos y regla fallida conservada tras el error.",
+    "limit": "La limpieza se comprueba por los valores de los controles; no se capturan contraseñas reales."
+  },
+  "798": {
+    "visible": "Error específico de complejidad junto a Nueva contraseña, separado de los otros campos.",
+    "limit": "Esta imagen prueba la falta de mayúscula/minúscula según el texto mostrado; no reúne todas las variantes de igualdad y confirmación."
+  },
+  "799": {
+    "visible": "Mensajes de obligatoriedad en español dentro del formulario, asociados a cada contraseña vacía.",
+    "limit": "Los tooltips nativos se evitan con validación de formulario; el foco se comprueba en la prueba."
+  },
+  "800": {
+    "visible": "Tres campos de contraseña en modo VISIBLE con texto ficticio negro sobre fondo claro.",
+    "limit": "El texto EjemploVisible123! es ficticio y no es una credencial. Se comprobó Chromium en Ubuntu; Windows 11 no fue probado."
+  },
+  "801": {
+    "visible": "Ayuda del cambio temporal enumera mayúsculas, minúsculas, números y símbolos.",
+    "limit": "La captura evidencia el contenido de la ayuda, no todas las transiciones de los indicadores."
+  },
+  "802": {
+    "visible": "Error de carácter especial junto a Nueva contraseña en el cambio temporal.",
+    "limit": "Se captura la regla concreta de símbolo; otras reglas no se infieren de esta misma imagen."
+  },
+  "803": {
+    "visible": "Panel del centro asignado con bienvenida y confirmación de contraseña actualizada.",
+    "limit": "requiresPasswordChange=false se comprueba por API; no se intenta demostrarlo únicamente con el aviso."
+  },
+  "804": {
+    "visible": "Perfil sin foto después de eliminarla y recuperar el perfil: avatar por defecto.",
+    "limit": "La API confirma referencia nula; una sola imagen no prueba todos los escenarios de caché y nuevo login."
+  },
+  "805": {
+    "visible": "Ciudad Santiago, municipio anterior vacío y lista de municipios SOLO de Santiago.",
+    "limit": "La prueba parte de Azua y coteja las opciones; una combinación incompatible se rechaza por API con 422."
+  },
+  "806": {
+    "visible": "Perfil recargado mostrando Santiago y Santiago de los Caballeros, guardados desde el formulario.",
+    "limit": "La recarga y el guardado se verifican durante la secuencia, no se deducen de una imagen estática."
+  },
+  "808": {
+    "visible": "Perfil en modo consulta con Rol: Usuario registrado y Editar perfil.",
+    "limit": "Los campos deshabilitados se comprueban en el DOM, además de su presentación visual."
+  },
+  "809": {
+    "visible": "Antes: borrador Borrador y botones Cancelar/Guardar. Después: nombre persistido restaurado y Editar perfil.",
+    "limit": "Las dos imágenes documentan la cancelación; no se probó el aviso al abandonar por navegación."
+  },
+  "810": {
+    "visible": "Cabecera con Información de residencias, sin Servicios Verificado.",
+    "limit": "Se retiró la afirmación de verificación, no solo se corrigió su concordancia."
+  },
+  "811": {
+    "visible": "Preguntas frecuentes sobre coordinación externa con los centros, sin flujo de citas interno.",
+    "limit": "La imagen muestra la respuesta abierta; no declara un sistema de reservas implementado."
+  },
+  "812": {
+    "visible": "Precio mínimo y máximo en DOP, con error junto al panel cuando mínimo supera máximo.",
+    "limit": "Esta imagen demuestra los dos límites y su validación, no una búsqueda válida para cada rango posible."
+  },
+  "813": {
+    "visible": "Grupo independiente Tipo de adulto mayor con seis categorías; Tipo de propiedad permanece como filtro adicional.",
+    "limit": "La captura acredita las categorías disponibles; no todas sus combinaciones de filtrado."
+  },
+  "814": {
+    "visible": "Servicios incluidos con nueve categorías, distinguiendo Fisioterapia y Terapia ocupacional.",
+    "limit": "La coherencia con todos los demás consumidores requiere comprobación técnica aparte."
+  },
+  "815": {
+    "visible": "Modal previo a desactivar: identifica centro, consecuencias y botones Confirmar desactivación/Cancelar.",
+    "limit": "La prueba cancela antes y comprueba que conserva el estado; la imagen principal muestra la confirmación, no un cambio ya ejecutado."
+  },
+  "816": {
+    "visible": "Aviso con nombre del centro y desactivación, junto a badge Inactivo y acción Activar de su fila.",
+    "limit": "El centro de prueba se reactiva después de obtener la evidencia."
+  },
+  "817": {
+    "visible": "Listado de asilos con textos Ver detalle, Editar y Activar/Desactivar junto a los iconos.",
+    "limit": "La imagen muestra las acciones visibles y su relación con el estado de cada fila."
+  },
+  "818": {
+    "visible": "Detalle administrativo con contacto institucional, servicios, atención y requisitos.",
+    "limit": "El centro de prueba no tiene sitio web; aparece No informado, no un enlace inventado."
+  },
+  "819": {
+    "visible": "Formulario de EDICIÓN poblado con ayudas de longitud para descripción, requisitos, certificaciones y otros campos.",
+    "limit": "Se muestra edición, no registro vacío; la captura no pretende mostrar a la vez todos los campos fuera del área visible."
+  },
+  "820": {
+    "visible": "EDICIÓN de asilo con un único correo inválido y mensaje Ingresa un correo institucional válido junto al campo.",
+    "limit": "Los demás campos conservan sus valores válidos y no aparece un error de fechas. Solo un control queda marcado inválido."
+  },
+  "821": {
+    "visible": "EDICIÓN de asilo con errores separados junto a Servicios y Tipos de atención, conservando los demás datos.",
+    "limit": "Se desmarcaron únicamente esos grupos; no se usa un formulario entero vacío como sustituto."
+  },
+  "824": {
+    "visible": "Dashboard con período aplicado y etiquetas que explican altas del período frente a estado actual.",
+    "limit": "La imagen muestra la definición de los indicadores; no todos los intervalos posibles."
+  },
+  "825": {
+    "visible": "Período 2000 sin registros con explicación en cada gráfico y acceso Todo el historial.",
+    "limit": "No se presenta un gráfico vacío como si fuese un fallo de carga."
+  },
+  "826": {
+    "visible": "Reporte de centros filtrado por Santiago, mostrando Santiago en el filtro y en la columna Provincia.",
+    "limit": "El ID puede permanecer como columna adicional; no sustituye al nombre."
+  },
+  "827": {
+    "visible": "Reporte de cuentas con Nombre, Apellido y Rol, incluyendo roles traducidos.",
+    "limit": "La captura corresponde a la tabla; los archivos exportados requieren comprobación propia."
+  },
+  "828": {
+    "visible": "PDF abierto en el visor de Chromium con título FamTree - Reporte de centros en la barra.",
+    "limit": "Se adjunta el PDF real; los metadatos de autor y fecha se comprobaron con pdfinfo."
+  },
+  "829": {
+    "visible": "Confirmación de desbloqueo con usuario, correo, motivo original y justificación solicitada.",
+    "limit": "La imagen muestra el paso previo al desbloqueo y su botón de confirmación."
+  },
+  "830": {
+    "visible": "Aviso de cuenta desbloqueada y estado Activo; imagen adicional con aviso distinto de bloqueo.",
+    "limit": "La cuenta de pruebas se devuelve a Activo al terminar la secuencia."
+  },
+  "831": {
+    "visible": "Modal de moderación con Publicación de la reseña y Fecha del reporte, por separado, junto a los datos del caso.",
+    "limit": "Se añadió la fecha del reporte al modal para que la separación de ambos momentos sea visible en la misma imagen."
+  },
+  "832": {
+    "visible": "Resolución cerrada con nombre/ID del moderador, justificación y fecha/hora.",
+    "limit": "Es consulta histórica: no se muestran controles para volver a resolver el caso."
+  }
+}
