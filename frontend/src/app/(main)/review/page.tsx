@@ -84,7 +84,9 @@ function ResenasContent() {
     refetch,
     toggleLike,
     pendingLikes,
-  } = useReviews();
+  } = useReviews(searchParams.get("asylumId"));
+
+  const centerTitle = searchParams.get("asylumName") || "Reseñas del centro";
 
   const initialAsilo = useMemo(() => {
     const asylumId = searchParams.get("asylumId");
