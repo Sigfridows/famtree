@@ -2,6 +2,8 @@ export type UserRole = "REGISTERED_USER" | "ASYLUM_ADMIN" | "SYSTEM_ADMIN";
 export type UserStatus = "ACTIVE" | "BLOCKED";
 
 export interface User {
+  provinceId?: number | null;
+  municipalityId?: number | null;
   userId: number;
   assignedAsylumId: number | null;
   firstName: string;
@@ -18,6 +20,8 @@ export interface User {
 }
 
 export interface UpdateProfilePayload {
+  provinceId?: number | null;
+  municipalityId?: number | null;
   firstName?: string;
   lastName?: string;
   phone?: string | null;

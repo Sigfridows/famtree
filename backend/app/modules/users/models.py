@@ -84,6 +84,14 @@ class Usuario(Base):
             ondelete="RESTRICT",
         ),
     )
+    codigo_provincia: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey(f"{SCHEMA}.provincias.codigo_provincia", name="fk_usuarios_codigo_provincia"),
+    )
+    codigo_municipio: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey(f"{SCHEMA}.municipios.codigo_municipio", name="fk_usuarios_codigo_municipio"),
+    )
     nombre_usuario: Mapped[str] = mapped_column(String(50), nullable=False)
     apellido_usuario: Mapped[str] = mapped_column(String(50), nullable=False)
     username: Mapped[str] = mapped_column(CITEXT, nullable=False)

@@ -4,6 +4,8 @@ import { Phone, Mail, MapPin, FileText } from "lucide-react";
 import { CustomSelect } from "./CustomSelect";
 
 interface ContactSectionProps {
+  provinces?: string[];
+  municipalities?: string[];
   phone: string;
   email: string;
   city: string;
@@ -25,6 +27,7 @@ function formatPhoneNumber(value: string): string {
 }
 
 export function ContactSection({
+  provinces = [], municipalities = [],
   phone,
   email,
   city,
@@ -83,7 +86,7 @@ export function ContactSection({
           label="Ciudad"
           icon={<MapPin className="w-3.5 h-3.5 text-[#CCD999]" />}
           value={city}
-          options={["Santo Domingo", "Santiago", "La Vega", "Puerto Plata"]}
+          options={provinces}
           onChange={onCityChange}
         />
 
@@ -91,12 +94,7 @@ export function ContactSection({
           label="Municipio"
           icon={<MapPin className="w-3.5 h-3.5 text-[#CCD999]" />}
           value={municipality}
-          options={[
-            "Los Alcarrizos",
-            "Santo Domingo Este",
-            "Santo Domingo Oeste",
-            "Distrito Nacional",
-          ]}
+          options={municipalities}
           onChange={onMunicipalityChange}
         />
       </div>
