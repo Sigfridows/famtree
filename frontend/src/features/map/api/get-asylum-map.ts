@@ -3,7 +3,7 @@ import type { AsylumFilters, AsylumSummary, DiscoveryPage } from "@/features/asy
 import { apiRequest } from "@/lib/apiClient";
 
 export type AsylumMapPin = Pick<AsylumSummary,
-  "id" | "name" | "latitude" | "longitude" | "price_min" | "price_max" | "cover_url" | "rating" | "review_count"
+  "province_name" | "municipality_name" | "id" | "name" | "latitude" | "longitude" | "price_min" | "price_max" | "cover_url" | "rating" | "review_count"
 >;
 export type AsylumMapPage = DiscoveryPage<AsylumMapPin>;
 

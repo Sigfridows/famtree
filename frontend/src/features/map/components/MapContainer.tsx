@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import { getImageUrl } from "@/lib/utils";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { LocateFixed, Plus, Minus, Star, Loader2 } from "lucide-react";
@@ -162,6 +164,8 @@ export default function MapContainer() {
                   </span>
                 </div>
 
+                {pin.cover_url && <Image src={getImageUrl(pin.cover_url)} alt={pin.name} width={360} height={120} unoptimized className="h-24 w-full rounded-lg object-cover" />}
+                <p>{pin.municipality_name || 'Municipio no informado'} · {pin.province_name || 'Provincia no informada'}</p>
                 <h3 className="font-extrabold text-sm text-zinc-900 dark:text-zinc-50 leading-tight">
                   {pin.name}
                 </h3>
@@ -170,7 +174,7 @@ export default function MapContainer() {
                   <div>
                     <span className="block text-[9px] text-zinc-400 dark:text-zinc-500 font-bold uppercase">Desde:</span>
                     <span className="text-xs font-black text-zinc-900 dark:text-zinc-100">
-                      RD$ {Number(pin.price_min).toLocaleString()} /mes
+                      RD$ {Number(pin.price_min).toLocaleString()} – {Number(pin.price_max).toLocaleString()} /mes
                     </span>
                   </div>
 
@@ -190,6 +194,7 @@ export default function MapContainer() {
           })}
       </aside>
 
+      {activePinId && <button type="button" onClick={() => setActivePinId(null)} className="absolute bottom-20 left-28 z-20 rounded-xl bg-zinc-900 px-3 py-2 text-xs text-white">Cerrar selección</button>}
       {/* Modal de Detalle */}
       <AsiloDetails
         isOpen={!!selectedDetailId}
