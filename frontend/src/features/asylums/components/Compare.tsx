@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, Plus, ArrowLeft, CheckSquare, Square, Sparkles, Building2 } from "lucide-react";
 import logoFamTree from "@/assets/famtree.png";
 import EmptyState from "./EmptyState";
+import { getAsylums } from "@/features/asylums/api/discovery";
 import { compareAsylums } from "@/features/compare/api/compare-asylums";
 import { getImageUrl } from "@/lib/utils";
 import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
@@ -84,6 +85,22 @@ function mapDetailToAsiloItem(detail: AsiloDetailData): AsiloItem {
 }
 
 export default function Compare({ data, items = [], onClose }: CompareProps) {
+  const [publicItems, setPublicItems] = useState<AsylumSummary[]>([]);
+  useEffect(() => {
+    const controller = new AbortController();
+    void (async () => {
+      const list: AsylumSummary[] = [];
+      let page = 1;
+      while (!controller.signal.aborted) {
+        const result = await getAsylums({ page }, controller.signal);
+        list.push(...result.items);
+        if (page >= result.pagination.pages) break;
+        page++;
+      }
+      if (!controller.signal.aborted) setPublicItems(list);
+    })().catch(() => { if (!controller.signal.aborted) setError('No se pudieron cargar las residencias para comparar. Cierra y vuelve a intentarlo.'); });
+    return () => controller.abort();
+  }, []);
   const [viewMode, setViewMode] = useState<"table" | "comparison">("table");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [comparisonItems, setComparisonItems] = useState<AsiloItem[]>([]);
@@ -104,14 +121,14 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
   }
 
   const formattedItems = useMemo(() => {
-    const list = Array.isArray(items) ? items.map(mapSummaryToAsiloItem) : [];
+    const list = [...new Map([...items, ...publicItems].map(item => [item.id, item])).values()].map(mapSummaryToAsiloItem);
 
     if (data && !list.some((item) => item.id === String(data.id))) {
       list.unshift(mapDetailToAsiloItem(data));
     }
 
     return list;
-  }, [items, data]);
+  }, [items, publicItems, data]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
@@ -286,11 +303,11 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
             </div>
 
             <div className="p-4 sm:p-6 md:p-8 overflow-y-auto space-y-3 max-h-[65vh]">
-              {formattedItems.length < 2 ? <p role="status" className="text-sm text-amber-200">Necesitas otra residencia para comparar. Guarda otra en favoritos y vuelve a abrir esta ventana.</p> : selectedIds.length < 2 ? <p role="status" className="text-sm text-zinc-300">Marca las casillas de al menos dos residencias para activar Comparar.</p> : null}
+              {formattedItems.length < 2 ? <p role="status" className="text-sm text-amber-200">Necesitas otra residencia para comparar. Espera a que cargue el catálogo y selecciona entre 2 y 4 centros.</p> : selectedIds.length < 2 ? <p role="status" className="text-sm text-zinc-300">Marca las casillas de al menos dos residencias para activar Comparar.</p> : null}
               {formattedItems.length === 0 ? (
                 <EmptyState
-                  title="No tienes asilos guardados"
-                  description="Agrega tus opciones preferidas a favoritos para compararlas en tiempo real."
+                  title="No hay residencias disponibles"
+                  description="Selecciona entre 2 y 4 residencias del catálogo para compararlas."
                 />
               ) : (
                 <>
