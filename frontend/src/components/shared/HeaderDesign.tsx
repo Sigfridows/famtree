@@ -3,10 +3,11 @@ import React from 'react';
 interface PageBannerProps {
   title: string;
   subtitle?: string;
+  showResidenceLabel?: boolean;
   className?: string;
 }
 
-export default function PageBanner({ title, subtitle, className = '' }: PageBannerProps) {
+export default function PageBanner({ title, subtitle, showResidenceLabel = true, className = '' }: PageBannerProps) {
   return (
     <div
       className={`relative w-full min-h-32 sm:min-h-36 flex-1 bg-linear-to-br from-[#CCDD99] via-[#C5D792] to-[#B8CC80] rounded-2xl px-7 py-6 sm:px-10 sm:py-7 overflow-hidden flex items-center justify-between border border-white/20 shadow-xs ${className}`}
@@ -60,12 +61,12 @@ export default function PageBanner({ title, subtitle, className = '' }: PageBann
       </div>
 
       {/* 5. Acento sutil y minimalista en la esquina inferior derecha */}
-      <div className="absolute bottom-3 right-6 z-10 hidden sm:flex items-center gap-2 bg-zinc-950/10 backdrop-blur-xs border-[0.8px] border-white px-3 py-1 rounded-lg pointer-events-none">
+      {showResidenceLabel && <div className="absolute bottom-3 right-6 z-10 hidden sm:flex items-center gap-2 bg-zinc-950/10 backdrop-blur-xs border-[0.8px] border-white px-3 py-1 rounded-lg pointer-events-none">
         {/* <span className="w-1.5 h-1.5 rounded-full bg-emerald-700" /> */}
         <span className="text-[11px] font-semibold text-[#161616] tracking-wide">
           Información de residencias
         </span>
-      </div>
+      </div>}
     </div>
   );
 }
