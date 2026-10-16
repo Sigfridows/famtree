@@ -23,6 +23,7 @@ export function ProfileForm() {
 
   const [catalogs, setCatalogs] = useState<AsylumCatalogs | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -133,6 +134,7 @@ export function ProfileForm() {
       };
 
       await profileService.updateProfile(payload);
+      setEditing(false);
       setFeedback({ type: "success", message: "Tus datos se guardaron correctamente." });
     } catch (error) {
       console.error("Error al guardar los cambios:", error);
@@ -204,9 +206,14 @@ export function ProfileForm() {
   return (
     <>
       <main className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start font-montserrat max-w-7xl mx-auto p-2 sm:p-4">
+        <section className="lg:col-span-12 flex items-center justify-between rounded-xl border border-white/10 p-4">
+          <p>Rol: {authUser.role === 'ASYLUM_ADMIN' ? 'Administrador de asilo' : authUser.role === 'SYSTEM_ADMIN' ? 'Administrador del sistema' : 'Usuario registrado'}</p>
+          {!editing && <button type="button" onClick={() => setEditing(true)}>Editar perfil</button>}
+        </section>
         {/* COLUMNA IZQUIERDA */}
         <div className="lg:col-span-6 space-y-6">
           <ProfileInfoSection
+            readOnly={!editing}
             avatarUrl={avatarUrl}
             username={username}
             firstName={firstName}
@@ -245,6 +252,7 @@ export function ProfileForm() {
         {/* COLUMNA DERECHA */}
         <div className="lg:col-span-6 space-y-6">
           <ContactSection
+            readOnly={!editing}
             provinces={catalogs?.provinces.map(item => item.name)}
             municipalities={catalogs?.municipalities.filter(item => item.province_id === catalogs.provinces.find(province => province.name === city)?.id).map(item => item.name)}
             phone={phone}
@@ -276,8 +284,17 @@ export function ProfileForm() {
               <span>{isLoggingOut ? "Cerrando..." : "Cerrar Sesión"}</span>
             </button>
 
+            {editing && <button type="button" onClick={() => void (async () => {
+              const saved = await profileService.getProfile();
+              setFirstName(saved.firstName); setLastName(saved.lastName); setEmail(saved.email);
+              setPhone(saved.phone ? formatPhoneNumber(saved.phone) : ''); setBio(saved.description ?? ''); setAvatarUrl(saved.profilePicture ?? '');
+              setCity(catalogs?.provinces.find(item => item.id === saved.provinceId)?.name ?? '');
+              setMunicipality(catalogs?.municipalities.find(item => item.id === saved.municipalityId)?.name ?? '');
+              setFeedback(null); setEditing(false);
+            })().catch(() => setFeedback({type: 'error', message: 'No se pudieron recuperar los datos. Inténtalo de nuevo.'}))}>Cancelar</button>}
             <button
               type="button"
+              hidden={!editing}
               onClick={handleSave}
               disabled={saving || isUploadingAvatar || isLoggingOut}
               className="bg-[#CCD999] hover:bg-[#b8cb83] text-zinc-950 px-8 py-2.5 rounded-2xl font-bold text-xs transition-all cursor-pointer shadow-lg flex items-center gap-2 disabled:opacity-50"

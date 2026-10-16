@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Upload, Loader2, User } from "lucide-react";
 
 interface ProfileInfoSectionProps {
+  readOnly?: boolean;
   avatarUrl: string;
   username: string;
   firstName: string;
@@ -18,6 +19,7 @@ interface ProfileInfoSectionProps {
 }
 
 export function ProfileInfoSection({
+  readOnly = false,
   avatarUrl,
   username,
   firstName,
@@ -39,7 +41,7 @@ export function ProfileInfoSection({
   };
 
   return (
-    <section className="bg-[#141414] rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl space-y-6 text-white font-montserrat">
+    <fieldset disabled={readOnly} className="bg-[#141414] rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl space-y-6 text-white font-montserrat">
       <h3 className="font-bold text-[11px] text-[#CCD999] uppercase tracking-wider">
         Perfil
       </h3>
@@ -74,6 +76,8 @@ export function ProfileInfoSection({
             </span>
             <input
               type="text"
+              readOnly
+              aria-label="Nombre de usuario (solo lectura)"
               value={username}
               onChange={(e) => onUsernameChange(e.target.value)}
               className="text-xl font-black text-white leading-tight bg-transparent border-b border-white/10 hover:border-white/30 focus:border-[#CCD999] focus:outline-none transition-colors w-full py-0.5"
@@ -134,6 +138,6 @@ export function ProfileInfoSection({
           />
         </div>
       </div>
-    </section>
+    </fieldset>
   );
 }

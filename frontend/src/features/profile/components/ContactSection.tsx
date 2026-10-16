@@ -4,6 +4,7 @@ import { Phone, Mail, MapPin, FileText } from "lucide-react";
 import { CustomSelect } from "./CustomSelect";
 
 interface ContactSectionProps {
+  readOnly?: boolean;
   provinces?: string[];
   municipalities?: string[];
   phone: string;
@@ -27,6 +28,7 @@ function formatPhoneNumber(value: string): string {
 }
 
 export function ContactSection({
+  readOnly = false,
   provinces = [], municipalities = [],
   phone,
   email,
@@ -46,7 +48,7 @@ export function ContactSection({
   };
 
   return (
-    <section className="bg-[#141414] rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl space-y-6 text-white font-montserrat">
+    <fieldset disabled={readOnly} className="bg-[#141414] rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl space-y-6 text-white font-montserrat">
       <h3 className="font-bold text-[11px] text-[#CCD999] uppercase tracking-wider">
         Contacto
       </h3>
@@ -118,6 +120,6 @@ export function ContactSection({
         <div className="flex-1 border-b border-dotted border-zinc-800 mx-3" />
         <span className="text-zinc-300 font-bold shrink-0">{createdAt}</span>
       </div>
-    </section>
+    </fieldset>
   );
 }
