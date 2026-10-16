@@ -114,7 +114,7 @@ async def seed(session: AsyncSession) -> tuple[list[int], int, int, list[int], l
             ),
         ]
     )
-    for i, rating in enumerate([5, 3, 1]):
+    for i, rating in enumerate([5, 3, 4, 1]):
         user = Usuario(
             nombre_usuario="Test",
             apellido_usuario="Reader",
@@ -130,10 +130,10 @@ async def seed(session: AsyncSession) -> tuple[list[int], int, int, list[int], l
                 codigo_asilo=ids[0],
                 calificacion=rating,
                 comentario="Comentario exclusivo de prueba.",
-                estado_resena=EstadoResena.OCULTA if i == 2 else EstadoResena.PUBLICADA,
+                estado_resena=EstadoResena.OCULTA if i == 3 else EstadoResena.PUBLICADA,
             )
         )
-        if i == 0:
+        if i < 3:
             session.add(
                 Resena(
                     codigo_usuario=user.codigo_usuario,
@@ -184,6 +184,83 @@ async def discovery() -> AsyncIterator[Discovery]:
     finally:
         await database.dispose()
         await app.state.database.dispose()
+
+
+@pytest.mark.parametrize("published_count", [0, 1, 2, 3, 4])
+async def test_rating_requires_three_published_reviews(
+    discovery: Discovery, published_count: int
+) -> None:
+    center_id = discovery.ids[2]
+    for index in range(published_count + 1):
+        user = Usuario(
+            nombre_usuario="Eligibility",
+            apellido_usuario="Reader",
+            username=f"eligibility{index}",
+            email=f"eligibility{index}@example.invalid",
+            password_hash="not-a-login-hash-test-only",
+        )
+        discovery.session.add(user)
+        await discovery.session.flush()
+        discovery.session.add(
+            Resena(
+                codigo_usuario=user.codigo_usuario,
+                codigo_asilo=center_id,
+                calificacion=2 if index < published_count else 5,
+                comentario="Reseña para comprobar elegibilidad.",
+                estado_resena=(
+                    EstadoResena.PUBLICADA if index < published_count else EstadoResena.OCULTA
+                ),
+            )
+        )
+    await discovery.session.flush()
+    expected = 2 if published_count >= 3 else None
+    for path in ["/api/v1/asylums", "/api/v1/asylums/map"]:
+        response = await discovery.client.get(path, params={"sort": "rating_desc"})
+        assert response.status_code == 200, response.text
+        items = response.json()["items"]
+        item = next(item for item in items if item["id"] == center_id)
+        assert item["rating"] == expected
+        assert item["review_count"] == published_count
+        if expected is not None:
+            assert items.index(item) < next(
+                i for i, candidate in enumerate(items) if candidate["rating"] is None
+            )
+        filtered = await discovery.client.get(path, params={"rating_min": 1})
+        assert (center_id in [item["id"] for item in filtered.json()["items"]]) == (
+            published_count >= 3
+        )
+    detail = await discovery.client.get(f"/api/v1/asylums/{center_id}")
+    assert detail.json()["rating"] == expected
+    assert detail.json()["review_count"] == published_count
+    compared = await discovery.client.get(
+        "/api/v1/asylums/compare", params={"ids": f"{center_id},{discovery.ids[3]}"}
+    )
+    assert compared.json()["items"][0]["rating"] == expected
+    reputation = await discovery.client.get(f"/api/v1/asylums/{center_id}/reputation")
+    assert reputation.status_code == 200, reputation.text
+    assert reputation.json()["summary"] == {
+        "average": expected,
+        "count": published_count,
+        "distribution": {"1": 0, "2": published_count, "3": 0, "4": 0, "5": 0},
+    }
+    assert reputation.json()["total"] == published_count
+    # Both shared SQL views enforce eligibility without losing counts or hidden rows.
+    for view in ["vw_asilos_calificacion", "vw_asilos_publicos"]:
+        row = (
+            await discovery.session.execute(
+                text(
+                    f"SELECT total_resenas, calificacion_promedio FROM famtree.{view} "
+                    "WHERE codigo_asilo = :center_id"
+                ),
+                {"center_id": center_id},
+            )
+        ).one()
+        assert row.total_resenas == published_count
+        assert row.calificacion_promedio == expected
+    stored = await discovery.session.scalar(
+        select(text("count(*)")).select_from(Resena).where(Resena.codigo_asilo == center_id)
+    )
+    assert stored == published_count + 1
 
 
 async def test_pagination_and_no_n_plus_one(discovery: Discovery) -> None:
@@ -246,7 +323,7 @@ async def test_rating_ignores_hidden_reviews_and_sorts_unrated_last(discovery: D
     response = await discovery.client.get("/api/v1/asylums?sort=rating_desc")
     items = response.json()["items"]
     assert [item["id"] for item in items[:2]] == [discovery.ids[1], discovery.ids[0]]
-    assert items[1]["rating"] == 4 and items[1]["review_count"] == 2
+    assert items[1]["rating"] == 4 and items[1]["review_count"] == 3
     assert items[2]["rating"] is None and items[2]["review_count"] == 0
     descending = (await discovery.client.get("/api/v1/asylums?sort=price_desc")).json()["items"]
     assert descending[0]["price_min"] == "30000.00"
