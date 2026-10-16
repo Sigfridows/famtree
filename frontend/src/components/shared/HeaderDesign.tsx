@@ -63,7 +63,7 @@ export default function PageBanner({ title, subtitle, className = '' }: PageBann
       <div className="absolute bottom-3 right-6 z-10 hidden sm:flex items-center gap-2 bg-zinc-950/10 backdrop-blur-xs border-[0.8px] border-white px-3 py-1 rounded-lg pointer-events-none">
         {/* <span className="w-1.5 h-1.5 rounded-full bg-emerald-700" /> */}
         <span className="text-[11px] font-semibold text-[#161616] tracking-wide">
-          Servicios Verificado
+          Información de residencias
         </span>
       </div>
     </div>
