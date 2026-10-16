@@ -1,4 +1,5 @@
 "use client";
+import { isAsylumAvailable } from "@/features/asylums/domain/availability";
 import { requestAuthentication } from "@/components/shared/AuthenticationPrompt";
 
 import { useState, useEffect, Suspense } from "react";
@@ -103,7 +104,7 @@ function CatalogContent() {
 
   // Filtrado rápido cliente
   const asylums = rawAsylums.filter((asylum) => {
-    if (quickFilter === "open") return asylum.status === "ACTIVE";
+    if (quickFilter === "open") return isAsylumAvailable(asylum);
     return true;
   });
 

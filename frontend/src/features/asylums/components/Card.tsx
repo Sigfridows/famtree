@@ -1,4 +1,5 @@
 "use client";
+import { isAsylumAvailable } from "@/features/asylums/domain/availability";
 import { getImageUrl } from "@/lib/utils";
 
 import Image from "next/image";
@@ -38,7 +39,7 @@ export default function Card({
     status,
   } = asylum;
 
-  const isOpen = status ? status === "ACTIVE" : true;
+  const isOpen = isAsylumAvailable({ status });
   const imageUrl =
     getImageUrl(cover_url) ||
     "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=800&q=80";
