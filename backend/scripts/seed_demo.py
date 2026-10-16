@@ -158,7 +158,7 @@ DEMO_CENTERS = (
         "email": "jardinesbani@example.invalid",
         "services": ("Alimentación", "Terapia ocupacional", "Transporte"),
         "care_types": ("Adulto mayor independiente", "Condiciones cognitivas"),
-        "image_url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
+        "image_url": "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=1200&q=80",
     },
 )
 
