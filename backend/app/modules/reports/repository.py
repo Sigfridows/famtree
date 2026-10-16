@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
 from app.db.types import EstadoAsilo, EstadoReporte, EstadoResena, EstadoUsuario, RolUsuario
-from app.modules.asylums.models import Asilo, Municipio
+from app.modules.asylums.models import Asilo, Municipio, Provincia
 from app.modules.favorites.models import Favorito
 from app.modules.reports.schemas import ReportFilter, ReportMetrics, ReportTable, TableFilter
 from app.modules.reviews.models import ReporteResena, Resena
@@ -195,12 +195,13 @@ class ReportRepository:
                 Asilo.nombre_asilo.label("name"),
                 Municipio.nombre_municipio.label("municipality"),
                 Municipio.codigo_provincia.label("provinceId"),
+                Provincia.nombre_provincia.label("province"),
                 Asilo.estado_asilo.label("status"),
                 Asilo.capacidad_total.label("capacity"),
                 Asilo.precio_minimo.label("minPrice"),
                 Asilo.precio_maximo.label("maxPrice"),
                 Asilo.fecha_creacion.label("createdAt"),
-            ).join(Municipio)
+            ).join(Municipio).join(Provincia, Provincia.codigo_provincia == Municipio.codigo_provincia)
             if filters.province_id:
                 query = query.where(Municipio.codigo_provincia == filters.province_id)
             if filters.asylum_id:
