@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import RatingSummary from "@/features/asylums/components/RatingSummary";
 import { centerAdminService } from "../api/centerAdminService";
 import type { CenterReputation } from "../types/centerAdmin.types";
 import { Bars } from "@/features/admin/components/AdminUI";
@@ -51,10 +52,8 @@ export default function CenterReviews() {
         </div>
         {data && (
           <div className="px-4 py-2 bg-emerald-50 border border-emerald-200/80 rounded-xl flex items-center gap-2">
-            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-            <span className="text-xs font-bold text-emerald-900">
-              {data.summary.average} / 5 · <span className="font-normal text-emerald-700">{data.summary.count} reseñas</span>
-            </span>
+            <RatingSummary rating={data.summary.average} reviewCount={data.summary.count}
+              className="text-xs font-bold text-emerald-900" />
           </div>
         )}
       </div>

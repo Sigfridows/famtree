@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import RatingSummary from "@/features/asylums/components/RatingSummary";
 import Link from "next/link";
 import { centerAdminService } from "@/features/center-admin/api/centerAdminService";
 import type { CenterInfo, CenterReputation } from "@/features/center-admin/types/centerAdmin.types";
@@ -84,7 +85,8 @@ export default function DashboardPage() {
           </div>
           <div className="mt-4">
             <strong className="text-3xl font-bold text-slate-900 font-mono">
-              {data.reviews.summary.average} <span className="text-slate-400 text-sm font-normal">/ 5</span>
+              <RatingSummary rating={data.reviews.summary.average} reviewCount={data.reviews.summary.count}
+                className="text-base" />
             </strong>
             <p className="text-[11px] text-slate-400 mt-0.5">Satisfacción global</p>
           </div>

@@ -27,5 +27,5 @@ export interface CenterReview {
 }
 export interface CenterReputation {
   items: CenterReview[]; total: number; page: number; pageSize: number;
-  summary: {average: number; count: number; distribution: Record<string, number>};
+  summary: {average: number | null; count: number; distribution: Record<string, number>};
 }
