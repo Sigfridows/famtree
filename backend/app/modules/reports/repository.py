@@ -134,7 +134,8 @@ class ReportRepository:
                 dated(
                     select(Municipio.codigo_provincia, func.count())
                     .select_from(Asilo)
-                    .join(Municipio)
+                    .select_from(Asilo)
+                    .join(Municipio, Municipio.codigo_municipio == Asilo.codigo_municipio)
                     .where(Asilo.codigo_asilo.in_(centers))
                     .group_by(Municipio.codigo_provincia),
                     Asilo.fecha_creacion,
@@ -203,7 +204,8 @@ class ReportRepository:
                     Asilo.precio_maximo.label("maxPrice"),
                     Asilo.fecha_creacion.label("createdAt"),
                 )
-                .join(Municipio)
+                .select_from(Asilo)
+                .join(Municipio, Municipio.codigo_municipio == Asilo.codigo_municipio)
                 .join(Provincia, Provincia.codigo_provincia == Municipio.codigo_provincia)
             )
             if filters.province_id:
