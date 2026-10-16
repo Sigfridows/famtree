@@ -1,13 +1,15 @@
 "use client";
 
+import { useSpanishFormValidation } from "@/features/center-admin/components/useSpanishFormValidation";
 import { useState } from "react";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import { PasswordModal } from "@/features/profile/components/PasswordModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { Settings, User, Phone, FileText, Camera, Lock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Settings, User, Phone, FileText, Lock, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function AdminSettingsPage() {
-  const { profile, loading, saving, error, updateProfile, uploadAvatar } = useProfile();
+  const validation = useSpanishFormValidation();
+  const { profile, loading, saving, error, updateProfile } = useProfile();
   const { refreshSession } = useAuth();
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -45,11 +47,12 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Formulario de Perfil */}
-      <form
+      <form noValidate
         key={profile.userId}
         className="bg-white p-6 rounded-2xl border border-slate-200/85 shadow-sm space-y-5"
         onSubmit={async (e) => {
           e.preventDefault();
+          if (!validation.validate(e.currentTarget)) return;
           const form = new FormData(e.currentTarget);
           setMessage("");
           try {
@@ -73,12 +76,13 @@ export default function AdminSettingsPage() {
             </span>
             <input
               className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-normal text-slate-800 focus:bg-white focus:border-emerald-700 focus:outline-none transition-all"
-              name="firstName"
+              {...validation.fieldProps("firstName")}
               required
               minLength={2}
               maxLength={50}
               defaultValue={profile.firstName}
             />
+            {validation.renderError("firstName")}
           </label>
 
           <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
@@ -87,12 +91,13 @@ export default function AdminSettingsPage() {
             </span>
             <input
               className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-normal text-slate-800 focus:bg-white focus:border-emerald-700 focus:outline-none transition-all"
-              name="lastName"
+              {...validation.fieldProps("lastName")}
               required
               minLength={2}
               maxLength={50}
               defaultValue={profile.lastName}
             />
+            {validation.renderError("lastName")}
           </label>
         </div>
 
@@ -102,11 +107,12 @@ export default function AdminSettingsPage() {
           </span>
           <input
             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-normal text-slate-800 focus:bg-white focus:border-emerald-700 focus:outline-none transition-all font-mono"
-            name="phone"
+            {...validation.fieldProps("phone")}
             pattern="[0-9]{10}"
             placeholder="10 dígitos numéricos"
             defaultValue={profile.phone ?? ""}
           />
+            {validation.renderError("phone")}
         </label>
 
         <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
@@ -115,11 +121,12 @@ export default function AdminSettingsPage() {
           </span>
           <textarea
             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-normal text-slate-800 focus:bg-white focus:border-emerald-700 focus:outline-none transition-all resize-none h-24"
-            name="description"
+            {...validation.fieldProps("description")}
             maxLength={250}
             defaultValue={profile.description ?? ""}
             placeholder="Breve descripción..."
           />
+            {validation.renderError("description")}
         </label>
 
         <button
@@ -130,38 +137,9 @@ export default function AdminSettingsPage() {
         </button>
       </form>
 
-      {/* Tarjeta de Multimedia y Seguridad */}
+      {/* Tarjeta de Seguridad */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/85 shadow-sm space-y-5">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Multimedia y Seguridad</h2>
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <div className="space-y-0.5">
-            <p className="text-xs font-bold text-slate-800">Foto de perfil</p>
-            <p className="text-[11px] text-slate-500">Formatos permitidos: JPEG, PNG.</p>
-          </div>
-          <label className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer flex items-center gap-2 transition-all shadow-sm">
-            <Camera className="w-4 h-4 text-emerald-700" />
-            <span>{saving ? "Subiendo..." : "Cambiar foto"}</span>
-            <input
-              type="file"
-              accept="image/jpeg,image/png"
-              disabled={saving}
-              className="hidden"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                e.target.value = "";
-                if (!file) return;
-                try {
-                  await uploadAvatar(file);
-                  await refreshSession();
-                  setMessage("Foto actualizada correctamente.");
-                } catch {
-                  setMessage("No se pudo subir la foto.");
-                }
-              }}
-            />
-          </label>
-        </div>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Seguridad</h2>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
           <div className="space-y-0.5">

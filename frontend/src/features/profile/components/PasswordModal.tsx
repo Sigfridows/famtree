@@ -123,8 +123,8 @@ export function PasswordModal({
                 <label className="text-xs font-bold text-zinc-300 block">
                   Contraseña Actual
                 </label>
+                {fieldErrors.current && <p id="password-error-current" role="alert" className="mb-1 text-xs text-rose-500">{fieldErrors.current}</p>}
                 <div className="relative">
-                  {fieldErrors.current && <p id="password-error-current" className="mb-1 text-xs text-rose-500">{fieldErrors.current}</p>}
                   <input
                     type={showCurrentPassword ? "text" : "password"}
                     id="password-current" aria-label="Contraseña actual o temporal" data-password-field="current" aria-invalid={Boolean(fieldErrors.current)} aria-describedby="password-error-current" value={currentPassword}
@@ -132,12 +132,13 @@ export function PasswordModal({
                     placeholder="••••••••"
                     required
                     disabled={loading}
-                    className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-3.5 pr-10 py-2.5 text-xs font-semibold text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#C5DC83] transition-colors disabled:opacity-50"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-3.5 pr-10 py-2.5 text-xs font-semibold text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-[#C5DC83] transition-colors disabled:opacity-50"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    tabIndex={-1}
+                    aria-label={showCurrentPassword ? "Ocultar contraseña actual" : "Mostrar contraseña actual"}
+                    aria-pressed={showCurrentPassword}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 cursor-pointer"
                   >
                     {showCurrentPassword ? (
@@ -154,8 +155,8 @@ export function PasswordModal({
                 <label className="text-xs font-bold text-zinc-300 block">
                   Nueva Contraseña
                 </label>
+                {fieldErrors.next && <p id="password-error-next" role="alert" className="mb-1 text-xs text-rose-500">{fieldErrors.next}</p>}
                 <div className="relative">
-                  {fieldErrors.next && <p id="password-error-next" className="mb-1 text-xs text-rose-500">{fieldErrors.next}</p>}
                   <input
                     type={showNewPassword ? "text" : "password"}
                     id="password-next" aria-label="Nueva contraseña" data-password-field="next" aria-invalid={Boolean(fieldErrors.next)} aria-describedby="password-error-next" value={newPassword}
@@ -163,12 +164,13 @@ export function PasswordModal({
                     placeholder="••••••••"
                     required
                     disabled={loading}
-                    className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-3.5 pr-10 py-2.5 text-xs font-semibold text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#C5DC83] transition-colors disabled:opacity-50"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-3.5 pr-10 py-2.5 text-xs font-semibold text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-[#C5DC83] transition-colors disabled:opacity-50"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    tabIndex={-1}
+                    aria-label={showNewPassword ? "Ocultar nueva contraseña" : "Mostrar nueva contraseña"}
+                    aria-pressed={showNewPassword}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 cursor-pointer"
                   >
                     {showNewPassword ? (
@@ -193,7 +195,7 @@ export function PasswordModal({
                   placeholder="••••••••"
                   required
                   disabled={loading}
-                  className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#C5DC83] transition-colors disabled:opacity-50"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-[#C5DC83] transition-colors disabled:opacity-50"
                 />
               </div>
 

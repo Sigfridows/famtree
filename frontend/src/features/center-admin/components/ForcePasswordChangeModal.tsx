@@ -177,8 +177,8 @@ export default function ForcePasswordChangeModal({
                 <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider mb-1.5">
                   Contraseña Temporal
                 </label>
+                {fieldErrors.current && <p id="password-error-current" role="alert" className="mb-1 text-xs text-rose-500">{fieldErrors.current}</p>}
                 <div className="relative">
-                  {fieldErrors.current && <p id="password-error-current" className="mb-1 text-xs text-rose-500">{fieldErrors.current}</p>}
                   <input
                     type={showTemp ? "text" : "password"}
                     id="password-current" aria-label="Contraseña actual o temporal" data-password-field="current" aria-invalid={Boolean(fieldErrors.current)} aria-describedby="password-error-current" value={tempPassword}
@@ -190,6 +190,8 @@ export default function ForcePasswordChangeModal({
                   <button
                     type="button"
                     onClick={() => setShowTemp(!showTemp)}
+                    aria-label={showTemp ? "Ocultar contraseña actual o temporal" : "Mostrar contraseña actual o temporal"}
+                    aria-pressed={showTemp}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
                     {showTemp ? (
@@ -206,8 +208,8 @@ export default function ForcePasswordChangeModal({
                 <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider mb-1.5">
                   Nueva Contraseña
                 </label>
+                {fieldErrors.next && <p id="password-error-next" role="alert" className="mb-1 text-xs text-rose-500">{fieldErrors.next}</p>}
                 <div className="relative">
-                  {fieldErrors.next && <p id="password-error-next" className="mb-1 text-xs text-rose-500">{fieldErrors.next}</p>}
                   <input
                     type={showNew ? "text" : "password"}
                     id="password-next" aria-label="Nueva contraseña" data-password-field="next" aria-invalid={Boolean(fieldErrors.next)} aria-describedby="password-error-next" value={newPassword}
@@ -219,6 +221,8 @@ export default function ForcePasswordChangeModal({
                   <button
                     type="button"
                     onClick={() => setShowNew(!showNew)}
+                    aria-label={showNew ? "Ocultar nueva contraseña" : "Mostrar nueva contraseña"}
+                    aria-pressed={showNew}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
                     {showNew ? (
@@ -235,8 +239,8 @@ export default function ForcePasswordChangeModal({
                 <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider mb-1.5">
                   Confirmar Contraseña
                 </label>
+                {fieldErrors.confirmation && <p id="password-error-confirmation" role="alert" className="mb-1 text-xs text-rose-500">{fieldErrors.confirmation}</p>}
                 <div className="relative">
-                  {fieldErrors.confirmation && <p id="password-error-confirmation" className="mb-1 text-xs text-rose-500">{fieldErrors.confirmation}</p>}
                   <input
                     type={showConfirm ? "text" : "password"}
                     id="password-confirmation" aria-label="Confirmar nueva contraseña" data-password-field="confirmation" aria-invalid={Boolean(fieldErrors.confirmation)} aria-describedby="password-error-confirmation" value={confirmPassword}
@@ -248,6 +252,8 @@ export default function ForcePasswordChangeModal({
                   <button
                     type="button"
                     onClick={() => setShowConfirm(!showConfirm)}
+                    aria-label={showConfirm ? "Ocultar confirmación de contraseña" : "Mostrar confirmación de contraseña"}
+                    aria-pressed={showConfirm}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
                     {showConfirm ? (
