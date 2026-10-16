@@ -6,6 +6,7 @@ import json
 import os
 import secrets
 from pathlib import Path
+from typing import cast
 
 from PIL import Image
 from sqlalchemy import select
@@ -20,6 +21,149 @@ from app.db.types import RolUsuario
 from app.modules.asylums.access import CenterAccess
 from app.modules.asylums.management_schemas import AsylumCreate
 from app.modules.asylums.models import Asilo, Municipio, Servicio, TipoAdultoMayor
+
+DEMO_CENTERS = (
+    {
+        "name": "FamTree Demo Centro 1",
+        "municipality": "Santo Domingo de Guzmán",
+        "property_type": "CASA",
+        "sector": "Sector demostración",
+        "address": "Dirección ficticia 123",
+        "latitude": "18.486100",
+        "longitude": "-69.931200",
+        "capacity": 20,
+        "min_price": "15000",
+        "max_price": "25000",
+        "phone": "8095550100",
+        "email": "demo1@example.invalid",
+        "services": ("Alimentación",),
+        "care_types": ("Adulto mayor independiente",),
+        "color": (70, 130, 95),
+    },
+    {
+        "name": "FamTree Demo Centro 2",
+        "municipality": "Santo Domingo de Guzmán",
+        "property_type": "CASA",
+        "sector": "Sector demostración",
+        "address": "Dirección ficticia 123",
+        "latitude": "18.496100",
+        "longitude": "-69.921200",
+        "capacity": 20,
+        "min_price": "15000",
+        "max_price": "25000",
+        "phone": "8095550106",
+        "email": "demo2@example.invalid",
+        "services": ("Alimentación",),
+        "care_types": ("Adulto mayor independiente",),
+        "color": (57, 107, 81),
+    },
+    {
+        "name": "Casa Serena del Caribe",
+        "municipality": "San Felipe de Puerto Plata",
+        "property_type": "VILLA",
+        "sector": "Los Cocos",
+        "address": "Av. Luis Ginebra 18",
+        "latitude": "19.793200",
+        "longitude": "-70.688400",
+        "capacity": 34,
+        "min_price": "26000",
+        "max_price": "48000",
+        "phone": "8095550110",
+        "email": "serena@example.invalid",
+        "services": ("Alimentación", "Enfermería 24 horas", "Recreación y actividades"),
+        "care_types": ("Adulto mayor independiente", "Movilidad reducida"),
+        "color": (68, 125, 104),
+    },
+    {
+        "name": "Hogar Brisas de La Romana",
+        "municipality": "La Romana",
+        "property_type": "CASA",
+        "sector": "Buena Vista Norte",
+        "address": "Calle Gastón F. Deligne 64",
+        "latitude": "18.427300",
+        "longitude": "-68.972800",
+        "capacity": 28,
+        "min_price": "22000",
+        "max_price": "39000",
+        "phone": "8095550111",
+        "email": "brisas@example.invalid",
+        "services": ("Alimentación", "Fisioterapia", "Transporte"),
+        "care_types": ("Adulto mayor independiente", "Cuidado permanente"),
+        "color": (87, 116, 151),
+    },
+    {
+        "name": "Residencia Sol de Samaná",
+        "municipality": "Santa Bárbara de Samaná",
+        "property_type": "GERIATRICO",
+        "sector": "Pueblo Arriba",
+        "address": "Av. Circunvalación 9",
+        "latitude": "19.205600",
+        "longitude": "-69.336900",
+        "capacity": 22,
+        "min_price": "30000",
+        "max_price": "52000",
+        "phone": "8095550112",
+        "email": "solsamana@example.invalid",
+        "services": ("Atención médica", "Terapia ocupacional", "Recreación y actividades"),
+        "care_types": ("Movilidad reducida", "Cuidados especializados"),
+        "color": (178, 132, 76),
+    },
+    {
+        "name": "Villa Los Almendros",
+        "municipality": "San Pedro de Macorís",
+        "property_type": "VILLA",
+        "sector": "Miramar",
+        "address": "Calle Domínguez Charro 31",
+        "latitude": "18.453900",
+        "longitude": "-69.308600",
+        "capacity": 26,
+        "min_price": "24000",
+        "max_price": "42000",
+        "phone": "8095550113",
+        "email": "almendros@example.invalid",
+        "services": (
+            "Alimentación",
+            "Administración de medicamentos",
+            "Asistencia en higiene personal",
+        ),
+        "care_types": ("Discapacidad física", "Cuidado permanente"),
+        "color": (117, 92, 132),
+    },
+    {
+        "name": "Centro Vida Plena",
+        "municipality": "San Francisco de Macorís",
+        "property_type": "APARTAMENTO",
+        "sector": "Los Maestros",
+        "address": "Av. Presidente Antonio Guzmán 77",
+        "latitude": "19.300900",
+        "longitude": "-70.252200",
+        "capacity": 31,
+        "min_price": "27000",
+        "max_price": "46000",
+        "phone": "8095550114",
+        "email": "vidaplana@example.invalid",
+        "services": ("Enfermería 24 horas", "Fisioterapia", "Atención médica"),
+        "care_types": ("Movilidad reducida", "Cuidados especializados"),
+        "color": (76, 135, 131),
+    },
+    {
+        "name": "Casa Jardines de Baní",
+        "municipality": "Baní",
+        "property_type": "CASA",
+        "sector": "Villa Majega",
+        "address": "Calle Nuestra Señora de Regla 12",
+        "latitude": "18.283500",
+        "longitude": "-70.331000",
+        "capacity": 20,
+        "min_price": "20000",
+        "max_price": "36000",
+        "phone": "8095550115",
+        "email": "jardinesbani@example.invalid",
+        "services": ("Alimentación", "Terapia ocupacional", "Transporte"),
+        "care_types": ("Adulto mayor independiente", "Condiciones cognitivas"),
+        "color": (131, 111, 65),
+    },
+)
 
 
 async def main() -> None:
@@ -37,50 +181,73 @@ async def main() -> None:
             centers = get_center_management(
                 db, get_favorites(db, CenterAccess(db)), get_notifications(db, users), users
             )
-            municipality = await db.scalar(
-                select(Municipio.codigo_municipio).order_by(Municipio.codigo_municipio)
-            )
-            service = await db.scalar(
-                select(Servicio.codigo_servicio).where(Servicio.estado_servicio.is_(True))
-            )
-            care = await db.scalar(
-                select(TipoAdultoMayor.codigo_tipo).where(TipoAdultoMayor.estado_tipo.is_(True))
-            )
-            if not municipality or not service or not care:
-                raise RuntimeError("Run Alembic migrations before seeding")
             ids = []
-            for index in range(1, 3):
-                name = f"FamTree Demo Centro {index}"
+            for specification in DEMO_CENTERS:
+                name = specification["name"]
                 existing = await db.scalar(
                     select(Asilo.codigo_asilo).where(Asilo.nombre_asilo == name)
                 )
                 if existing:
                     ids.append(existing)
                     continue
+                municipality = await db.scalar(
+                    select(Municipio.codigo_municipio).where(
+                        Municipio.nombre_municipio == specification["municipality"]
+                    )
+                )
+                service_ids = list(
+                    (
+                        await db.scalars(
+                            select(Servicio.codigo_servicio).where(
+                                Servicio.nombre_servicio.in_(
+                                    cast(tuple[str, ...], specification["services"])
+                                ),
+                                Servicio.estado_servicio.is_(True),
+                            )
+                        )
+                    ).all()
+                )
+                senior_type_ids = list(
+                    (
+                        await db.scalars(
+                            select(TipoAdultoMayor.codigo_tipo).where(
+                                TipoAdultoMayor.nombre_tipo.in_(
+                                    cast(tuple[str, ...], specification["care_types"])
+                                ),
+                                TipoAdultoMayor.estado_tipo.is_(True),
+                            )
+                        )
+                    ).all()
+                )
+                if not municipality or not service_ids or not senior_type_ids:
+                    raise RuntimeError("Run Alembic migrations and catalog seeds before seeding")
                 buffer = io.BytesIO()
-                Image.new("RGB", (640, 360), (70, 130, 95)).save(buffer, "PNG")
+                Image.new(
+                    "RGB", (640, 360), cast(tuple[int, int, int], specification["color"])
+                ).save(buffer, "PNG")
                 image_url = await ImageStore(settings.upload_dir).save(buffer.getvalue())
                 center = await centers.create(
                     AsylumCreate.model_validate(
                         {
                             "municipalityId": municipality,
                             "name": name,
+                            "propertyType": specification["property_type"],
                             "description": (
-                                "Centro ficticio de demostración. "
-                                "No representa una institución real."
+                                "Centro ficticio de demostración para validar el catálogo, "
+                                "sus filtros, mapas y flujos de comparación."
                             ),
-                            "sector": "Sector demostración",
-                            "address": "Dirección ficticia 123",
-                            "latitude": "18.486100",
-                            "longitude": "-69.931200",
-                            "totalCapacity": 20,
-                            "minPrice": "15000",
-                            "maxPrice": "25000",
+                            "sector": specification["sector"],
+                            "address": specification["address"],
+                            "latitude": specification["latitude"],
+                            "longitude": specification["longitude"],
+                            "totalCapacity": specification["capacity"],
+                            "minPrice": specification["min_price"],
+                            "maxPrice": specification["max_price"],
                             "entryRequirements": "Información ficticia para pruebas locales.",
-                            "phone": "8095550100",
-                            "email": f"demo{index}@example.invalid",
-                            "serviceIds": [service],
-                            "seniorTypeIds": [care],
+                            "phone": specification["phone"],
+                            "email": specification["email"],
+                            "serviceIds": service_ids,
+                            "seniorTypeIds": senior_type_ids,
                             "images": [{"url": image_url}],
                         }
                     )

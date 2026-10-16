@@ -44,7 +44,8 @@ Usuarios: `admin.sistema`, `admin.sanjose`, `admin.sanfran`, `alejandro.j`,
 
 ## Verificación local realizada
 
-Se ejecutó dos veces: los totales permanecieron en cinco centros, once usuarios,
-siete imágenes, tres reseñas y tres favoritos (incluyen los demos previos).
+Se ejecutó dos veces: junto con el seed demo, los totales permanecieron en once centros,
+trece imágenes, once usuarios, tres reseñas y tres favoritos. Las seis nuevas fichas demo
+usan coordenadas, tipos de propiedad, servicios y precios variados.
 Login de `alejandro.j`: HTTP 200. Las tres portadas del owner cargaron en el
 catálogo del navegador. Ruff y mypy del ejecutor pasaron.
