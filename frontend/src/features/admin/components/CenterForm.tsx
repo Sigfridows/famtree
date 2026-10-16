@@ -14,6 +14,7 @@ export default function CenterForm({
   onCancel: () => void;
 }) {
   const [catalogs, setCatalogs] = useState<Catalogs | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [province, setProvince] = useState(initial?.provinceId || 0);
@@ -58,13 +59,26 @@ export default function CenterForm({
   }
 
   return (
-    <form
+    <form noValidate
       className="admin-form"
       onSubmit={async (e) => {
         e.preventDefault();
         setError("");
-        if (!form.serviceIds.length || !form.seniorTypeIds.length) {
-          setError("Selecciona al menos un servicio y un tipo de atención.");
+        const invalid: Record<string, string> = {};
+        const controls = Array.from(e.currentTarget.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input, textarea, select'));
+        for (const control of controls) {
+          if (!control.checkValidity()) {
+            const label = control.getAttribute('aria-label') || 'Campo';
+            invalid[label] = control.validity.valueMissing ? `${label}: este campo es obligatorio.` : control.validity.typeMismatch || control.validity.patternMismatch ? `${label}: escribe un valor válido.` : `${label}: revisa el formato y los límites indicados.`;
+          }
+        }
+        if (!form.serviceIds.length) invalid.serviceIds = 'Selecciona al menos un servicio.';
+        if (!form.seniorTypeIds.length) invalid.seniorTypeIds = 'Selecciona al menos un tipo de atención.';
+        if (!/^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$/.test(form.email)) invalid['Correo institucional'] = 'Ingresa un correo institucional válido.';
+        setFieldErrors(invalid);
+        if (Object.keys(invalid).length) {
+          setError('Revisa los campos indicados antes de guardar.');
+          controls.find(control => invalid[control.getAttribute('aria-label') || ''])?.focus();
           return;
         }
         const urls = images
@@ -107,9 +121,11 @@ export default function CenterForm({
         <div className="admin-grid">
           <label>
             Nombre del asilo
+            {fieldErrors['Nombre del asilo'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Nombre del asilo']}</small>}
             <small>Obligatorio: 5–100 caracteres</small>
             <input
               aria-label="Nombre del asilo"
+              aria-invalid={Boolean(fieldErrors['Nombre del asilo'])}
               required
               minLength={5}
               maxLength={100}
@@ -119,8 +135,10 @@ export default function CenterForm({
           </label>
           <label>
             Provincia
+            {fieldErrors['Provincia'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Provincia']}</small>}
             <select
               aria-label="Provincia"
+              aria-invalid={Boolean(fieldErrors['Provincia'])}
               required
               value={province || ""}
               onChange={(e) => {
@@ -138,8 +156,10 @@ export default function CenterForm({
           </label>
           <label>
             Municipio
+            {fieldErrors['Municipio'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Municipio']}</small>}
             <select
               aria-label="Municipio"
+              aria-invalid={Boolean(fieldErrors['Municipio'])}
               required
               value={form.municipalityId || ""}
               onChange={(e) => field("municipalityId", Number(e.target.value))}
@@ -156,9 +176,11 @@ export default function CenterForm({
           </label>
           <label>
             Sector
+            {fieldErrors['Sector'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Sector']}</small>}
             <small>Obligatorio: máximo 100 caracteres</small>
             <input
               aria-label="Sector"
+              aria-invalid={Boolean(fieldErrors['Sector'])}
               required
               maxLength={100}
               value={form.sector}
@@ -167,9 +189,11 @@ export default function CenterForm({
           </label>
           <label>
             Dirección
+            {fieldErrors['Dirección'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Dirección']}</small>}
             <small>Obligatorio: máximo 200 caracteres</small>
             <input
               aria-label="Dirección"
+              aria-invalid={Boolean(fieldErrors['Dirección'])}
               required
               maxLength={200}
               value={form.address}
@@ -178,8 +202,10 @@ export default function CenterForm({
           </label>
           <label>
             Latitud
+            {fieldErrors['Latitud'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Latitud']}</small>}
             <input
               aria-label="Latitud"
+              aria-invalid={Boolean(fieldErrors['Latitud'])}
               required
               type="number"
               min={17}
@@ -191,8 +217,10 @@ export default function CenterForm({
           </label>
           <label>
             Longitud
+            {fieldErrors['Longitud'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Longitud']}</small>}
             <input
               aria-label="Longitud"
+              aria-invalid={Boolean(fieldErrors['Longitud'])}
               required
               type="number"
               min={-72.5}
@@ -210,9 +238,11 @@ export default function CenterForm({
         <div className="admin-grid">
           <label>
             Descripción
+            {fieldErrors['Descripción'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Descripción']}</small>}
             <small>Obligatorio: 20–1000 caracteres</small>
             <textarea
               aria-label="Descripción"
+              aria-invalid={Boolean(fieldErrors['Descripción'])}
               required
               minLength={20}
               maxLength={1000}
@@ -223,9 +253,11 @@ export default function CenterForm({
           </label>
           <label>
             Requisitos de ingreso
+            {fieldErrors['Requisitos de ingreso'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Requisitos de ingreso']}</small>}
             <small>Obligatorio: 10–500 caracteres</small>
             <textarea
               aria-label="Requisitos de ingreso"
+              aria-invalid={Boolean(fieldErrors['Requisitos de ingreso'])}
               required
               minLength={10}
               maxLength={500}
@@ -236,8 +268,10 @@ export default function CenterForm({
           </label>
           <label>
             Capacidad total
+            {fieldErrors['Capacidad total'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Capacidad total']}</small>}
             <input
               aria-label="Capacidad total"
+              aria-invalid={Boolean(fieldErrors['Capacidad total'])}
               required
               type="number"
               min={1}
@@ -249,9 +283,11 @@ export default function CenterForm({
           </label>
           <label>
             Certificaciones
+            {fieldErrors['Certificaciones'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Certificaciones']}</small>}
             <small>Opcional: máximo 250 caracteres</small>
             <textarea
               aria-label="Certificaciones"
+              aria-invalid={Boolean(fieldErrors['Certificaciones'])}
               maxLength={250}
               value={form.certifications}
               onChange={(e) => field("certifications", e.target.value)}
@@ -259,8 +295,10 @@ export default function CenterForm({
           </label>
           <label>
             Precio mínimo mensual (RD$)
+            {fieldErrors['Precio mínimo mensual (RD$)'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Precio mínimo mensual (RD$)']}</small>}
             <input
               aria-label="Precio mínimo mensual (RD$)"
+              aria-invalid={Boolean(fieldErrors['Precio mínimo mensual (RD$)'])}
               required
               type="number"
               min="0.01"
@@ -272,8 +310,10 @@ export default function CenterForm({
           </label>
           <label>
             Precio máximo mensual (RD$)
+            {fieldErrors['Precio máximo mensual (RD$)'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Precio máximo mensual (RD$)']}</small>}
             <input
               aria-label="Precio máximo mensual (RD$)"
+              aria-invalid={Boolean(fieldErrors['Precio máximo mensual (RD$)'])}
               required
               type="number"
               min={form.minPrice || "0.01"}
@@ -285,8 +325,10 @@ export default function CenterForm({
           </label>
           <label>
             Teléfono (10 dígitos)
+            {fieldErrors['Teléfono (10 dígitos)'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Teléfono (10 dígitos)']}</small>}
             <input
               aria-label="Teléfono (10 dígitos)"
+              aria-invalid={Boolean(fieldErrors['Teléfono (10 dígitos)'])}
               required
               pattern="[0-9]{10}"
               maxLength={10}
@@ -296,8 +338,10 @@ export default function CenterForm({
           </label>
           <label>
             Correo institucional
+            {fieldErrors['Correo institucional'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Correo institucional']}</small>}
             <input
               aria-label="Correo institucional"
+              aria-invalid={Boolean(fieldErrors['Correo institucional'])}
               required
               type="email"
               maxLength={100}
@@ -307,9 +351,11 @@ export default function CenterForm({
           </label>
           <label>
             Sitio web
+            {fieldErrors['Sitio web'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Sitio web']}</small>}
             <small>Opcional: https:// y hasta 255 caracteres</small>
             <input
               aria-label="Sitio web"
+              aria-invalid={Boolean(fieldErrors['Sitio web'])}
               type="url"
               maxLength={255}
               value={form.website}
@@ -328,6 +374,7 @@ export default function CenterForm({
         ).map(([key, label, options]) => (
           <fieldset key={key} disabled={busy}>
             <legend>{label} (al menos uno)</legend>
+            {fieldErrors[key] && <p role="alert" style={{color: "#b91c1c"}}>{fieldErrors[key]}</p>}
             <div className="admin-checks">
               {options.map((o) => (
                 <label key={o.id}>
@@ -356,6 +403,7 @@ export default function CenterForm({
           Imágenes opcionales: hasta 15 enlaces, uno por línea
           <textarea
             aria-label="Imágenes opcionales: hasta 15 enlaces, uno por línea"
+              aria-invalid={Boolean(fieldErrors['Imágenes opcionales: hasta 15 enlaces, uno por línea'])}
             rows={3}
             value={images}
             onChange={(e) => setImages(e.target.value)}
