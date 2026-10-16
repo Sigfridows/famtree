@@ -37,7 +37,7 @@ export default function Centers() {
       .catch((e) => {
         if (alive) setError(adminError(e));
       });
-    return () => {
+      return () => {
       alive = false;
     };
   }, []);
@@ -62,6 +62,11 @@ export default function Centers() {
       alive = false;
     };
   }, [query, refresh]);
+
+  const cancelStatusChange = () => {
+    if (confirm) setMessage(`Cambio cancelado: ${confirm.name} conserva su estado ${confirm.status === "ACTIVE" ? "activo" : "inactivo"}.`);
+    setConfirm(null);
+  };
 
   const filter = (values: Partial<typeof query>) => {
     setLoading(true);
@@ -289,7 +294,7 @@ export default function Centers() {
         <Modal
           title={`${confirm.status === "ACTIVE" ? "Desactivar" : "Activar"} asilo`}
           busy={busy}
-          onClose={() => setConfirm(null)}
+          onClose={cancelStatusChange}
         >
           <p>
             ¿Confirmas el cambio de estado de <strong>{confirm.name}</strong>?
@@ -324,7 +329,7 @@ export default function Centers() {
             >
               {busy ? "Actualizando…" : confirm.status === "ACTIVE" ? "Confirmar desactivación" : "Confirmar activación"}
             </button>
-            <button disabled={busy} onClick={() => setConfirm(null)}>
+            <button disabled={busy} onClick={cancelStatusChange}>
               Cancelar
             </button>
           </div>
