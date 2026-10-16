@@ -102,5 +102,8 @@ def render_pdf(table: ReportTable, filters: TableExport, admin_id: int, now: dat
         )
     )
     story += [grid, Spacer(1, 12), Paragraph(f"Total: {table.total}", styles["Normal"])]
-    SimpleDocTemplate(output, pagesize=(842, 595), leftMargin=25, rightMargin=25).build(story)
+    SimpleDocTemplate(
+        output, pagesize=(842, 595), leftMargin=25, rightMargin=25,
+        title=f"FamTree - Reporte de {filters.report_type}", author="FamTree",
+    ).build(story)
     return output.getvalue()
