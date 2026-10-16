@@ -6,6 +6,9 @@ import { Notice, Pagination } from "./AdminUI";
 
 const labels: Record<string, string> = {
   id: "ID",
+  firstName: "Nombre",
+  lastName: "Apellido",
+  provinceId: "ID de provincia",
   name: "Nombre",
   asylum: "Asilo",
   asylum_name: "Asilo",
@@ -29,6 +32,8 @@ const labels: Record<string, string> = {
 
 function cell(value: unknown) {
   if (value === null || value === undefined) return "—";
+  const translated: Record<string, string> = {ADMIN_SISTEMA: "Administrador del sistema", ADMIN_ASILO: "Administrador de asilo", USUARIO_REGISTRADO: "Usuario registrado", ACTIVO: "Activo", INACTIVO: "Inactivo", BLOQUEADO: "Bloqueado", PUBLICADA: "Publicada", OCULTA: "Oculta"};
+  if (typeof value === "string" && translated[value]) return translated[value];
   if (typeof value === "object") return JSON.stringify(value);
   if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value))
     return new Date(value).toLocaleDateString("es-DO");
