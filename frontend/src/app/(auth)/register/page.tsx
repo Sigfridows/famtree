@@ -84,7 +84,7 @@ export default function RegisterPage() {
       </AnimatePresence>
 
       {/* Formulario */}
-      <form className="space-y-3.5" onSubmit={handlers.handleSubmit}>
+      <form noValidate className="space-y-3.5" onSubmit={handlers.handleSubmit}>
         {/* Nombre de usuario */}
         <motion.div variants={itemVariants}>
           <label className="block text-xs font-semibold mb-1.5 text-white font-montserrat" htmlFor="register-0">Nombre Usuario *</label>

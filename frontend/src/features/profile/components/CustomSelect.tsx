@@ -42,6 +42,7 @@ export function CustomSelect({
       {error && <p role="alert" id={`select-error-${label}`} className="text-xs text-rose-400">{error}</p>}
       <button
         aria-label={label}
+        aria-haspopup="listbox" aria-expanded={isOpen}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `select-error-${label}` : undefined}
         type="button"
@@ -59,15 +60,19 @@ export function CustomSelect({
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            role="listbox" aria-label={label}
+            style={{maxHeight: 192, overflowY: "auto", overscrollBehavior: "contain"}}
             initial={{ opacity: 0, y: -4, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.15 }}
             className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl z-40 py-1.5 overflow-hidden backdrop-blur-xl"
           >
+            {options.length === 0 && <p className="px-4 py-2.5 text-xs text-zinc-400">No hay opciones disponibles.</p>}
             {options.map((opt) => (
               <button
                 key={opt}
+                role="option" aria-selected={value === opt}
                 type="button"
                 onClick={() => {
                   onChange(opt);
