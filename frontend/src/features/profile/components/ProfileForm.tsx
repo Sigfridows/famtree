@@ -237,9 +237,9 @@ export function ProfileForm() {
   return (
     <>
       <main className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start font-montserrat max-w-7xl mx-auto p-2 sm:p-4">
-        <section className="lg:col-span-12 flex items-center justify-between rounded-xl border border-white/10 p-4">
-          <p>Rol: {authUser.role === 'ASYLUM_ADMIN' ? 'Administrador de asilo' : authUser.role === 'SYSTEM_ADMIN' ? 'Administrador del sistema' : 'Usuario registrado'}</p>
-          {!editing && <button type="button" onClick={() => setEditing(true)}>Editar perfil</button>}
+        <section className="lg:col-span-12 flex items-center justify-end">
+
+          {!editing && <button type="button" className="rounded-xl border border-[#CCD999]/50 bg-[#CCD999] px-5 py-2.5 text-xs font-bold text-zinc-950 shadow-sm hover:bg-[#b8cb83] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#CCD999] cursor-pointer" onClick={() => setEditing(true)}>Editar perfil</button>}
         </section>
         {/* COLUMNA IZQUIERDA */}
         <div className="lg:col-span-6 space-y-6">

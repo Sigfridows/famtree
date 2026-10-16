@@ -51,6 +51,7 @@ export default function CustomSelect({
       {/* Menú flotante desplegable con Scroll Minimalista y Modo Oscuro */}
       {isOpen && (
         <div 
+          style={{maxHeight: 192, overflowY: "auto", overscrollBehavior: "contain"}}
           className="absolute left-0 top-full mt-2 w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 py-1 max-h-48 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150 
             scrollbar-thin [scrollbar-color:var(--color-zinc-300)_transparent] dark:[scrollbar-color:var(--color-zinc-700)_transparent] 
             [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent 
