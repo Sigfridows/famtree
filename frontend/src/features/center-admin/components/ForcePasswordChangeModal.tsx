@@ -1,5 +1,7 @@
 "use client";
 
+import { passwordChangeErrors } from "@/lib/validations/password-change";
+import { friendlyError } from "@/lib/apiClient";
 import { useState } from "react";
 import Image from "next/image";
 import logoFamTree from "@/assets/famtree.png";
@@ -36,6 +38,7 @@ export default function ForcePasswordChangeModal({
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -52,20 +55,12 @@ export default function ForcePasswordChangeModal({
     e.preventDefault();
     setError(null);
 
-    if (
-      !hasMinLength ||
-      newPassword.length > 128 ||
-      !hasVariety ||
-      tempPassword === newPassword
-    ) {
-      setError(
-        "Usa una contraseña distinta de la temporal, de 8–128 caracteres, con mayúscula, minúscula, número y símbolo.",
-      );
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+    const errors = passwordChangeErrors(tempPassword, newPassword, confirmPassword);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) {
+      setError("Revisa los campos indicados. Vuelve a escribir las contraseñas.");
+      setTempPassword(""); setNewPassword(""); setConfirmPassword(""); setShowTemp(false); setShowNew(false); setShowConfirm(false);
+      (e.currentTarget as HTMLFormElement).querySelector<HTMLInputElement>(`[data-password-field="${Object.keys(errors)[0]}"]`)?.focus();
       return;
     }
 
@@ -73,9 +68,8 @@ export default function ForcePasswordChangeModal({
       setLoading(true);
       await onPasswordChanged(tempPassword, newPassword);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Error al actualizar contraseña";
-      setError(message);
+      setError(friendlyError(err, "No se pudo cambiar la contraseña. Comprueba tu contraseña actual."));
+      setTempPassword(""); setNewPassword(""); setConfirmPassword(""); setShowTemp(false); setShowNew(false); setShowConfirm(false);
     } finally {
       setLoading(false);
     }
@@ -119,7 +113,7 @@ export default function ForcePasswordChangeModal({
               <div className="flex items-start gap-3">
                 <CheckCircle2
                   className={`w-5 h-5 shrink-0 mt-0.5 ${
-                    hasMinLength ? "text-emerald-400" : "text-emerald-700"
+                    hasMinLength && newPassword.length <= 128 ? "text-emerald-400" : "text-emerald-700"
                   }`}
                 />
                 <div>
@@ -143,7 +137,7 @@ export default function ForcePasswordChangeModal({
                     VARIEDAD DE CARACTERES
                   </p>
                   <p className="text-xs text-emerald-100/70">
-                    Use mayúsculas, números y símbolos.
+                    Use mayúsculas, minúsculas, números y símbolos.
                   </p>
                 </div>
               </div>
@@ -173,16 +167,17 @@ export default function ForcePasswordChangeModal({
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form noValidate onSubmit={handleSubmit} className="space-y-4">
               {/* Contraseña Temporal */}
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider mb-1.5">
                   Contraseña Temporal
                 </label>
                 <div className="relative">
+                  {fieldErrors.current && <p id="password-error-current" className="mb-1 text-xs text-rose-500">{fieldErrors.current}</p>}
                   <input
                     type={showTemp ? "text" : "password"}
-                    value={tempPassword}
+                    id="password-current" aria-label="Contraseña actual o temporal" data-password-field="current" aria-invalid={Boolean(fieldErrors.current)} aria-describedby="password-error-current" value={tempPassword}
                     onChange={(e) => setTempPassword(e.target.value)}
                     placeholder="Ingresa código de bienvenida"
                     required
@@ -208,9 +203,10 @@ export default function ForcePasswordChangeModal({
                   Nueva Contraseña
                 </label>
                 <div className="relative">
+                  {fieldErrors.next && <p id="password-error-next" className="mb-1 text-xs text-rose-500">{fieldErrors.next}</p>}
                   <input
                     type={showNew ? "text" : "password"}
-                    value={newPassword}
+                    id="password-next" aria-label="Nueva contraseña" data-password-field="next" aria-invalid={Boolean(fieldErrors.next)} aria-describedby="password-error-next" value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Cree su nueva clave"
                     required
@@ -236,9 +232,10 @@ export default function ForcePasswordChangeModal({
                   Confirmar Contraseña
                 </label>
                 <div className="relative">
+                  {fieldErrors.confirmation && <p id="password-error-confirmation" className="mb-1 text-xs text-rose-500">{fieldErrors.confirmation}</p>}
                   <input
                     type={showConfirm ? "text" : "password"}
-                    value={confirmPassword}
+                    id="password-confirmation" aria-label="Confirmar nueva contraseña" data-password-field="confirmation" aria-invalid={Boolean(fieldErrors.confirmation)} aria-describedby="password-error-confirmation" value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repita su nueva clave"
                     required

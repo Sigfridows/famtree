@@ -1,5 +1,7 @@
 "use client";
 
+import { passwordChangeErrors } from "@/lib/validations/password-change";
+import { friendlyError } from "@/lib/apiClient";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, X, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -24,6 +26,7 @@ export function PasswordModal({
   const [showNewPassword, setShowNewPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
 
   const resetForm = () => {
@@ -43,18 +46,12 @@ export function PasswordModal({
     e.preventDefault();
     setError(null);
 
-    if (!currentPassword) {
-      setError("Debes ingresar tu contraseña actual.");
-      return;
-    }
-
-    if (newPassword.length < 8 || newPassword.length > 128 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[^A-Za-z0-9]/.test(newPassword) || newPassword === currentPassword) {
-      setError("Usa una contraseña diferente de la actual, de 8–128 caracteres, con mayúscula, minúscula, número y símbolo.");
-      return;
-    }
-
-    if (newPassword !== confirmNewPassword) {
-      setError("Las nuevas contraseñas no coinciden.");
+    const errors = passwordChangeErrors(currentPassword, newPassword, confirmNewPassword);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) {
+      setError("Revisa los campos indicados. Vuelve a escribir las contraseñas.");
+      setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); setShowCurrentPassword(false); setShowNewPassword(false);
+      (e.currentTarget as HTMLFormElement).querySelector<HTMLInputElement>(`[data-password-field="${Object.keys(errors)[0]}"]`)?.focus();
       return;
     }
 
@@ -70,17 +67,8 @@ export function PasswordModal({
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const errorObj = err as {
-        response?: { data?: { error?: { message?: string } } };
-        message?: string;
-      };
-
-      console.error("Error al cambiar contraseña:", err);
-      setError(
-        errorObj?.response?.data?.error?.message ||
-          errorObj?.message ||
-          "Ocurrió un error. Verifica que tu contraseña actual sea correcta."
-      );
+      setError(friendlyError(err, "No se pudo cambiar la contraseña. Comprueba tu contraseña actual."));
+      setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); setShowCurrentPassword(false); setShowNewPassword(false);
     } finally {
       setLoading(false);
     }
@@ -118,7 +106,7 @@ export function PasswordModal({
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form noValidate onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <div className="p-3 text-xs bg-rose-950/60 text-rose-300 rounded-xl font-medium border border-rose-800/60">
                   {error}
@@ -131,9 +119,10 @@ export function PasswordModal({
                   Contraseña Actual
                 </label>
                 <div className="relative">
+                  {fieldErrors.current && <p id="password-error-current" className="mb-1 text-xs text-rose-500">{fieldErrors.current}</p>}
                   <input
                     type={showCurrentPassword ? "text" : "password"}
-                    value={currentPassword}
+                    id="password-current" aria-label="Contraseña actual o temporal" data-password-field="current" aria-invalid={Boolean(fieldErrors.current)} aria-describedby="password-error-current" value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••"
                     required
@@ -161,9 +150,10 @@ export function PasswordModal({
                   Nueva Contraseña
                 </label>
                 <div className="relative">
+                  {fieldErrors.next && <p id="password-error-next" className="mb-1 text-xs text-rose-500">{fieldErrors.next}</p>}
                   <input
                     type={showNewPassword ? "text" : "password"}
-                    value={newPassword}
+                    id="password-next" aria-label="Nueva contraseña" data-password-field="next" aria-invalid={Boolean(fieldErrors.next)} aria-describedby="password-error-next" value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••"
                     required
@@ -190,9 +180,10 @@ export function PasswordModal({
                 <label className="text-xs font-bold text-zinc-300 block">
                   Confirmar Nueva Contraseña
                 </label>
-                <input
+                {fieldErrors.confirmation && <p id="password-error-confirmation" className="mb-1 text-xs text-rose-500">{fieldErrors.confirmation}</p>}
+                  <input
                   type={showNewPassword ? "text" : "password"}
-                  value={confirmNewPassword}
+                  id="password-confirmation" aria-label="Confirmar nueva contraseña" data-password-field="confirmation" aria-invalid={Boolean(fieldErrors.confirmation)} aria-describedby="password-error-confirmation" value={confirmNewPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   required
