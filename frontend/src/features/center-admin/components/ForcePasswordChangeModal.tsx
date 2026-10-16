@@ -1,7 +1,7 @@
 "use client";
 
 import { passwordChangeErrors } from "@/lib/validations/password-change";
-import { friendlyError } from "@/lib/apiClient";
+import { ApiError, friendlyError } from "@/lib/apiClient";
 import { useState } from "react";
 import Image from "next/image";
 import logoFamTree from "@/assets/famtree.png";
@@ -68,6 +68,10 @@ export default function ForcePasswordChangeModal({
       setLoading(true);
       await onPasswordChanged(tempPassword, newPassword);
     } catch (err: unknown) {
+      if (err instanceof ApiError && err.code === "invalid_credentials" && err.status === 400) {
+        setFieldErrors({current: "La contraseña actual o temporal es incorrecta."});
+        document.getElementById("password-current")?.focus();
+      }
       setError(friendlyError(err, "No se pudo cambiar la contraseña. Comprueba tu contraseña actual."));
       setTempPassword(""); setNewPassword(""); setConfirmPassword(""); setShowTemp(false); setShowNew(false); setShowConfirm(false);
     } finally {
