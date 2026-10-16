@@ -64,7 +64,7 @@ export function adminError(error: unknown): string {
     if (error.status === 403)
       return "Tu cuenta no tiene permiso para esta acción. Comprueba tu sesión y rol.";
     if (error.status === 422)
-      return "Revisa los campos: formatos, longitudes, selección de servicios y rangos de fechas o precios.";
+      return "Revisa los campos indicados y sus formatos antes de guardar.";
     if (error.status === 409)
       return "Los datos cambiaron o ya existe un registro con esos datos. Actualiza la lista y revisa tu selección.";
     if (error.status >= 500)
