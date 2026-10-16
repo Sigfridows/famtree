@@ -63,6 +63,8 @@ export interface ReportCase {
   resolved_at: string | null;
 }
 export interface ReportTable {
+  columnLabels?: Record<string, string>;
+  valueLabels?: Record<string, string>;
   rows: Record<string, unknown>[];
   total: number;
   page: number;
