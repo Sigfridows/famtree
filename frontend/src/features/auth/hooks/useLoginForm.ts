@@ -40,12 +40,12 @@ export function useLoginForm() {
           ? "/system-admin"
           : user.role === "ASYLUM_ADMIN"
             ? "/center-admin/asylum"
-            : "/catalog",
+            : (() => { const callback = new URLSearchParams(window.location.search).get("callbackUrl"); return callback && /^\/(catalog|review|map|profile)(\?|$)/.test(callback) ? callback : "/catalog"; })(),
       );
     } catch (err: unknown) {
       setPassword("");
       if (err instanceof ApiError && err.message) {
-        setErrorMessage(err.status === 401 ? AUTH_ERRORS.INVALID_CREDENTIALS : friendlyError(err, AUTH_ERRORS.INVALID_CREDENTIALS));
+        setErrorMessage(err.status === 429 ? "Demasiados intentos. El bloqueo dura hasta 15 minutos desde el último intento permitido. Espera antes de volver a intentar." : err.status === 401 ? AUTH_ERRORS.INVALID_CREDENTIALS : friendlyError(err, AUTH_ERRORS.INVALID_CREDENTIALS));
       } else {
         setErrorMessage(AUTH_ERRORS.INVALID_CREDENTIALS);
       }
