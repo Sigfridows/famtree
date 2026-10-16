@@ -181,6 +181,7 @@ function CatalogContent() {
             <option value="name_asc">Nombre A–Z</option><option value="name_desc">Nombre Z–A</option><option value="price_asc">Menor precio</option><option value="price_desc">Mayor precio</option><option value="rating_desc">Mejor calificación</option>
           </select>
         </label>
+        {filters.rating_min !== undefined && <p role="status" className="my-2 text-sm text-[#CCDD99]">Filtro aplicado: mínimo {filters.rating_min} {filters.rating_min === 1 ? "estrella" : "estrellas"}.</p>}
         {error && <p role="alert">No se pudo cargar el catálogo. <button onClick={refetch}>Reintentar</button></p>}
         {data && data.pagination.pages > 1 && <nav aria-label="Paginación del catálogo" className="flex gap-4"><button disabled={data.pagination.page <= 1} onClick={() => updateFilters({page: data.pagination.page - 1})}>Anterior</button><span>Página {data.pagination.page} de {data.pagination.pages}</span><button disabled={data.pagination.page >= data.pagination.pages} onClick={() => updateFilters({page: data.pagination.page + 1})}>Siguiente</button></nav>}
         {/* Estado de Carga */}
