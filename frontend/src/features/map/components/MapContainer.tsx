@@ -34,7 +34,8 @@ export default function MapContainer() {
   const handleZoomIn = () => mapInstance?.zoomIn();
   const handleZoomOut = () => mapInstance?.zoomOut();
   const handleCenterLocation = () => {
-    mapInstance?.flyTo([18.47, -69.935], 12);
+    setActivePinId(null);
+    mapInstance?.fitBounds([[17.5, -72.1], [20, -68.2]], { padding: [30, 30] });
   };
 
   const modalData = asylumDetail ? toDetailData(asylumDetail) : undefined;
@@ -82,7 +83,7 @@ export default function MapContainer() {
           type="button"
           onClick={handleCenterLocation}
           className="w-10 h-10 bg-[#161616] dark:bg-zinc-900 dark:border dark:border-zinc-800 text-white rounded-xl flex items-center justify-center shadow-xl hover:bg-zinc-800 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-          title="Mi Ubicación"
+          title="Ver República Dominicana"
         >
           <LocateFixed className="w-5 h-5 text-white dark:text-zinc-200" />
         </button>
