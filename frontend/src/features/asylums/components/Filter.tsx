@@ -21,6 +21,7 @@ export default function FilterModal({isOpen, onClose, onApply}: Props) {
   const inputClass = 'w-full rounded-xl border border-zinc-600 bg-zinc-900 p-2 text-sm text-white';
   const toggle = (key: 'services' | 'careTypes', id: number) => setDraft(previous => ({...previous, [key]: previous[key]?.includes(id) ? previous[key]!.filter(value => value !== id) : [...previous[key] ?? [], id]}));
   const apply = () => {
+    if ([draft.minPrice, draft.maxPrice].some(value => value !== undefined && (!Number.isFinite(value) || value < 0))) {setError("Los precios deben ser números mayores o iguales a 0."); return;}
     if (draft.minPrice !== undefined && draft.maxPrice !== undefined && draft.minPrice > draft.maxPrice) {setError('El precio mínimo no puede superar el máximo.'); return;}
     setError(''); onApply?.(draft); onClose?.();
   };
