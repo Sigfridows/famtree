@@ -41,7 +41,7 @@ export function useLoginForm() {
     } catch (err: unknown) {
       setPassword("");
       if (err instanceof ApiError && err.message) {
-        setErrorMessage(friendlyError(err, AUTH_ERRORS.INVALID_CREDENTIALS));
+        setErrorMessage(err.status === 401 ? AUTH_ERRORS.INVALID_CREDENTIALS : friendlyError(err, AUTH_ERRORS.INVALID_CREDENTIALS));
       } else {
         setErrorMessage(AUTH_ERRORS.INVALID_CREDENTIALS);
       }
