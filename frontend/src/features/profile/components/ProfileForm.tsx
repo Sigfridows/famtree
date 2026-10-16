@@ -21,6 +21,10 @@ export function ProfileForm() {
   const router = useRouter();
   const { user: authUser, isLoading: isAuthLoading, logout } = useAuth();
 
+  const [savedProfile, setSavedProfile] = useState<User | null>(null);
+  const [pendingAvatar, setPendingAvatar] = useState<File | null | undefined>(undefined);
+  const [pendingExit, setPendingExit] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState("");
   const [catalogs, setCatalogs] = useState<AsylumCatalogs | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -55,6 +59,7 @@ export function ProfileForm() {
       try {
         setLoading(true);
         const user: User = await profileService.getProfile();
+        setSavedProfile(user);
         const locationCatalogs = await getAsylumCatalogs();
         setCatalogs(locationCatalogs);
         setCity(locationCatalogs.provinces.find(item => item.id === user.provinceId)?.name ?? '');
@@ -96,18 +101,32 @@ export function ProfileForm() {
     }
   }, [authUser, isAuthLoading]);
 
-  const handleFileSelect = async (file: File) => {
-    if (!authUser) return;
-    try {
-      setIsUploadingAvatar(true);
-      const res = await profileService.uploadAvatar(file);
-      setAvatarUrl(res.url);
-    } catch (error) {
-      console.error("Error al subir el avatar:", error);
-      setFeedback({ type: "error", message: "No se pudo subir la imagen. Comprueba el archivo e inténtalo de nuevo." });
-    } finally {
-      setIsUploadingAvatar(false);
+  const dirty = editing && !!savedProfile && (pendingAvatar !== undefined || firstName !== savedProfile.firstName || lastName !== savedProfile.lastName || email !== savedProfile.email || phone.replace(/\D/g, "") !== (savedProfile.phone ?? "") || bio !== (savedProfile.description ?? "") || (catalogs?.provinces.find(item => item.name === city)?.id ?? null) !== (savedProfile.provinceId ?? null) || (catalogs?.municipalities.find(item => item.name === municipality)?.id ?? null) !== (savedProfile.municipalityId ?? null));
+  useEffect(() => {
+    if (!dirty) return;
+    const unload = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    const navigate = (event: MouseEvent) => {
+      const link = (event.target as Element).closest<HTMLAnchorElement>("a[href]");
+      if (!link || link.target === "_blank" || event.ctrlKey || event.metaKey) return;
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin || url.href === window.location.href) return;
+      event.preventDefault(); event.stopPropagation(); setPendingExit(url.href);
+    };
+    window.addEventListener("beforeunload", unload);
+    document.addEventListener("click", navigate, true);
+    return () => { window.removeEventListener("beforeunload", unload); document.removeEventListener("click", navigate, true); };
+  }, [dirty]);
+  useEffect(() => {
+    if (!(pendingAvatar instanceof File)) return;
+    const preview = URL.createObjectURL(pendingAvatar); setAvatarUrl(preview);
+    return () => URL.revokeObjectURL(preview);
+  }, [pendingAvatar]);
+  const handleFileSelect = (file: File) => {
+    if (!editing || !authUser) return;
+    if (!file.type.startsWith("image/") || file.size > 2 * 1024 * 1024) {
+      setFeedback({type: "error", message: "Selecciona una imagen de hasta 2 MB."}); return;
     }
+    setPendingAvatar(file); setFeedback(null);
   };
 
   const handleSave = async () => {
@@ -123,6 +142,10 @@ export function ProfileForm() {
         setFeedback({ type: "error", message: "El teléfono debe tener 10 dígitos." });
         return;
       }
+      setLocationError("");
+      const provinceId = catalogs?.provinces.find(item => item.name === city)?.id ?? null;
+      const municipalityId = catalogs?.municipalities.find(item => item.name === municipality && item.province_id === provinceId)?.id ?? null;
+      if (city && !municipalityId) { setLocationError("Selecciona un municipio que pertenezca a la ciudad/provincia elegida."); return; }
       const payload: UpdateProfilePayload = {
         provinceId: catalogs?.provinces.find(item => item.name === city)?.id ?? null,
         municipalityId: catalogs?.municipalities.find(item => item.name === municipality && item.province_id === catalogs?.provinces.find(province => province.name === city)?.id)?.id ?? null,
@@ -134,17 +157,25 @@ export function ProfileForm() {
       };
 
       await profileService.updateProfile(payload);
+      if (pendingAvatar !== undefined) {
+        setIsUploadingAvatar(true);
+        if (pendingAvatar === null) await profileService.removeAvatar();
+        else await profileService.uploadAvatar(pendingAvatar);
+      }
+      const saved = await profileService.getProfile();
+      setSavedProfile(saved); setAvatarUrl(saved.profilePicture ?? ""); setPendingAvatar(undefined);
       setEditing(false);
       setFeedback({ type: "success", message: "Tus datos se guardaron correctamente." });
     } catch (error) {
       console.error("Error al guardar los cambios:", error);
       setFeedback({ type: "error", message: error instanceof ApiError ? friendlyError(error) : "No se pudieron guardar los cambios." });
     } finally {
-      setSaving(false);
+      setSaving(false); setIsUploadingAvatar(false);
     }
   };
 
   const handleLogout = async () => {
+    if (dirty) { setPendingExit("logout"); return; }
     try {
       setIsLoggingOut(true);
       await logout();
@@ -220,10 +251,7 @@ export function ProfileForm() {
             lastName={lastName}
             isUploadingAvatar={isUploadingAvatar}
             onFileSelect={handleFileSelect}
-            onRemoveAvatar={() => void (async () => {
-              try { await profileService.removeAvatar(); setAvatarUrl(''); setFeedback({type: 'success', message: 'Foto de perfil eliminada.'}); }
-              catch { setFeedback({type: 'error', message: 'No se pudo quitar la foto.'}); }
-            })()}
+            onRemoveAvatar={() => { setPendingAvatar(null); setAvatarUrl(""); setFeedback(null); }}
             onUsernameChange={setUsername}
             onFirstNameChange={setFirstName}
             onLastNameChange={setLastName}
@@ -233,7 +261,7 @@ export function ProfileForm() {
             notifications={notifications}
             offers={offers}
             onOpenPasswordModal={() => setIsPasswordModalOpen(true)}
-            saving={saving}
+            saving={saving || editing}
             onNotificationsToggle={() => void (async () => {
               const next = !notifications;
               try { setSaving(true); await notificationsService.updatePreferences({ availabilityAlert: next, moderationAlert: next }); setNotifications(next); setFeedback({ type: "success", message: "Preferencias de notificaciones actualizadas." }); }
@@ -253,6 +281,7 @@ export function ProfileForm() {
         <div className="lg:col-span-6 space-y-6">
           <ContactSection
             readOnly={!editing}
+            locationError={locationError}
             provinces={catalogs?.provinces.map(item => item.name)}
             municipalities={catalogs?.municipalities.filter(item => item.province_id === catalogs.provinces.find(province => province.name === city)?.id).map(item => item.name)}
             phone={phone}
@@ -286,6 +315,7 @@ export function ProfileForm() {
 
             {editing && <button type="button" onClick={() => void (async () => {
               const saved = await profileService.getProfile();
+              setSavedProfile(saved); setPendingAvatar(undefined); setLocationError("");
               setFirstName(saved.firstName); setLastName(saved.lastName); setEmail(saved.email);
               setPhone(saved.phone ? formatPhoneNumber(saved.phone) : ''); setBio(saved.description ?? ''); setAvatarUrl(saved.profilePicture ?? '');
               setCity(catalogs?.provinces.find(item => item.id === saved.provinceId)?.name ?? '');
@@ -310,6 +340,14 @@ export function ProfileForm() {
         </div>
       </main>
 
+      {pendingExit && <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="unsaved-title" className="w-full max-w-md rounded-2xl border border-white/20 bg-zinc-900 p-6 text-white">
+          <h2 id="unsaved-title" className="font-bold text-xl">Cambios sin guardar</h2>
+          <p className="my-4">Tienes cambios en el perfil, incluida la foto, que todavía no se han guardado. ¿Quieres descartarlos y salir?</p>
+          <div className="flex gap-4"><button onClick={() => setPendingExit(null)} className="rounded-xl bg-[#CCDD99] p-3 text-black">Seguir editando</button>
+          <button onClick={() => void (async () => { const destination = pendingExit; setPendingExit(null); setEditing(false); setPendingAvatar(undefined); if (destination === "logout") { await logout(); router.push("/login"); } else { const url = new URL(destination, window.location.href); router.push(url.pathname + url.search + url.hash); } })()} className="rounded-xl border border-white/25 p-3">Descartar y salir</button></div>
+        </div>
+      </div>}
       <PasswordModal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
