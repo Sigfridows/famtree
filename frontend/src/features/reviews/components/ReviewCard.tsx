@@ -68,6 +68,9 @@ export default function ReviewCard({
   reportStatus,
 }: ReviewCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
+  const hasAvatar = Boolean(review.avatar && review.avatar !== "/placeholder-avatar.png" && failedAvatar !== review.avatar);
+  const initials = review.author.trim().split(/\s+/).slice(0, 2).map((part) => Array.from(part)[0]).join("").toUpperCase() || "U";
   const isLongText = review.text.length > 140;
 
   return (
@@ -85,14 +88,15 @@ export default function ReviewCard({
       {/* Header: Autor, Fecha y Estrellas Desplegadas */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Image
-            src={review.avatar || "/placeholder-avatar.png"}
+          {hasAvatar ? <Image
+            src={review.avatar}
             alt={review.author}
             width={38}
             height={38}
             unoptimized
+            onError={() => setFailedAvatar(review.avatar)}
             className="w-9 h-9 rounded-full object-cover border border-white/10 bg-zinc-800 shrink-0"
-          />
+          /> : <span role="img" aria-label={`Avatar de ${review.author}`} className="flex w-9 h-9 items-center justify-center rounded-full border border-[#CCDD99]/20 bg-[#CCDD99]/10 text-xs font-semibold text-[#CCDD99] shrink-0">{initials}</span>}
           <div>
             <h4 className="font-semibold text-xs text-zinc-100 leading-tight">
               {review.author}

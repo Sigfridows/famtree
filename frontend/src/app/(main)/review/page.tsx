@@ -260,7 +260,7 @@ function ResenasContent() {
       return {
         id: realId,
         author: authorName,
-        avatar: avatar || "/placeholder-avatar.png",
+        avatar: avatar || "",
         rating: Number(rev.rating || rev.calificacion || 5),
         date: rev.date || rev.createdAt || rev.fecha_creacion || "Reciente",
         text: rev.comment || rev.text || rev.comentario || "",
