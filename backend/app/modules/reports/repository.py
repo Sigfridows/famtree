@@ -190,18 +190,22 @@ class ReportRepository:
     async def table(self, filters: TableFilter, *, export: bool = False) -> ReportTable:
         query: Select[Any]
         if filters.report_type == "centers":
-            query = select(
-                Asilo.codigo_asilo.label("id"),
-                Asilo.nombre_asilo.label("name"),
-                Municipio.nombre_municipio.label("municipality"),
-                Municipio.codigo_provincia.label("provinceId"),
-                Provincia.nombre_provincia.label("province"),
-                Asilo.estado_asilo.label("status"),
-                Asilo.capacidad_total.label("capacity"),
-                Asilo.precio_minimo.label("minPrice"),
-                Asilo.precio_maximo.label("maxPrice"),
-                Asilo.fecha_creacion.label("createdAt"),
-            ).join(Municipio).join(Provincia, Provincia.codigo_provincia == Municipio.codigo_provincia)
+            query = (
+                select(
+                    Asilo.codigo_asilo.label("id"),
+                    Asilo.nombre_asilo.label("name"),
+                    Municipio.nombre_municipio.label("municipality"),
+                    Municipio.codigo_provincia.label("provinceId"),
+                    Provincia.nombre_provincia.label("province"),
+                    Asilo.estado_asilo.label("status"),
+                    Asilo.capacidad_total.label("capacity"),
+                    Asilo.precio_minimo.label("minPrice"),
+                    Asilo.precio_maximo.label("maxPrice"),
+                    Asilo.fecha_creacion.label("createdAt"),
+                )
+                .join(Municipio)
+                .join(Provincia, Provincia.codigo_provincia == Municipio.codigo_provincia)
+            )
             if filters.province_id:
                 query = query.where(Municipio.codigo_provincia == filters.province_id)
             if filters.asylum_id:
