@@ -114,7 +114,7 @@ def render_pdf(table: ReportTable, filters: TableExport, admin_id: int, now: dat
         pagesize=(842, 595),
         leftMargin=25,
         rightMargin=25,
-        title=f"FamTree - Reporte de {filters.report_type}",
+        title=f"FamTree - Reporte de {report_name}",
         author="FamTree",
     ).build(story)
     return output.getvalue()
