@@ -5,42 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, ChevronDown, HelpCircle, Sparkles } from "lucide-react";
 
 const FAQ_ITEMS = [
-  {
-    id: "1",
-    question: "¿Cómo puedo agendar una visita guiada a un centro gerontológico?",
-    answer:
-      "Puedes agendar una visita ingresando a la tarjeta del centro de tu interés y haciendo clic en 'Solicitar Cita'. Selecciona el día y la hora disponibles. Recibirás una confirmación por correo y en tu panel de notificaciones.",
-  },
-  {
-    id: "2",
-    question: "¿Qué documentación médica se requiere para el ingreso de un adulto mayor?",
-    answer:
-      "Se solicita el expediente médico actualizado, historia clínica de padecimientos preexistentes, tarjeta de vacunación y la prescripción vigente de medicamentos administrados por su médico de cabecera.",
-  },
-  {
-    id: "3",
-    question: "¿Qué servicios están incluidos dentro de la tarifa mensual?",
-    answer:
-      "Por lo general, la mensualidad abarca alojamiento, alimentación balanceada (3 comidas + meriendas), asistencia de enfermería 24/7, lavandería, y actividades recreativas/cognitivas. Servicios especializados (fisioterapia avanzada o medicamentos) se detallan en cada centro.",
-  },
-  {
-    id: "4",
-    question: "¿Cómo verifica FamTree la calidad de las residencias asociadas?",
-    answer:
-      "Todos los centros en nuestra plataforma pasan por una auditoría técnica que valida sus licencias de salud, infraestructura adaptada (rampas, pasamanos, botones de pánico) y credenciales del personal médico antes de ser aprobados.",
-  },
-  {
-    id: "5",
-    question: "¿Cómo puedo registrar mi residencia o asilo en la plataforma?",
-    answer:
-      "Haz clic en el apartado 'Para Asilos / Registrar Centro' en el menú o comunícate con nuestro equipo corporativo. Evaluaremos tu solicitud en menos de 48 horas laborables.",
-  },
-  {
-    id: "6",
-    question: "¿Puedo cancelar o reagendar una visita sin penalización?",
-    answer:
-      "Sí, puedes cancelar o cambiar la fecha de tu cita hasta 2 horas antes de la hora pautada a través de tu panel de 'Mis Solicitudes' o mediante la notificación recibida.",
-  },
+  {id: '1', question: '¿Cómo puedo coordinar una visita a un centro?', answer: 'Consulta el teléfono, correo o sitio web de la residencia en su ficha y contacta directamente al centro. FamTree no agenda ni cancela visitas.'},
+  {id: '2', question: '¿Cuáles son los requisitos de ingreso?', answer: 'Cada centro declara sus requisitos de ingreso en su ficha. Confirma la documentación y disponibilidad directamente con la residencia.'},
+  {id: '3', question: '¿Qué incluye la tarifa mensual?', answer: 'Consulta el rango de precios y los servicios declarados en cada ficha. El centro debe confirmar cuáles están incluidos y sus condiciones.'},
+  {id: '4', question: '¿Dónde consulto las certificaciones?', answer: 'La ficha muestra las certificaciones declaradas por el centro. Consulta su vigencia con la institución; FamTree no garantiza la calidad médica ni realiza una auditoría sanitaria.'},
+  {id: '5', question: '¿Cómo puedo registrar un centro?', answer: 'El administrador del sistema registra los centros y asigna sus administradores de asilo. Solicita al equipo responsable de FamTree la incorporación de tu centro.'},
+  {id: '6', question: '¿Cómo cambio una visita ya acordada?', answer: 'Contacta directamente al centro por los medios publicados. Las condiciones de cambio o cancelación dependen de cada institución.'},
 ];
 
 export default function SupportPage() {
