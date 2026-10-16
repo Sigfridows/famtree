@@ -1,7 +1,7 @@
 "use client";
 
 import { passwordChangeErrors } from "@/lib/validations/password-change";
-import { friendlyError } from "@/lib/apiClient";
+import { ApiError, friendlyError } from "@/lib/apiClient";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, X, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -30,6 +30,7 @@ export function PasswordModal({
   const [error, setError] = useState<string | null>(null);
 
   const resetForm = () => {
+    setFieldErrors({}); setShowCurrentPassword(false); setShowNewPassword(false);
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
@@ -67,6 +68,10 @@ export function PasswordModal({
       onSuccess();
       onClose();
     } catch (err: unknown) {
+      if (err instanceof ApiError && err.code === "invalid_credentials" && err.status === 400) {
+        setFieldErrors({current: "La contraseña actual o temporal es incorrecta."});
+        document.getElementById("password-current")?.focus();
+      }
       setError(friendlyError(err, "No se pudo cambiar la contraseña. Comprueba tu contraseña actual."));
       setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); setShowCurrentPassword(false); setShowNewPassword(false);
     } finally {
