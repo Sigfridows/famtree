@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Compare from "./Compare";
+import LocationMap from "./LocationMap";
 import { AsylumSummary } from "../types/asylum.types";
 import { useRouter } from "next/navigation";
 import { emitFeedback } from "@/components/shared/FeedbackToast";
@@ -574,6 +575,7 @@ export default function AsiloDetails({
                         </div>
                       )}
 
+                      <section className="space-y-2 text-xs"><h4 className="font-bold">Ubicación en el mapa</h4><LocationMap latitude={data.latitude} longitude={data.longitude} /></section>
                       {/* Botones de Acción */}
                       <div className="flex items-center gap-3 pt-3 pb-1 shrink-0">
                         <button
