@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
+import { emitFeedback } from "@/components/shared/FeedbackToast";
 
 interface FavoriteBackendItem {
   id?: number;
@@ -114,7 +115,10 @@ export function useFavorites() {
     if (!asylum || !asylum.id) return;
 
     if (!isAuthenticated) {
-      alert("Debes iniciar sesión para guardar residencias en tus favoritos.");
+      emitFeedback({
+        tone: "info",
+        message: "Inicia sesión para guardar residencias en tus favoritos.",
+      });
       return;
     }
 
@@ -141,7 +145,10 @@ export function useFavorites() {
     } catch {
       console.error("Error al modificar favorito:");
       void fetchFavorites(); // Revertir cambios en la interfaz si falla
-      alert("No se pudo modificar el favorito. Inténtalo de nuevo.");
+      emitFeedback({
+        tone: "error",
+        message: "No se pudo modificar el favorito. Inténtalo de nuevo.",
+      });
     } finally {
       pending.current.delete(targetId);
     }
