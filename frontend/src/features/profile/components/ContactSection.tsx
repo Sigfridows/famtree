@@ -5,6 +5,7 @@ import { CustomSelect } from "./CustomSelect";
 
 interface ContactSectionProps {
   readOnly?: boolean;
+  locationError?: string;
   provinces?: string[];
   municipalities?: string[];
   phone: string;
@@ -29,6 +30,7 @@ function formatPhoneNumber(value: string): string {
 
 export function ContactSection({
   readOnly = false,
+  locationError,
   provinces = [], municipalities = [],
   phone,
   email,
@@ -94,6 +96,7 @@ export function ContactSection({
 
         <CustomSelect
           label="Municipio"
+          error={locationError}
           icon={<MapPin className="w-3.5 h-3.5 text-[#CCD999]" />}
           value={municipality}
           options={municipalities}

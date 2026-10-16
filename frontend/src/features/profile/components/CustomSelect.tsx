@@ -6,6 +6,7 @@ import { ChevronDown, Check } from "lucide-react";
 
 interface CustomSelectProps {
   label: string;
+  error?: string;
   icon?: React.ReactNode;
   value: string;
   options: string[];
@@ -13,7 +14,7 @@ interface CustomSelectProps {
 }
 
 export function CustomSelect({
-  label,
+  label, error,
   icon,
   value,
   options,
@@ -38,7 +39,11 @@ export function CustomSelect({
         {icon}
         <span>{label}</span>
       </div>
+      {error && <p role="alert" id={`select-error-${label}`} className="text-xs text-rose-400">{error}</p>}
       <button
+        aria-label={label}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `select-error-${label}` : undefined}
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className="w-full bg-[#1c1c1c] border border-white/10 rounded-2xl px-4 py-2.5 text-xs font-semibold text-white flex items-center justify-between shadow-inner hover:border-white/20 focus:border-[#CCD999] transition-all cursor-pointer text-left"
