@@ -111,6 +111,8 @@ class ReviewRepository:
                     author.nombre_usuario + " " + author.apellido_usuario,
                     "reporter_name",
                     reporter.nombre_usuario + " " + reporter.apellido_usuario,
+                    "review_published_at",
+                    Resena.fecha_publicacion,
                     "comment",
                     Resena.comentario,
                     "rating",
@@ -186,4 +188,5 @@ class ReviewRepository:
             "reporter_name": f"{reporter.nombre_usuario} {reporter.apellido_usuario}",
             "comment": review.comentario,
             "rating": review.calificacion,
+            "review_published_at": review.fecha_publicacion.isoformat(),
         }
