@@ -66,6 +66,41 @@ en una unidad montada desde Windows.
 
 Variables disponibles: `COMPOSE_PROJECT_NAME` identifica el stack; `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `POSTGRES_PORT` configuran PostgreSQL; `BACKEND_PORT` y `FRONTEND_PORT` publican las aplicaciones; `MAILPIT_SMTP_PORT` y `MAILPIT_WEB_PORT` publican Mailpit; `APP_ENV`, `DATABASE_URL`, `CORS_ORIGINS`, `SESSION_SECRET`, `SMTP_HOST`, `SMTP_PORT` y `UPLOAD_DIR` configuran el backend; `NEXT_PUBLIC_API_BASE_URL` indica al navegador dónde encontrar `/api/v1`. Mantén sincronizados `DATABASE_URL` y las credenciales de PostgreSQL cuando cambies sus defaults.
 
+## Los mismos 11 asilos para todos los contribuidores
+
+`git pull` trae el código y los seeds, **no copia la base PostgreSQL de otro equipo**.
+Después de actualizar la rama que contiene estos cambios (o `main` una vez fusionado el PR),
+cada contribuidor puede cargar el catálogo ficticio completo desde la raíz del repositorio:
+
+```bash
+git pull --ff-only
+docker compose up -d --build
+docker compose exec backend python -m scripts.seed_development
+```
+
+El último comando funciona igual en Linux, WSL y PowerShell. Espera a que el backend esté listo
+(si todavía está iniciando, vuelve a ejecutar el comando). Requiere `APP_ENV=development`;
+no se ejecuta automáticamente ni debe usarse en producción. Para ejecución Python local:
+`cd backend` y `python -m scripts.seed_development`, después de `alembic upgrade head`.
+
+En una base nueva crea **11 centros activos**, todos con foto, ubicación, rango de precios,
+servicios y tipos de atención: FamTree Demo Centro 1, FamTree Demo Centro 2,
+Residencia San José, Residencia Senior Dorada, Hogar San Francisco de Asís,
+Casa Serena del Caribe, Hogar Brisas de La Romana, Residencia Sol de Samaná,
+Villa Los Almendros, Centro Vida Plena y Casa Jardines de Baní.
+
+La carga se puede repetir: agrega los datos faltantes sin duplicar los centros ni restablecer
+contraseñas, estados o datos de registros existentes. Una base con centros adicionales conservará
+esos centros; no se fuerza su total a 11. Las fotos son enlaces remotos de demostración y requieren
+acceso a sus proveedores. Los IDs, fechas y cambios manuales previos de cada base pueden variar.
+No se exportan cuentas de QA, contraseñas, sesiones ni archivos privados de otro equipo.
+Las cuentas ficticias se generan con claves propias de cada instalación en
+`backend/.runtime/demo-credentials.json` y `backend/.runtime/owner-mock-credentials.json`
+(archivos privados ignorados por Git; no subirlos ni compartirlos).
+
+Para verificar la carga desde una base vacía y su segunda ejecución sin duplicados:
+`bash backend/scripts/check_development_seed.sh` (Docker y entorno Python del backend requeridos).
+
 ## Flujo Docker
 
 ```bash
