@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { adminApi, adminError } from "../api";
-import { Notice, Status, dateLabel } from "./AdminUI";
+import { Notice, Status } from "./AdminUI";
 export default function Audit() {
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [page, setPage] = useState(1);
@@ -57,12 +57,12 @@ export default function Audit() {
                 {rows.map((row) => (
                   <tr key={String(row.reportId)}>
                     <td>#{String(row.reportId)}</td>
-                    <td>#{String(row.moderatorUserId)}</td>
+                    <td>{String(row.moderatorName || row.moderatorUsername || "Nombre histórico no registrado")} · #{String(row.moderatorUserId)}</td>
                     <td>
                       <Status value={String(row.status)} />
                     </td>
                     <td>{String(row.justification || "—")}</td>
-                    <td>{dateLabel(row.resolvedAt)}</td>
+                    <td>{row.resolvedAt ? new Date(String(row.resolvedAt)).toLocaleString("es-DO") : "—"}</td>
                   </tr>
                 ))}
               </tbody>

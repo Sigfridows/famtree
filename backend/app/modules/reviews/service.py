@@ -221,6 +221,7 @@ class ReviewService:
                     .with_for_update()
                 )
             )
+        moderator = await self.users.get(moderator_id)
         now = datetime.now(UTC)
         result = report_view(report)
         for item in rows:
@@ -234,6 +235,8 @@ class ReviewService:
             )
             snapshot = view.model_dump(mode="json")
             snapshot.update(await self.repository.case_snapshot(item.codigo_reporte))
+            snapshot["moderator_name"] = f"{moderator.first_name} {moderator.last_name}"
+            snapshot["moderator_username"] = moderator.username
             db.add(ModerationDecision(report_id=item.codigo_reporte, snapshot=snapshot))
             await notifications.moderation_event(item.codigo_denunciante, snapshot)
             if item.codigo_reporte == report_id:

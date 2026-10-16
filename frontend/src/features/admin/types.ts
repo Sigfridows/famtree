@@ -45,6 +45,10 @@ export interface Metrics {
   userRegistrationTrend: Record<string, number>;
 }
 export interface ReportCase {
+  moderator_user_id?: number;
+  moderator_name?: string;
+  moderator_username?: string;
+  review_published_at?: string;
   report_id: number;
   review_id: number;
   status: string;

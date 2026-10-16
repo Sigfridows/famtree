@@ -201,13 +201,15 @@ export default function Moderation() {
               Reportado por {target.reporter_name}:{" "}
               <strong>{reasons[target.reason] || target.reason}</strong>
             </p>
-            <p>{target.detail || "Sin detalles adicionales."}</p>
+            <p>Detalle adicional de la denuncia: {target.detail || "Sin detalles adicionales."}</p>
+            <p>Publicación de la reseña: {target.review_published_at ? new Date(target.review_published_at).toLocaleString("es-DO") : "Fecha histórica no registrada"}</p>
 
             {target.status !== "PENDING" ? (
               <>
                 <Status value={target.status} />
                 <p>{target.justification}</p>
-                <p><small>Resuelto: {dateLabel(target.resolved_at)}</small></p>
+                <p>Moderador: {target.moderator_name || target.moderator_username || "Nombre histórico no registrado"} · #{target.moderator_user_id ?? "—"}</p>
+                <p><small>Resuelto: {target.resolved_at ? new Date(target.resolved_at).toLocaleString("es-DO") : "—"}</small></p>
               </>
             ) : (
               <form
