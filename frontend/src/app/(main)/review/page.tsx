@@ -126,7 +126,7 @@ function ResenasContent() {
 
   const handleToggleLike = async (id: string) => {
     if (!isAuthenticated) {
-      router.push("/login?callbackUrl=/review");
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/review?${searchParams.toString()}`)}`);
       return;
     }
     setLikeError(null);
@@ -175,7 +175,7 @@ function ResenasContent() {
     selectedAsilo: Asilo | null
   ): Promise<{ success: boolean; error?: string }> => {
     if (!isAuthenticated) {
-      router.push("/login?callbackUrl=/review");
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/review?${searchParams.toString()}`)}`);
       return {
         success: false,
         error: "Debes iniciar sesión para publicar una reseña.",
@@ -339,8 +339,8 @@ function ResenasContent() {
       <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 max-w-7xl mx-auto relative z-20">
         <div className="w-full lg:flex-1">
           <HeaderDesign
-            title="Sección de Comentarios"
-            subtitle="Asilos cercanos"
+            title={searchParams.get("asylumId") ? centerTitle : "Sección de Comentarios"}
+            subtitle={searchParams.get("asylumId") ? "Opiniones de esta residencia" : "Asilos cercanos"}
             className="w-full lg:pr-32 shadow-2xl border border-white/10 bg-[#141414]"
           />
         </div>
