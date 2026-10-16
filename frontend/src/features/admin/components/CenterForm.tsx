@@ -37,7 +37,6 @@ export default function CenterForm({
     serviceIds: initial?.serviceIds || [],
     seniorTypeIds: initial?.seniorTypeIds || [],
   });
-  const [images, setImages] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -81,29 +80,12 @@ export default function CenterForm({
           controls.find(control => invalid[control.getAttribute('aria-label') || ''])?.focus();
           return;
         }
-        const urls = images
-          .split("\n")
-          .map((x) => x.trim())
-          .filter(Boolean);
-        if (
-          !initial &&
-          (urls.length > 15 ||
-            urls.some(
-              (url) => !/^https?:\/\/\S+$/.test(url) || url.length > 255,
-            ))
-        ) {
-          setError(
-            "Agrega hasta 15 enlaces de imagen válidos (https://), uno por línea, de hasta 255 caracteres.",
-          );
-          return;
-        }
         setBusy(true);
         try {
           await adminApi.saveCenter(initial?.asylumId || null, {
             ...form,
             certifications: form.certifications || null,
             website: form.website || null,
-            ...(!initial ? { images: urls.map((url) => ({ url })) } : {}),
           });
           onSaved();
         } catch (err) {
@@ -397,24 +379,6 @@ export default function CenterForm({
             </div>
           </fieldset>
         ))}
-
-      {!initial && (
-        <label>
-          Imágenes opcionales: hasta 15 enlaces, uno por línea
-          <textarea
-            aria-label="Imágenes opcionales: hasta 15 enlaces, uno por línea"
-              aria-invalid={Boolean(fieldErrors['Imágenes opcionales: hasta 15 enlaces, uno por línea'])}
-            rows={3}
-            value={images}
-            onChange={(e) => setImages(e.target.value)}
-            placeholder="https://ejemplo.com/portada.jpg"
-          />
-          <small>
-            La primera imagen será la portada. Usa imágenes autorizadas y
-            accesibles.
-          </small>
-        </label>
-      )}
 
       <div className="admin-actions">
         <button
