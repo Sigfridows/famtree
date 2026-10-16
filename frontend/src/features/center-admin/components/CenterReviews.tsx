@@ -37,6 +37,17 @@ export default function CenterReviews() {
     };
   }, [page, q, rating, sort]);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (search !== q) {
+        setLoading(true);
+        setPage(1);
+        setQ(search);
+      }
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [search, q]);
+
   return (
     <section className="space-y-6 max-w-5xl">
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -74,7 +85,7 @@ export default function CenterReviews() {
 
       {/* Filtros y Búsqueda */}
       <form
-        className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row gap-3"
+        className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-1 gap-3 lg:grid-cols-[minmax(16rem,1fr)_minmax(10rem,auto)_minmax(10rem,auto)]"
         onSubmit={(e) => {
           e.preventDefault();
           if (page !== 1 || q !== search) setLoading(true);
@@ -82,11 +93,11 @@ export default function CenterReviews() {
           setQ(search);
         }}
       >
-        <div className="relative flex-1">
+        <div className="relative min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             aria-label="Buscar reseñas"
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-emerald-700 focus:outline-none"
+            className="w-full min-w-0 text-slate-800 pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-emerald-700 focus:outline-none"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre o comentario..."
@@ -127,9 +138,6 @@ export default function CenterReviews() {
           <option value="rating_asc">Menor calificación</option>
         </select>
 
-        <button className="px-5 py-2.5 bg-[#062319] hover:bg-[#0a3526] text-white font-bold rounded-xl text-xs transition-all shadow-sm">
-          Filtrar
-        </button>
       </form>
 
       {error && <p role="alert" className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">{error}</p>}

@@ -1,4 +1,5 @@
 "use client";
+import { useSpanishFormValidation } from "./useSpanishFormValidation";
 import { useEffect, useState } from "react";
 import { centerAdminService } from "../api/centerAdminService";
 import type { CenterInfo } from "../types/centerAdmin.types";
@@ -15,6 +16,7 @@ const inputStyle =
   "w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-700 focus:outline-none text-slate-800 text-xs font-normal transition-all";
 
 export default function CenterEditor() {
+  const validation = useSpanishFormValidation();
   const [center, setCenter] = useState<CenterInfo | null>(null);
   const [original, setOriginal] = useState<CenterInfo | null>(null);
   const [catalogs, setCatalogs] = useState<Catalogs | null>(null);
@@ -84,10 +86,11 @@ export default function CenterEditor() {
         Nota: El administrador del sistema gestiona el nombre principal, la ubicación exacta y el estado general de publicación.
       </p>
 
-      <form
+      <form noValidate
         className="space-y-6"
         onSubmit={async (e) => {
           e.preventDefault();
+          if (!validation.validate(e.currentTarget)) return;
           setSaving(true);
           setError("");
           setSaved(false);
@@ -145,6 +148,7 @@ export default function CenterEditor() {
             <span>Teléfono</span>
             <input
               aria-label="Teléfono"
+              {...validation.fieldProps("phone")}
               className={inputStyle}
               required
               pattern="[0-9]{10}"
@@ -152,24 +156,28 @@ export default function CenterEditor() {
               value={center.phone}
               onChange={(e) => change("phone", e.target.value)}
             />
+            {validation.renderError("phone")}
           </label>
 
           <label className="text-xs font-medium text-slate-700 space-y-1.5 block">
             <span>Correo Electrónico</span>
             <input
               aria-label="Correo"
+              {...validation.fieldProps("email")}
               className={inputStyle}
               required
               type="email"
               value={center.email}
               onChange={(e) => change("email", e.target.value)}
             />
+            {validation.renderError("email")}
           </label>
 
           <label className="text-xs font-medium text-slate-700 space-y-1.5 block">
             <span>Precio Mínimo (RD$)</span>
             <input
               aria-label="Precio mínimo (RD$)"
+              {...validation.fieldProps("minPrice")}
               className={inputStyle}
               required
               type="number"
@@ -178,12 +186,14 @@ export default function CenterEditor() {
               value={center.minPrice}
               onChange={(e) => change("minPrice", e.target.value)}
             />
+            {validation.renderError("minPrice")}
           </label>
 
           <label className="text-xs font-medium text-slate-700 space-y-1.5 block">
             <span>Precio Máximo (RD$)</span>
             <input
               aria-label="Precio máximo (RD$)"
+              {...validation.fieldProps("maxPrice")}
               className={inputStyle}
               required
               type="number"
@@ -192,12 +202,14 @@ export default function CenterEditor() {
               value={center.maxPrice}
               onChange={(e) => change("maxPrice", e.target.value)}
             />
+            {validation.renderError("maxPrice")}
           </label>
 
           <label className="text-xs font-medium text-slate-700 space-y-1.5 block">
             <span>Capacidad Total (Camas)</span>
             <input
               aria-label="Capacidad total"
+              {...validation.fieldProps("totalCapacity")}
               className={inputStyle}
               required
               type="number"
@@ -206,23 +218,27 @@ export default function CenterEditor() {
               value={center.totalCapacity}
               onChange={(e) => change("totalCapacity", Number(e.target.value))}
             />
+            {validation.renderError("totalCapacity")}
           </label>
 
           <label className="text-xs font-medium text-slate-700 space-y-1.5 block">
             <span>Sitio Web</span>
             <input
               aria-label="Sitio web"
+              {...validation.fieldProps("website")}
               className={inputStyle}
               type="url"
               value={center.website ?? ""}
               onChange={(e) => change("website", e.target.value)}
             />
+            {validation.renderError("website")}
           </label>
 
           <label className="md:col-span-2 text-xs font-medium text-slate-700 space-y-1.5 block">
             <span>Descripción General</span>
             <textarea
               aria-label="Descripción"
+              {...validation.fieldProps("description")}
               className={`${inputStyle} resize-none`}
               required
               minLength={20}
@@ -231,12 +247,14 @@ export default function CenterEditor() {
               value={center.description}
               onChange={(e) => change("description", e.target.value)}
             />
+            {validation.renderError("description")}
           </label>
 
           <label className="text-xs font-medium text-slate-700 space-y-1.5 block">
             <span>Requisitos de Ingreso</span>
             <textarea
               aria-label="Requisitos de ingreso"
+              {...validation.fieldProps("entryRequirements")}
               className={`${inputStyle} resize-none`}
               required
               minLength={10}
@@ -245,18 +263,21 @@ export default function CenterEditor() {
               value={center.entryRequirements}
               onChange={(e) => change("entryRequirements", e.target.value)}
             />
+            {validation.renderError("entryRequirements")}
           </label>
 
           <label className="text-xs font-medium text-slate-700 space-y-1.5 block">
             <span>Certificaciones</span>
             <textarea
               aria-label="Certificaciones"
+              {...validation.fieldProps("certifications")}
               className={`${inputStyle} resize-none`}
               maxLength={250}
               rows={3}
               value={center.certifications ?? ""}
               onChange={(e) => change("certifications", e.target.value)}
             />
+            {validation.renderError("certifications")}
           </label>
 
           {(
@@ -320,6 +341,7 @@ export default function CenterEditor() {
             className="px-6 py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
             onClick={() => {
               setCenter(original);
+              validation.clear();
               setError("");
               setSaved(false);
             }}
