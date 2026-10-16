@@ -2,10 +2,13 @@
 
 import importlib.util
 import re
+from collections.abc import Iterator
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.engine import Connection
 
 ROOT = Path(__file__).resolve().parents[2]
 MIGRATION = ROOT / "alembic/versions/20261016_0014_complete_municipalities.py"
@@ -62,7 +65,7 @@ MISSING_PROVINCES = {
 }
 
 
-def load_migration():
+def load_migration() -> ModuleType:
     assert MIGRATION.exists(), "Complete municipality catalog migration is missing"
     spec = importlib.util.spec_from_file_location("municipality_migration", MIGRATION)
     assert spec is not None and spec.loader is not None
@@ -72,7 +75,7 @@ def load_migration():
 
 
 @pytest.fixture
-def database(monkeypatch):
+def database(monkeypatch: pytest.MonkeyPatch) -> Iterator[Connection]:
     engine = sa.create_engine("sqlite://")
     with engine.begin() as connection:
         connection.exec_driver_sql("PRAGMA foreign_keys = ON")
@@ -98,20 +101,20 @@ def database(monkeypatch):
     engine.dispose()
 
 
-def catalog(connection):
+def catalog(connection: Connection) -> dict[str, set[str]]:
     rows = connection.execute(
         sa.text(
             "SELECT p.nombre_provincia, m.nombre_municipio FROM famtree.municipios m "
             "JOIN famtree.provincias p USING (codigo_provincia)"
         )
     )
-    result = {}
+    result: dict[str, set[str]] = {}
     for province, municipality in rows:
         result.setdefault(province, set()).add(municipality)
     return result
 
 
-def test_all_provinces_have_their_complete_official_municipalities(database):
+def test_all_provinces_have_their_complete_official_municipalities(database: Connection) -> None:
     migration = load_migration()
     assert migration.down_revision == "20261016_0013"
     migration.upgrade()
@@ -125,7 +128,9 @@ def test_all_provinces_have_their_complete_official_municipalities(database):
     assert "La Caleta" not in result["Santo Domingo"]
 
 
-def test_baseline_ids_names_references_and_custom_edits_survive_repeated_upgrade(database):
+def test_baseline_ids_names_references_and_custom_edits_survive_repeated_upgrade(
+    database: Connection,
+) -> None:
     migration = load_migration()
     baseline = (ROOT / "alembic/sql/0001_catalogos.sql").read_text()
     values = baseline.split(") AS m(provincia, nombre)")[0].split("FROM (VALUES")[1]
@@ -190,7 +195,7 @@ def test_baseline_ids_names_references_and_custom_edits_survive_repeated_upgrade
     assert database.exec_driver_sql("PRAGMA famtree.foreign_key_check").all() == []
 
 
-def test_missing_province_fails_before_inserting_partial_catalog(database):
+def test_missing_province_fails_before_inserting_partial_catalog(database: Connection) -> None:
     migration = load_migration()
     database.exec_driver_sql("DELETE FROM famtree.provincias WHERE nombre_provincia = 'Bahoruco'")
     with pytest.raises(RuntimeError, match="Bahoruco"):
