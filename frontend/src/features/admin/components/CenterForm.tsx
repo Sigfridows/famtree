@@ -122,7 +122,7 @@ export default function CenterForm({
           <label>
             Nombre del asilo
             {fieldErrors['Nombre del asilo'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Nombre del asilo']}</small>}
-            <small>Obligatorio: 5–100 caracteres</small>
+            <small>Obligatorio: 5–100 caracteres · {form.name.length}/100</small>
             <input
               aria-label="Nombre del asilo"
               aria-invalid={Boolean(fieldErrors['Nombre del asilo'])}
@@ -177,7 +177,7 @@ export default function CenterForm({
           <label>
             Sector
             {fieldErrors['Sector'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Sector']}</small>}
-            <small>Obligatorio: máximo 100 caracteres</small>
+            <small>Obligatorio: máximo 100 caracteres · {form.sector.length}/100</small>
             <input
               aria-label="Sector"
               aria-invalid={Boolean(fieldErrors['Sector'])}
@@ -190,7 +190,7 @@ export default function CenterForm({
           <label>
             Dirección
             {fieldErrors['Dirección'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Dirección']}</small>}
-            <small>Obligatorio: máximo 200 caracteres</small>
+            <small>Obligatorio: máximo 200 caracteres · {form.address.length}/200</small>
             <input
               aria-label="Dirección"
               aria-invalid={Boolean(fieldErrors['Dirección'])}
@@ -239,7 +239,7 @@ export default function CenterForm({
           <label>
             Descripción
             {fieldErrors['Descripción'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Descripción']}</small>}
-            <small>Obligatorio: 20–1000 caracteres</small>
+            <small>Obligatorio: 20–1000 caracteres · {form.description.length}/1000</small>
             <textarea
               aria-label="Descripción"
               aria-invalid={Boolean(fieldErrors['Descripción'])}
@@ -254,7 +254,7 @@ export default function CenterForm({
           <label>
             Requisitos de ingreso
             {fieldErrors['Requisitos de ingreso'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Requisitos de ingreso']}</small>}
-            <small>Obligatorio: 10–500 caracteres</small>
+            <small>Obligatorio: 10–500 caracteres · {form.entryRequirements.length}/500</small>
             <textarea
               aria-label="Requisitos de ingreso"
               aria-invalid={Boolean(fieldErrors['Requisitos de ingreso'])}
@@ -284,7 +284,7 @@ export default function CenterForm({
           <label>
             Certificaciones
             {fieldErrors['Certificaciones'] && <small role="alert" style={{color: '#b91c1c'}}>{fieldErrors['Certificaciones']}</small>}
-            <small>Opcional: máximo 250 caracteres</small>
+            <small>Opcional: máximo 250 caracteres · {form.certifications.length}/250</small>
             <textarea
               aria-label="Certificaciones"
               aria-invalid={Boolean(fieldErrors['Certificaciones'])}
