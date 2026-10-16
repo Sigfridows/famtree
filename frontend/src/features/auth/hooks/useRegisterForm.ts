@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
 import { validatePassword, validatePasswordsMatch, REGISTER_RULES, registrationErrorMessage } from "@/lib/validations/auth";
@@ -8,6 +8,7 @@ import { emitFeedback } from "@/components/shared/FeedbackToast";
 import { ApiError, friendlyError } from "@/lib/apiClient";
 
 export function useRegisterForm() {
+  const submitting = useRef(false);
   const { register } = useAuth();
   const router = useRouter();
 
@@ -40,6 +41,7 @@ export function useRegisterForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submitting.current) return;
     setErrorMessage(null);
 
     if (!username.trim() || !firstName.trim() || !lastName.trim() || !email.trim() || !password) {
@@ -74,6 +76,7 @@ export function useRegisterForm() {
       return;
     }
 
+    submitting.current = true;
     setIsLoading(true);
 
     try {
@@ -85,8 +88,8 @@ export function useRegisterForm() {
         password,
         confirmPassword,
       });
-      router.push("/catalog");
-      emitFeedback({tone: "success", message: "Tu cuenta se creó correctamente. Bienvenido a FamTree."});
+      router.push("/login");
+      emitFeedback({tone: "success", message: "Tu cuenta se creó correctamente. Inicia sesión para entrar a FamTree."});
     } catch (err: unknown) {
       if (err instanceof ApiError && err.message) {
         setErrorMessage(err.status === 422 ? registrationErrorMessage(err.details) : friendlyError(err, "No se pudo crear la cuenta. Revisa tus datos e inténtalo de nuevo."));
@@ -94,6 +97,7 @@ export function useRegisterForm() {
         setErrorMessage("Error al registrar la cuenta. Verifique los datos ingresados.");
       }
     } finally {
+      submitting.current = false;
       setIsLoading(false);
     }
   };
