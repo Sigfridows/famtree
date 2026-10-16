@@ -2,7 +2,7 @@
 import { getImageUrl } from "@/lib/utils";
 
 import Image from "next/image";
-import { Star } from "lucide-react";
+import RatingSummary from "@/features/asylums/components/RatingSummary";
 import type { AsylumMapPin } from "../api/get-asylum-map";
 
 export function createPinHtml(isSelected: boolean): string {
@@ -52,12 +52,8 @@ export default function MapPopup({ pin, onDetailClick }: MapPopupProps) {
         <span className="text-xs font-black text-zinc-900 dark:text-zinc-100">
           RD$ {Number(pin.price_min).toLocaleString()}
         </span>
-        {pin.rating && (
-          <span className="flex items-center gap-1 text-[10px] font-bold bg-[#CCDD99]/40 dark:bg-[#CCDD99]/20 text-[#324408] dark:text-[#d3e5a3] px-1.5 py-0.5 rounded-md">
-            <Star className="w-2.5 h-2.5 fill-[#324408] dark:fill-[#d3e5a3]" />
-            {pin.rating.toFixed(1)}
-          </span>
-        )}
+        <RatingSummary rating={pin.rating} reviewCount={pin.review_count ?? 0}
+          className="rounded-md bg-[#CCDD99]/40 px-1.5 py-0.5 text-[10px] font-bold text-[#324408] dark:bg-[#CCDD99]/20 dark:text-[#d3e5a3]" />
       </div>
 
       <button
