@@ -155,6 +155,16 @@ export default function Dashboard() {
         {query.endDate ? ` — ${query.endDate}` : ""}. Los indicadores de asilos y usuarios
         cuentan registros creados dentro del período; el estado mostrado es el actual.
       </p>
+      <details className="admin-subtitle"><summary>Qué mide cada indicador</summary><ul>
+        <li>Asilos: registrados durante el período consultado; activos e inactivos reflejan su estado actual.</li>
+        <li>Usuarios: cuentas registradas durante el período; activos y bloqueados reflejan su estado actual.</li>
+        <li>Reportes pendientes: denuncias creadas durante el período que continúan pendientes.</li>
+        <li>Calificación media: promedio de reseñas publicadas durante el período que siguen públicas.</li>
+        <li>Administradores: cuentas de administrador de asilo registradas durante el período.</li>
+        <li>Capacidad: plazas de asilos registrados durante el período y actualmente activos.</li>
+        <li>Favoritos: registros de favoritos creados durante el período que siguen guardados.</li>
+        <li>Todo el historial consulta el conjunto completo de registros disponibles.</li>
+      </ul></details>
       {busy && <p role="status">Consultando estadísticas…</p>}
 
       {data && (
@@ -195,7 +205,7 @@ export default function Dashboard() {
 
             <Link href="/system-admin/moderation" className="admin-stat">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>Reportes pendientes</span>
+                <span>{query.startDate || query.endDate ? "Reportes del período pendientes" : "Reportes pendientes actuales"}</span>
                 <ShieldAlert size={18} style={{ color: "#d97706" }} />
               </div>
               <strong>{data.pendingReports}</strong>
@@ -204,7 +214,7 @@ export default function Dashboard() {
 
             <div className="admin-stat">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>Calificación media</span>
+                <span>{query.startDate || query.endDate ? "Calificación media del período" : "Calificación media"}</span>
                 <Star size={18} style={{ color: "#eab308" }} />
               </div>
               <strong>
@@ -219,15 +229,15 @@ export default function Dashboard() {
           <div className="admin-panel admin-actions" style={{ gap: "20px" }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
               <UserCheck size={16} style={{ color: "var(--slate-500)" }} />
-              <b>{data.centerAdministrators}</b> administradores de asilo
+              <b>{data.centerAdministrators}</b> {query.startDate || query.endDate ? "administradores registrados en el período" : "administradores de asilo"}
             </span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
               <Bed size={16} style={{ color: "var(--slate-500)" }} />
-              <b>{data.totalCapacity}</b> capacidad total
+              <b>{data.totalCapacity}</b> {query.startDate || query.endDate ? "capacidad de asilos activos registrados en el período" : "capacidad total de asilos activos"}
             </span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
               <Heart size={16} style={{ color: "var(--slate-500)" }} />
-              <b>{data.favorites}</b> favoritos guardados
+              <b>{data.favorites}</b> {query.startDate || query.endDate ? "favoritos creados en el período" : "favoritos guardados"}
             </span>
           </div>
 
