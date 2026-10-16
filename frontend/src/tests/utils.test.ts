@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { cleanPhoneNumber, formatPhoneNumber, getImageUrl } from "@/lib/utils";
+import { cleanPhoneNumber, formatPhoneNumber, getImageUrl, getSafeWebsiteUrl } from "@/lib/utils";
 vi.mock("@/config/env", () => ({env: {apiBaseUrl: "http://localhost:18000/api/v1"}}));
 describe("media URLs", () => {
   it("resolves uploaded files against the backend and preserves external images", () => {
@@ -17,5 +17,14 @@ describe("phone display", () => {
     expect(formatPhoneNumber("80")).toBe("80");
     expect(formatPhoneNumber("80955")).toBe("809-55");
     expect(formatPhoneNumber("809555010199")).toBe("809-555-0101");
+  });
+});
+
+describe("website links", () => {
+  it.each([null, undefined, "", "https://", "http://?", "javascript:alert(1)", "https://user:secret@example.invalid"])("omits invalid or unsafe site links: %s", value => {
+    expect(getSafeWebsiteUrl(value)).toBeNull();
+  });
+  it("keeps a valid public HTTP website", () => {
+    expect(getSafeWebsiteUrl("https://example.invalid/centro")).toBe("https://example.invalid/centro");
   });
 });
