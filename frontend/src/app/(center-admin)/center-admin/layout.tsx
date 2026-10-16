@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { emitFeedback } from "@/components/shared/FeedbackToast";
 import SidebarAdmin from "@/features/center-admin/components/SidebarAdmin";
 import ForcePasswordChangeModal from "@/features/center-admin/components/ForcePasswordChangeModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -49,6 +50,7 @@ export default function CenterAdminLayout({
           });
           await refreshSession();
           router.replace("/center-admin/asylum");
+          emitFeedback({tone: "success", message: "Contraseña actualizada. Bienvenido al panel de tu centro."});
         }}
       />
     </div>
