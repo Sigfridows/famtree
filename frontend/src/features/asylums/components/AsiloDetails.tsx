@@ -390,11 +390,14 @@ export default function AsiloDetails({
                           <MapPin className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 shrink-0" />
                           <span>
                             {data.address}
-                            {data.city ? `, ${data.city}` : ""}
+                            {[data.sector, data.municipality, data.province].filter(Boolean).map(value => `, ${value}`).join("")}
                           </span>
                         </p>
                       </div>
 
+                      <dl className="grid grid-cols-2 gap-2 text-xs">
+                        {[['Provincia', data.province], ['Municipio', data.municipality], ['Sector', data.sector], ['Dirección', data.address]].map(([label, value]) => <div key={label}><dt className="text-zinc-500">{label}</dt><dd>{value || 'No informado'}</dd></div>)}
+                      </dl>
                       {/* Matriz de Contacto e Información */}
                       <div className="bg-zinc-50/80 dark:bg-zinc-800/40 p-3.5 rounded-2xl border border-zinc-100 dark:border-zinc-800/80 shrink-0 space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
