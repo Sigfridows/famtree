@@ -18,6 +18,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-770 — BUG01 - El aviso de favoritos para visitantes usa una alerta nativa sin accesos a autenticación
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
 
@@ -28,6 +30,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Cierra el aviso: debes seguir en el catálogo y el corazón no debe quedar guardado.
 
 ## AZ-771 — BUG02 - Guardados presenta una lista personal vacía a un visitante sin explicar la restricción
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
@@ -40,6 +44,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-772 — BUG03 - La campana y el panel de notificaciones se muestran sin autenticación
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante y usuario registrado  
 **Pantalla:** `/catalog; /notifications`
 
@@ -50,6 +56,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Con sesión, abre la bandeja; cierra sesión y comprueba que no quedan datos personales.
 
 ## AZ-773 — BUG04 - La comparación pública exige guardar otro asilo en favoritos y bloquea al visitante
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
@@ -62,6 +70,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-776 — BUG05 - La columna Provincia de la selección comparativa muestra una dirección de calle
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
 
@@ -72,6 +82,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Esta es la vista de BUG05. No captures la tabla final de servicios; ahí no está la columna Provincia.
 
 ## AZ-777 — BUG06 - La ficha de asilo omite provincia, municipio y sector de la dirección
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
@@ -84,6 +96,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-778 — BUG07 - La ficha pública no presenta capacidad ni requisitos de ingreso
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/catalog; /map`
 
@@ -94,6 +108,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Los datos ausentes deben tener un estado explícito, no desaparecer sin explicación.
 
 ## AZ-779 — BUG08 - Los distintivos Verificado y Seguro no muestran certificaciones ni fecha de actualización
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
@@ -106,6 +122,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-780 — BUG09 - La ficha omite el acceso al sitio web registrado del asilo
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
 
@@ -116,6 +134,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Prueba también teléfono y correo; un sitio vacío o inválido no debe generar enlace.
 
 ## AZ-781 — BUG10 - El detalle no ofrece un mapa individual de la ubicación del centro
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
@@ -128,6 +148,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-782 — BUG11 - El detalle abierto desde el mapa pierde el precio máximo mensual
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/catalog; /map`
 
@@ -138,6 +160,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** No compares capturas de instituciones diferentes; los dos precios deben coincidir.
 
 ## AZ-783 — BUG12 - El detalle desde el mapa omite servicios y tipos de cuidado visibles en catálogo
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/catalog; /map`
@@ -150,6 +174,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-784 — BUG13 - Al alejar el mapa quedan grandes áreas grises y una franja cartográfica incompleta
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/map`
 
@@ -160,6 +186,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Quita el bloqueo antes de pulsar Reintentar y comprueba que vuelven a cargar.
 
 ## AZ-785 — BUG14 - El encuadre inicial del mapa se limita al entorno de Santo Domingo
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/map`
@@ -172,6 +200,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-786 — BUG15 - El resumen lateral del mapa omite foto, municipio/provincia y rango mensual
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/map`
 
@@ -182,6 +212,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Se mantiene el resumen lateral; no se requiere un popup distinto.
 
 ## AZ-787 — BUG16 - Dar Reseña desde un asilo muestra opiniones de otros centros
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante y usuario registrado  
 **Pantalla:** `/catalog → /review`
@@ -194,6 +226,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-788 — BUG17 - No se presenta el resumen de reseñas por centro ni la distribución de estrellas
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/review?asylumId=ID`
 
@@ -204,6 +238,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Un conjunto vacío debe explicarse; no debe presentar un promedio inventado.
 
 ## AZ-789 — BUG18 - Faltan controles para ordenar por precio y nombre en el catálogo
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
@@ -216,6 +252,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-790 — BUG19 - Calificación mínima se reduce a un interruptor sin indicar el umbral aplicado
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
 
@@ -226,6 +264,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Restablece los filtros y comprueba que desaparece el umbral y vuelven los demás centros.
 
 ## AZ-791 — BUG20 - El inicio de sesión interpreta credenciales incorrectas como fin de sesión
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/login`
@@ -238,6 +278,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-792 — BUG21 - La validación de campos vacíos en login no indica qué debe corregirse
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/login`
 
@@ -248,6 +290,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** El foco debe ir al primer requerido; no debe haber solicitud de login con vacíos.
 
 ## AZ-793 — BUG22 - Los formularios de registro y acceso no señalan visualmente los campos obligatorios
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/register; /login`
@@ -260,6 +304,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-794 — BUG23 - El registro exitoso inicia sesión automáticamente y omite la confirmación exigida
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/register`
 
@@ -270,6 +316,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** No debe iniciar sesión automáticamente ni crear duplicados al reenviar.
 
 ## AZ-795 — BUG24 - El aviso de bloqueo temporal no informa la duración ni cuándo reintentar
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante con cuenta de prueba  
 **Pantalla:** `/login`
@@ -282,6 +330,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-797 — BUG26 - El cambio de contraseña conserva los tres campos tras un error de validación
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Usuario registrado  
 **Pantalla:** `/profile`
 
@@ -292,6 +342,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** La contraseña anterior debe seguir funcionando después del error.
 
 ## AZ-798 — BUG27 - El mensaje de nueva contraseña agrupa causas distintas y no identifica la regla fallida
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Usuario registrado  
 **Pantalla:** `/profile`
@@ -304,6 +356,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-799 — BUG28 - La validación de obligatorios del cambio de contraseña aparece en inglés y como tooltip nativo
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Usuario registrado y administrador de asilo con clave temporal  
 **Pantalla:** `/profile; /center-admin/asylum`
 
@@ -314,6 +368,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** El foco debe ir al primero; no debe aparecer un tooltip nativo en inglés.
 
 ## AZ-800 — BUG29 - Las contraseñas del administrador de asilo son ilegibles al mostrarlas
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador de asilo con clave temporal  
 **Pantalla:** `/center-admin/asylum`
@@ -326,6 +382,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-801 — BUG30 - La ayuda del cambio temporal omite la minúscula requerida y usa cotejos sin validar la entrada
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador de asilo con clave temporal  
 **Pantalla:** `/center-admin/asylum`
 
@@ -336,6 +394,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Los cotejos no deben presentarse como aprobados cuando la entrada no cumple.
 
 ## AZ-802 — BUG31 - El cambio temporal usa un aviso general en lugar de señalar Nueva contraseña
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador de asilo con clave temporal  
 **Pantalla:** `/center-admin/asylum`
@@ -348,6 +408,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-803 — BUG32 - El cambio de contraseña temporal no muestra la confirmación de bienvenida
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador de asilo con clave temporal  
 **Pantalla:** `/center-admin/asylum`
 
@@ -358,6 +420,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Después prueba login con definitiva y rechazo de temporal; no captures ni compartas ninguna de las dos claves.
 
 ## AZ-804 — BUG33 - Quitar la foto y guardar informa éxito, pero la imagen reaparece
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Usuario registrado  
 **Pantalla:** `/profile`
@@ -370,6 +434,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-805 — BUG34 - El municipio no se adapta a la ciudad seleccionada y permite combinaciones incompatibles
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Usuario registrado  
 **Pantalla:** `/profile`
 
@@ -380,6 +446,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** El servidor también rechaza combinaciones incompatibles; eso se prueba por API.
 
 ## AZ-806 — BUG35 - Los cambios de ciudad y municipio no se conservan al volver al perfil
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Usuario registrado  
 **Pantalla:** `/profile`
@@ -392,6 +460,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-808 — BUG37 - La pantalla de consulta del perfil no muestra el rol ni un modo de consulta separado
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Usuario registrado  
 **Pantalla:** `/profile`
 
@@ -402,6 +472,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** No debe mostrarse ningún valor de contraseña.
 
 ## AZ-809 — BUG38 - La edición del perfil no ofrece Cancelar para descartar cambios
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Usuario registrado  
 **Pantalla:** `/profile`
@@ -414,6 +486,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-810 — BUG39 - La cabecera muestra Servicios Verificado con concordancia incorrecta
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Cualquier rol con cabecera compartida  
 **Pantalla:** `/catalog; /profile`
 
@@ -424,6 +498,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** No se afirma una verificación que el sistema no realiza.
 
 ## AZ-811 — BUG40 - Las preguntas frecuentes anuncian citas y cancelaciones fuera del alcance de FamTree
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/support`
@@ -436,6 +512,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-812 — BUG41 - El filtro de precio no permite definir un mínimo ni un rango completo
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
 
@@ -446,6 +524,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Un rango válido >=0 debe poder aplicarse; la captura del error no prueba ese otro caso.
 
 ## AZ-813 — BUG42 - El filtro usa tipos de propiedad en lugar de las categorías de adulto mayor
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
@@ -458,6 +538,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-814 — BUG43 - El catálogo de servicios del filtro omite categorías clínicas definidas en la HU
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Visitante  
 **Pantalla:** `/catalog`
 
@@ -468,6 +550,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** No captures solo Tipo de propiedad: ese no es el grupo de servicios.
 
 ## AZ-815 — BUG44 - Desactivar un asilo cambia su estado sin confirmación previa
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador del sistema y usuario que guardó el centro  
 **Pantalla:** `/system-admin/asylums`
@@ -480,6 +564,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-816 — BUG45 - La confirmación de cambio de estado del asilo no identifica acción ni centro
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/asylums`
 
@@ -490,6 +576,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Cancelar debe dar un aviso distinto y no cambiar el estado.
 
 ## AZ-817 — BUG46 - Las acciones de asilos se representan con iconos sin etiqueta visible
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/asylums`
@@ -502,6 +590,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-818 — BUG47 - El detalle administrativo omite servicios, tipos de atención y contacto institucional
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/asylums`
 
@@ -512,6 +602,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Si no hay sitio web debe decir No informado; la cuenta del administrador se muestra aparte.
 
 ## AZ-819 — BUG48 — La edición de asilo no indica límites de texto junto a los campos
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/asylums`
@@ -524,6 +616,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-820 — BUG49 - El error de edición menciona rangos de fechas en un formulario sin fechas
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/asylums`
 
@@ -534,6 +628,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** No debe aparecer un error de fechas ni errores de grupos que sí están seleccionados.
 
 ## AZ-821 — BUG50 - La falta de servicios o atención se comunica con un aviso combinado lejos de los grupos
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/asylums`
@@ -546,6 +642,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-824 — BUG51 - Los indicadores no explican si el período filtra altas o el estado actual
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin`
 
@@ -556,6 +654,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Comprueba que los tres atajos consultan intervalos distintos.
 
 ## AZ-825 — BUG52 - El gráfico de calificaciones queda vacío sin explicación cuando el período no tiene datos
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin`
@@ -568,6 +668,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-826 — BUG53 - El reporte de centros expone provinceId en vez del nombre de la provincia
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/reports`
 
@@ -578,6 +680,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** El ID puede existir como columna adicional, no reemplazar al nombre.
 
 ## AZ-827 — BUG54 - Las columnas de cuentas exponen firstName, lastName y códigos de rol internos
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/reports`
@@ -590,6 +694,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-828 — BUG55 - El PDF conserva un título de documento anónimo en el visor
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/reports`
 
@@ -600,6 +706,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** La página de reportes no prueba este bug; hay que abrir el PDF. Autor/fecha se comprueban en Propiedades del documento.
 
 ## AZ-829 — BUG56 - Desbloquear una cuenta actúa sin modal ni motivo original visible
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/users`
@@ -612,6 +720,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-830 — BUG57 - Bloquear y desbloquear producen el mismo aviso genérico
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/users`
 
@@ -622,6 +732,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Comprobación adicional:** Conserva búsqueda y filtros; si el nuevo estado no coincide, la fila puede desaparecer del filtro.
 
 ## AZ-831 — BUG58 - La vista de moderación omite la fecha de publicación de la reseña
+
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
 
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/moderation`
@@ -634,6 +746,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-832 — BUG59 - La resolución consultada no identifica al moderador responsable
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/moderation`
 
@@ -645,6 +759,8 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 
 ## AZ-774 — BUG60 - Auditoría usa un ID de moderador sin identificación legible
 
+**Task:** Pendiente de confirmar el ID en Azure (el CSV no incluye la relación padre/hijo).
+
 **Rol:** Administrador del sistema  
 **Pantalla:** `/system-admin/audit`
 
@@ -653,3 +769,9 @@ Se revisaron 222 criterios de 58 bugs activos. La matriz separada distingue revi
 **Captura:** Detalle con Actor (nombre/usuario e ID), Acción, Entidad, Justificación y Fecha.
 
 **Comprobación adicional:** La prueba de cambio de nombre del moderador es técnica; no se demuestra con una única imagen.
+
+## IDs de las tareas «Corregir Bug»
+
+Las 58 tareas son las siguientes. Esta lista indica su orden por ID, no su correspondencia con los bugs. El ID 833 no está confirmado como tarea de BUG01. Para confirmar cada vínculo, revisa Parent/Padre o Related Work en Azure.
+
+833, 834, 835, 836, 837, 838, 839, 840, 841, 842, 843, 844, 845, 846, 847, 848, 849, 850, 851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 861, 862, 863, 864, 865, 866, 867, 868, 869, 870, 871, 872, 873, 874, 875, 876, 877, 878, 879, 880, 881, 882, 883, 884, 885, 886, 887, 888, 889, 890.
