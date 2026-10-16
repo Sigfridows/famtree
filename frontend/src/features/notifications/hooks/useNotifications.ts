@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { notificationsApi } from "../api/notificationsService";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { Notification, NotificationUIItem } from "../types/notification.types";
@@ -33,12 +33,14 @@ function mapEventTypeToUIType(eventType: string): NotificationUIItem["type"] {
 }
 
 export function useNotifications() {
+  const requestVersion = useRef(0);
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchNotifications = useCallback(async () => {
+    const version = ++requestVersion.current;
     if (!isAuthenticated) {
       setNotifications([]);
       setUnreadCount(0);
@@ -52,12 +54,13 @@ export function useNotifications() {
         notificationsApi.getNotifications(),
         notificationsApi.getUnreadCount(),
       ]);
+      if (version !== requestVersion.current) return;
       setNotifications(list);
       setUnreadCount(count);
     } catch {
       // Manejo silencioso en topbar
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -109,9 +112,9 @@ export function useNotifications() {
   }));
 
   return {
-    notifications: uiNotifications,
-    rawNotifications: notifications,
-    unreadCount,
+    notifications: isAuthenticated ? uiNotifications : [],
+    rawNotifications: isAuthenticated ? notifications : [],
+    unreadCount: isAuthenticated ? unreadCount : 0,
     loading: loading || isAuthLoading,
     markAsRead,
     markAllAsRead,

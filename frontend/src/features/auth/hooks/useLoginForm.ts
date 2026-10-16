@@ -40,7 +40,7 @@ export function useLoginForm() {
           ? "/system-admin"
           : user.role === "ASYLUM_ADMIN"
             ? "/center-admin/asylum"
-            : (() => { const callback = new URLSearchParams(window.location.search).get("callbackUrl"); return callback && /^\/(catalog|review|map|profile)(\?|$)/.test(callback) ? callback : "/catalog"; })(),
+            : (() => { const callback = new URLSearchParams(window.location.search).get("callbackUrl"); return callback && /^\/(catalog|review|map|profile|notifications)(\?|$)/.test(callback) ? callback : "/catalog"; })(),
       );
     } catch (err: unknown) {
       setPassword("");

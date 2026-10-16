@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { notificationsApi } from "../api/notificationsService";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export function useUnreadCount() {
+  const requestVersion = useRef(0);
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [count, setCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchUnreadCount = useCallback(async () => {
+    const version = ++requestVersion.current;
     if (!isAuthenticated) {
       setCount(0);
       setLoading(false);
@@ -18,11 +20,11 @@ export function useUnreadCount() {
 
     try {
       const unread = await notificationsApi.getUnreadCount();
-      setCount(unread);
+      if (version === requestVersion.current) setCount(unread);
     } catch {
       // Manejo silencioso
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -34,5 +36,5 @@ export function useUnreadCount() {
     }
   }, [fetchUnreadCount, isAuthenticated, isAuthLoading]);
 
-  return { count, loading: loading || isAuthLoading, refetchCount: fetchUnreadCount };
+  return { count: isAuthenticated ? count : 0, loading: loading || isAuthLoading, refetchCount: fetchUnreadCount };
 }
