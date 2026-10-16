@@ -90,13 +90,17 @@ export default function LoginPage() {
       </AnimatePresence>
 
       {/* Formulario */}
-      <form className="space-y-5" onSubmit={handlers.handleSubmit}>
+      <form noValidate className="space-y-5" onSubmit={handlers.handleSubmit}>
         {/* Campo Usuario */}
         <motion.div variants={itemVariants}>
-          <label className="block text-sm font-semibold mb-2 text-white font-montserrat">
-            Nombre Usuario
+          <label htmlFor="login-username" className="block text-sm font-semibold mb-2 text-white font-montserrat">
+            Nombre Usuario *
           </label>
           <input
+            id="login-username"
+            required
+            aria-invalid={Boolean(formState.usernameError)}
+            aria-describedby="login-username-error"
             type="text"
             placeholder="Ej. Juan Eduardo"
             value={formState.username}
@@ -107,15 +111,20 @@ export default function LoginPage() {
                 : "border-white/10 focus:border-[#CCDD99]"
             }`}
           />
+          {formState.usernameError && <p id="login-username-error" className="text-xs text-red-400">{formState.usernameError}</p>}
         </motion.div>
 
         {/* Campo Contraseña */}
         <motion.div variants={itemVariants}>
-          <label className="block text-sm font-semibold mb-2 text-white font-montserrat">
-            Contraseña
+          <label htmlFor="login-password" className="block text-sm font-semibold mb-2 text-white font-montserrat">
+            Contraseña *
           </label>
           <div className="relative">
             <input
+              id="login-password"
+              required
+              aria-invalid={Boolean(formState.passwordRequiredError)}
+              aria-describedby="login-password-error"
               type={formState.showPassword ? "text" : "password"}
               placeholder="••••••••••••••••"
               value={formState.password}
@@ -147,6 +156,8 @@ export default function LoginPage() {
           </div>
         </motion.div>
 
+        {formState.passwordRequiredError && <p id="login-password-error" className="text-xs text-red-400">{formState.passwordRequiredError}</p>}
+        <p className="text-xs text-zinc-400">* Campos obligatorios</p>
         {/* Botón Principal */}
         <motion.div variants={itemVariants}>
           <motion.button
