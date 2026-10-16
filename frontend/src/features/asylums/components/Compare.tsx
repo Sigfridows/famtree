@@ -259,7 +259,7 @@ export default function Compare({ data, items = [], onClose }: CompareProps) {
             <div className="bg-[#CCDD99] px-6 sm:px-8 py-5 sm:py-6 flex flex-wrap items-center justify-between gap-4 pr-16 relative overflow-hidden">
               <div className="relative z-10">
                 <h1 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight">
-                  Comparar Favoritos
+                  Comparar residencias
                 </h1>
                 <p className="text-xs font-semibold text-zinc-800 mt-0.5">
                   Selecciona entre 2 y 4 residencias para evaluarlas en paralelo
