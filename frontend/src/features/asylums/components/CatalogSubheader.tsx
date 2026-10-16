@@ -4,9 +4,6 @@ import { useState } from "react";
 import {
   Heart,
   SlidersHorizontal,
-  LayoutGrid,
-  List,
-  Sparkles,
   Clock,
 } from "lucide-react";
 import FilterModal, { FilterData } from "@/features/asylums/components/Filter";
@@ -17,8 +14,6 @@ interface CatalogSubheaderProps {
   onOpenFavorites: () => void;
   onApplyFilters?: (filters: FilterData) => void;
   activeFilterCount?: number;
-  viewMode?: "grid" | "list";
-  onViewModeChange?: (mode: "grid" | "list") => void;
   selectedQuickFilter?: string;
   onQuickFilterChange?: (filterId: string) => void;
   servicesList?: string[];
@@ -30,7 +25,6 @@ interface CatalogSubheaderProps {
 const QUICK_FILTERS = [
   { id: "all", label: "Todas", icon: null },
   { id: "open", label: "Abiertas ahora", icon: Clock },
-  { id: "top_rated", label: "Mejor valoradas", icon: Sparkles },
 ];
 
 export default function CatalogSubheader({
@@ -39,8 +33,6 @@ export default function CatalogSubheader({
   onOpenFavorites,
   onApplyFilters,
   activeFilterCount = 0,
-  viewMode = "grid",
-  onViewModeChange,
   selectedQuickFilter = "all",
   onQuickFilterChange,
   servicesList,
@@ -96,37 +88,6 @@ export default function CatalogSubheader({
         {/* LADO DERECHO: Selector de vista, Favoritos y Filtros */}
         <div className="relative z-30 flex items-center justify-between sm:justify-end gap-2.5 pt-2 lg:pt-0 border-t lg:border-t-0 border-white/10">
           
-          {onViewModeChange && (
-            <div className="flex items-center p-1 rounded-xl bg-white/5 border border-white/5">
-              <button
-                type="button"
-                onClick={() => onViewModeChange("grid")}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewMode === "grid"
-                    ? "bg-[#CCDD99] text-zinc-950 shadow-xs"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-                title="Vista en cuadrícula"
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onViewModeChange("list")}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewMode === "list"
-                    ? "bg-[#CCDD99] text-zinc-950 shadow-xs"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-                title="Vista en lista"
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-
-          <div className="hidden sm:block w-px h-6 bg-white/10" />
-
           {/* Botón Guardados */}
           <button
             type="button"

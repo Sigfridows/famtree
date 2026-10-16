@@ -52,7 +52,6 @@ function CatalogContent() {
 
   // Estados de control para la barra superior
   const [quickFilter, setQuickFilter] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Custom hook para la gestión centralizada y optimista de favoritos
   const { favorites, isFavorite, toggleFavorite, removeFavoriteById } =
@@ -105,7 +104,6 @@ function CatalogContent() {
   // Filtrado rápido cliente
   const asylums = rawAsylums.filter((asylum) => {
     if (quickFilter === "open") return asylum.status === "ACTIVE";
-    if (quickFilter === "top_rated") return (asylum.rating ?? 0) >= 4.0;
     return true;
   });
 
@@ -140,6 +138,7 @@ function CatalogContent() {
         <div className="-mt-4 flex flex-col z-40 lg:flex-row items-center justify-between relative">
           <HeaderDesign
             title="Catálogo"
+            showResidenceLabel={false}
             subtitle="Residencias y asilos disponibles"
             className="w-full lg:flex-1 lg:pr-28"
           />
@@ -154,8 +153,6 @@ function CatalogContent() {
             savedCount={enrichedFavorites.length}
             onOpenFavorites={() => isAuthenticated ? setIsFavoritesOpen(true) : requestAuthentication("Inicia sesión para consultar tus residencias guardadas.")}
             activeFilterCount={activeFiltersCount}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
             selectedQuickFilter={quickFilter}
             onQuickFilterChange={setQuickFilter}
             searchValue={searchQuery}
@@ -218,11 +215,7 @@ function CatalogContent() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className={`relative z-0 ${
-              viewMode === "grid"
-                ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
-                : "flex flex-col gap-4"
-            }`}
+            className="relative z-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
           >
             {asylums.map((asylum) => (
               <motion.div key={asylum.id} variants={cardVariants}>
