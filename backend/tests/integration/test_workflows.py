@@ -3,6 +3,7 @@
 import io
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -116,7 +117,9 @@ async def login(client: AsyncClient, name: str, password: str = PASSWORD) -> dic
     return dict(response.json())
 
 
-async def test_auth_sessions_lockout_and_profile(workflow: Workflow) -> None:
+async def test_auth_sessions_lockout_and_profile(
+    workflow: Workflow, monkeypatch: pytest.MonkeyPatch
+) -> None:
     async with workflow.client() as client, workflow.client() as other:
         assert (await client.get(PREFIX + "/auth/session")).status_code == 401
         user = await register(client, "alice")
@@ -154,6 +157,14 @@ async def test_auth_sessions_lockout_and_profile(workflow: Workflow) -> None:
         assert (await client.post(PREFIX + "/auth/logout")).status_code == 204
         client.cookies.set("famtree_session", token or "")
         assert (await client.get(PREFIX + "/auth/session")).status_code == 401
+        clock = datetime.now(UTC)
+
+        class LoginClock(datetime):
+            @classmethod
+            def now(cls, tz: object = None) -> "LoginClock":
+                return cls.fromtimestamp(clock.timestamp(), UTC)
+
+        monkeypatch.setattr("app.modules.auth.service.datetime", LoginClock)
         for _ in range(5):
             result = await client.post(
                 PREFIX + "/auth/login", json={"username": "alice", "password": "wrong"}
@@ -163,6 +174,20 @@ async def test_auth_sessions_lockout_and_profile(workflow: Workflow) -> None:
             PREFIX + "/auth/login", json={"username": "alice", "password": "AnotherPassword123!"}
         )
         assert result.status_code == 429
+        assert result.json()["error"]["details"]["retry_after_seconds"] == 900
+        clock += timedelta(minutes=14, seconds=59)
+        result = await client.post(
+            PREFIX + "/auth/login", json={"username": "alice", "password": "AnotherPassword123!"}
+        )
+        assert result.status_code == 429
+        assert result.json()["error"]["details"]["retry_after_seconds"] == 1
+        clock += timedelta(seconds=2)
+        assert (
+            await client.post(
+                PREFIX + "/auth/login",
+                json={"username": "alice", "password": "AnotherPassword123!"},
+            )
+        ).status_code == 200
 
 
 async def test_favorites_reviews_moderation_and_notifications(workflow: Workflow) -> None:
