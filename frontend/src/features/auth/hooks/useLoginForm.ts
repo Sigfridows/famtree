@@ -10,6 +10,7 @@ export function useLoginForm() {
   const { login } = useAuth();
   const router = useRouter();
 
+  const [submitted, setSubmitted] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -20,10 +21,13 @@ export function useLoginForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
     setErrorMessage(null);
 
     if (!username.trim() || !password) {
-      setErrorMessage(AUTH_ERRORS.INVALID_CREDENTIALS);
+      setErrorMessage("Completa los campos obligatorios.");
+      const form = e.currentTarget as HTMLFormElement;
+      form.querySelector<HTMLInputElement>(!username.trim() ? "#login-username" : "#login-password")?.focus();
       return;
     }
 
@@ -53,6 +57,8 @@ export function useLoginForm() {
   return {
     formState: {
       username,
+      usernameError: submitted && !username.trim() ? "Escribe tu nombre de usuario." : null,
+      passwordRequiredError: submitted && !password ? "Escribe tu contraseña." : null,
       password,
       showPassword,
       errorMessage,
