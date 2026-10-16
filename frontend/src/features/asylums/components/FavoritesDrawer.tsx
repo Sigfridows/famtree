@@ -1,7 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, Trash2, MapPin, Star, ChevronRight } from "lucide-react";
+import { X, Heart, Trash2, MapPin, ChevronRight } from "lucide-react";
+import RatingSummary from "./RatingSummary";
 import Image from "next/image";
 import type { AsylumSummary } from "@/features/asylums/types/asylum.types";
 
@@ -155,10 +156,8 @@ export default function FavoritesDrawer({
                               {asylum.name}
                             </h4>
 
-                            <div className="flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-full bg-[#CCDD99]/15 border border-[#CCDD99]/30 text-[#CCDD99] text-[10px] font-bold backdrop-blur-xs">
-                              <Star className="w-2.5 h-2.5 fill-[#CCDD99]" />
-                              <span>{asylum.rating?.toFixed(1) ?? "0.0"}</span>
-                            </div>
+                            <RatingSummary rating={asylum.rating} reviewCount={asylum.review_count ?? 0}
+                              className="shrink-0 rounded-full border border-[#CCDD99]/30 bg-[#CCDD99]/15 px-2 py-0.5 text-[10px] font-bold text-[#CCDD99]" />
                           </div>
 
                           {locationText && (

@@ -2,7 +2,8 @@
 import { getImageUrl } from "@/lib/utils";
 
 import Image from "next/image";
-import { Star, Bed, Bath, Maximize2, Heart } from "lucide-react";
+import { Bed, Bath, Maximize2, Heart } from "lucide-react";
+import RatingSummary from "./RatingSummary";
 import type { AsylumSummary } from "../types/asylum.types";
 
 export interface CardProps {
@@ -38,7 +39,6 @@ export default function Card({
   } = asylum;
 
   const isOpen = status ? status === "ACTIVE" : true;
-  const numericRating = rating ?? 0;
   const imageUrl =
     getImageUrl(cover_url) ||
     "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=800&q=80";
@@ -52,7 +52,7 @@ export default function Card({
         ).toLocaleString()}`;
 
   return (
-    <div className="relative group h-96 w-75 rounded-2xl overflow-hidden font-montserrat flex flex-col justify-between p-5 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#CCDD99]/10 bg-zinc-950">
+    <div className="relative group h-96 w-full rounded-2xl overflow-hidden font-montserrat flex flex-col justify-between p-5 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#CCDD99]/10 bg-zinc-950">
       <div className="absolute inset-0 z-0">
         <Image
           unoptimized
@@ -79,12 +79,8 @@ export default function Card({
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 text-[#CCDD99] font-bold text-xs bg-zinc-900/80 px-2.5 py-1 rounded-full backdrop-blur-md border border-zinc-700/50">
-            <Star className="w-3 h-3 fill-[#CCDD99] text-[#CCDD99]" />
-            <span className="text-white text-xs font-bold">
-              {numericRating.toFixed(1)}
-            </span>
-          </div>
+          <RatingSummary rating={rating} reviewCount={asylum.review_count}
+            className="rounded-full border border-zinc-700/50 bg-zinc-900/90 px-2.5 py-1 text-[10px] font-semibold text-[#CCDD99] backdrop-blur-md" />
 
           {onFavoriteToggle && (
             <button

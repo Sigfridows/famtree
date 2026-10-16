@@ -10,7 +10,7 @@ export function toDetailData(center: AsylumDetail): AsiloDetailData {
     admin: 'Administración', capacity: center.capacity,
     entryRequirements: center.admission_requirements, certifications: center.certifications,
     updatedAt: center.updated_at, priceMin: Number(center.price_min), priceMax: Number(center.price_max),
-    description: center.description, rating: center.rating ?? 0, reviewsCount: center.review_count,
+    description: center.description, rating: center.rating, reviewsCount: center.review_count,
     images: center.images.length ? center.images.map(image => image.url) : center.cover_url ? [center.cover_url] : [],
     services: center.services, careTypes: center.care_types,
   };

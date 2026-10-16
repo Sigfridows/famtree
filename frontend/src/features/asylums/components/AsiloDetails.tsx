@@ -12,7 +12,6 @@ import {
   Mail,
   Phone,
   User,
-  Star,
   Loader2,
   CheckCircle2,
   Globe,
@@ -22,6 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Compare from "./Compare";
+import RatingSummary from "./RatingSummary";
 import LocationMap from "./LocationMap";
 import { AsylumSummary } from "../types/asylum.types";
 import { useRouter } from "next/navigation";
@@ -49,7 +49,7 @@ export interface AsiloDetailData {
   priceMin: number;
   priceMax?: number;
   description: string;
-  rating: number;
+  rating: number | null;
   reviewsCount?: number;
   isNew?: boolean;
   images: string[];
@@ -331,15 +331,8 @@ export default function AsiloDetails({
                       {/* Badges y Guardar */}
                       <div className="flex items-center justify-between gap-2 pt-0.5 shrink-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="flex items-center gap-1 px-3 py-0.5 bg-[#CCDD99]/40 dark:bg-[#CCDD99]/20 text-[#324408] dark:text-[#d3e5a3] rounded-full text-xs font-bold">
-                            <Star className="w-3 h-3 fill-[#324408] dark:fill-[#d3e5a3]" />
-                            {data.rating.toFixed(1)}
-                            {data.reviewsCount !== undefined && (
-                              <span className="text-[10px] font-medium opacity-80">
-                                ({data.reviewsCount})
-                              </span>
-                            )}
-                          </span>
+                          <RatingSummary rating={data.rating} reviewCount={data.reviewsCount ?? 0} emptyLabel="Aún no tiene reseñas"
+                            className="rounded-full bg-[#CCDD99]/40 px-3 py-0.5 text-xs font-bold text-[#324408] dark:bg-[#CCDD99]/20 dark:text-[#d3e5a3]" />
                           {data.isNew && (
                             <span className="px-3 py-0.5 bg-cyan-100 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 rounded-full text-xs font-bold">
                               Nuevo
