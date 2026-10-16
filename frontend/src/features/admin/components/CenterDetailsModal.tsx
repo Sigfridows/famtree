@@ -24,6 +24,8 @@ export default function CenterDetailsModal({
   asylumId,
   onClose,
 }: CenterDetailsModalProps) {
+  const [catalogs, setCatalogs] = useState<import("../types").Catalogs | null>(null);
+  useEffect(() => { void adminApi.catalogs().then(setCatalogs).catch(() => {}); }, []);
   const [center, setCenter] = useState<AdminCenter | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -295,6 +297,13 @@ export default function CenterDetailsModal({
 
           </div>
 
+          <section className="min-card">
+            <h3>Contacto institucional y atención</h3>
+            <p>Correo: {center.email || 'No informado'}</p><p>Sitio web: {center.website || 'No informado'}</p>
+            <p>Servicios: {center.serviceIds?.map(id => catalogs?.services.find(item => item.id === id)?.name ?? `Servicio #${id}`).join(', ') || 'No informados'}</p>
+            <p>Tipos de atención: {center.seniorTypeIds?.map(id => catalogs?.care_types.find(item => item.id === id)?.name ?? `Tipo #${id}`).join(', ') || 'No informados'}</p>
+            <p>Requisitos de ingreso: {center.entryRequirements || 'No informados'}</p>
+          </section>
           {/* Descripción */}
           {center.description && (
             <div className="min-card min-card-flat">
