@@ -31,6 +31,14 @@ export interface AsiloDetailData {
   title: string;
   address: string;
   city?: string;
+  province?: string;
+  municipality?: string;
+  sector?: string;
+  latitude?: number;
+  longitude?: number;
+  entryRequirements?: string;
+  certifications?: string | null;
+  updatedAt?: string;
   schedule: string;
   email: string;
   phone: string;

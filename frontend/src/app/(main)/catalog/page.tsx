@@ -8,8 +8,8 @@ import Card from "@/features/asylums/components/Card";
 import HeaderDesign from "@/components/shared/HeaderDesign";
 import HeaderControls from "@/components/shared/HeaderControls";
 import logoFamTree from "@/assets/famtree.png";
+import { toDetailData } from "@/features/asylums/adapters/detail";
 import AsiloDetails, {
-  AsiloDetailData,
 } from "@/features/asylums/components/AsiloDetails";
 import { useAsylums } from "@/features/asylums/hooks/useAsylums";
 import { useAsylumDetail } from "@/features/asylums/hooks/useAsylumDetail";
@@ -109,34 +109,7 @@ function CatalogContent() {
     return true;
   });
 
-  const modalData: AsiloDetailData | undefined = asylumDetail
-    ? {
-        id: String(asylumDetail.id),
-        title: asylumDetail.name,
-        address:
-          asylumDetail.address ||
-          `${asylumDetail.sector ? `${asylumDetail.sector}, ` : ""}${
-            asylumDetail.municipality_name
-          }`,
-        schedule: "8:00 AM - 6:00 PM",
-        email: asylumDetail.email,
-        phone: asylumDetail.phone,
-        admin: "Administración",
-        priceMin: Number(asylumDetail.price_min) || 0,
-        priceMax: Number(asylumDetail.price_max) || undefined,
-        description: asylumDetail.description,
-        rating: asylumDetail.rating ?? 0,
-        isNew: false,
-        images:
-          asylumDetail.images?.length > 0
-            ? asylumDetail.images.map((img) => img.url)
-            : asylumDetail.cover_url
-            ? [asylumDetail.cover_url]
-            : [],
-        services: asylumDetail.services,
-        careTypes: asylumDetail.care_types,
-      }
-    : undefined;
+  const modalData = asylumDetail ? toDetailData(asylumDetail) : undefined;
 
   return (
     <div className="min-h-screen bg-[#F3F3F3] text-zinc-900 dark:bg-[#121315] dark:text-white font-montserrat pl-20 lg:pl-24 pr-4 sm:pr-8 py-6 relative overflow-x-hidden [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-800/80 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-700">
