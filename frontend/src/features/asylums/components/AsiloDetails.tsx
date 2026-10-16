@@ -416,9 +416,7 @@ export default function AsiloDetails({
                             </div>
                             <div className="flex flex-col -space-y-0.5 min-w-0">
                               <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">Teléfono</span>
-                              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">
-                                {data.phone || "No especificado"}
-                              </span>
+                              <a href={data.phone ? `tel:${data.phone}` : undefined} className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">{data.phone || 'No informado'}</a>
                             </div>
                           </div>
 
@@ -429,9 +427,7 @@ export default function AsiloDetails({
                             </div>
                             <div className="flex flex-col -space-y-0.5 min-w-0">
                               <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">Correo</span>
-                              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate" title={data.email}>
-                                {data.email || "No especificado"}
-                              </span>
+                              <a href={data.email ? `mailto:${data.email}` : undefined} className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate" title={data.email}>{data.email || 'No informado'}</a>
                             </div>
                           </div>
 
@@ -449,7 +445,7 @@ export default function AsiloDetails({
                           </div>
 
                           {/* Sitio Web */}
-                          {data.website && (
+                          {data.website && /^https?:\/\//i.test(data.website) && (
                             <div className="flex items-center gap-2.5">
                               <div className="w-7 h-7 rounded-full border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shrink-0 shadow-2xs">
                                 <Globe className="w-3.5 h-3.5" />
