@@ -51,6 +51,9 @@ class CreateReport(ReportInput):
 
 
 class ReportView(Contract):
+    moderator_name: str | None = None
+    moderator_username: str | None = None
+    review_published_at: datetime | None = None
     report_id: int
     review_id: int
     reporter_user_id: int
