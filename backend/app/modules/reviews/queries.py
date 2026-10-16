@@ -1,11 +1,11 @@
-"""Public SQL read contract for other modules; owns the baseline ratings view."""
+"""Public SQL read contract for other modules; owns the shared ratings view."""
 
 from sqlalchemy import BigInteger, Numeric, column, table
 from sqlalchemy.sql.selectable import TableClause
 
 
 def public_ratings() -> TableClause:
-    """Published reviews only; no reviewer identity or moderation data is exposed."""
+    """Published counts are retained; averages are NULL below three published reviews."""
     return table(
         "vw_asilos_calificacion",
         column("codigo_asilo", BigInteger),

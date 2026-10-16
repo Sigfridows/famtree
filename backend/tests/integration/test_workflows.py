@@ -480,7 +480,7 @@ async def test_review_edits_reputation_and_discard(workflow: Workflow) -> None:
         )
         assert stats.status_code == 200, stats.text
         assert stats.json()["summary"] == {
-            "average": 4.0,
+            "average": None,
             "count": 1,
             "distribution": {"1": 0, "2": 0, "3": 0, "4": 1, "5": 0},
         }

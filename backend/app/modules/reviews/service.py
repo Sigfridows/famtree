@@ -11,6 +11,7 @@ from app.db.types import EstadoReporte, EstadoResena, MotivoReporte
 from app.modules.asylums.access import CenterAccess
 from app.modules.notifications import NotificationService
 from app.modules.reviews.models import ModerationDecision, ReporteResena, Resena
+from app.modules.reviews.queries import public_ratings
 from app.modules.reviews.repository import ReviewRepository
 from app.modules.reviews.schemas import (
     ModerateReport,
@@ -323,7 +324,12 @@ class ReviewService:
         ).all()
         counts: dict[int, int] = dict(count_rows)  # type: ignore[arg-type]
         count = sum(counts.values())
-        average = round(sum(k * v for k, v in counts.items()) / count, 1) if count else 0.0
+        # Reuse the database eligibility rule used by catalog/filter/sort projections.
+        ratings = public_ratings()
+        published_average = await db.scalar(
+            select(ratings.c.calificacion_promedio).where(ratings.c.codigo_asilo == asylum_id)
+        )
+        average = round(float(published_average), 1) if published_average is not None else None
         if filters.rating:
             query = query.where(Resena.calificacion == filters.rating)
         if filters.q:
