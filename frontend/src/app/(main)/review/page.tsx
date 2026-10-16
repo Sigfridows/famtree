@@ -335,6 +335,11 @@ function ResenasContent() {
         )}
       </AnimatePresence>
 
+      {searchParams.get('asylumId') && !loading && <section aria-label="Resumen de calificaciones" className="mx-auto mb-4 max-w-7xl rounded-2xl border border-white/10 bg-zinc-900 p-4 text-sm">
+        <h2 className="font-bold">Calificaciones de {centerTitle}</h2>
+        <p>{normalizedReviews.length ? `${(normalizedReviews.reduce((sum, review) => sum + review.rating, 0) / normalizedReviews.length).toFixed(1)} de 5 · ${normalizedReviews.length} reseñas` : 'Este centro todavía no tiene reseñas.'}</p>
+        {[5,4,3,2,1].map(stars => <div key={stars} className="flex items-center gap-3"><span>{stars} estrellas</span><meter min={0} max={Math.max(1, normalizedReviews.length)} value={normalizedReviews.filter(review => Math.round(review.rating) === stars).length} /><span>{normalizedReviews.filter(review => Math.round(review.rating) === stars).length}</span></div>)}
+      </section>}
       {/* Encabezado */}
       <header className="pt-0 flex flex-col lg:flex-row items-center justify-between gap-4 max-w-7xl mx-auto relative z-20">
         <div className="w-full lg:flex-1">
