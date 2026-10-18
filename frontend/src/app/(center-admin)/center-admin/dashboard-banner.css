@@ -1,0 +1,13 @@
+/* Outrank global admin heading rules without changing other panels. */
+.admin-app .center-dashboard-banner h1,
+.center-dashboard-banner h1 {
+  color: #ffffff;
+}
+.admin-app .center-dashboard-banner p,
+.center-dashboard-banner p {
+  color: #d1fae5;
+}
+.admin-app .center-dashboard-banner span,
+.center-dashboard-banner span {
+  color: #a7f3d0;
+}

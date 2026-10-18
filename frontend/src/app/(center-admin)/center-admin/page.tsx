@@ -1,4 +1,5 @@
 "use client";
+import "./dashboard-banner.css";
 
 import { useEffect, useState } from "react";
 import RatingSummary from "@/features/asylums/components/RatingSummary";
@@ -40,7 +41,7 @@ export default function DashboardPage() {
   return (
     <div className="max-w-5xl space-y-6 pb-12">
       {/* Encabezado minimalista moderno */}
-      <div className="bg-linear-to-r from-[#062319] to-[#0a3526] p-6 rounded-2xl text-white shadow-sm border border-emerald-800/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="center-dashboard-banner bg-linear-to-r from-[#062319] to-[#0a3526] p-6 rounded-2xl text-white shadow-sm border border-emerald-800/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-1">
           <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-800/60">
             Panel de Administración
